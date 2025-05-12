@@ -1,0 +1,29 @@
+# eclipse
+bin
+*.launch
+.settings
+.metadata
+
+# idea
+out
+*.ipr
+*.iws
+*.iml
+.idea
+caches
+daemon
+wrapper
+native
+
+# gradle
+build
+.gradle
+logs
+
+# other
+eclipse
+run
+runs
+run-data
+
+repo
