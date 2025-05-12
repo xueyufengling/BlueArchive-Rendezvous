@@ -8,8 +8,11 @@ import ba.world.terrain.TerrainAdvantage;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import software.bernie.geckolib.animatable.GeoEntity;
+import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.animation.AnimatableManager.ControllerRegistrar;
 
-public class BaseStudentEntity extends Player {
+public class BaseStudentEntity extends Player implements GeoEntity {
 
 	AttackType attackType;
 	DefenseType defenseType;
@@ -30,5 +33,17 @@ public class BaseStudentEntity extends Player {
 	public boolean isCreative() {
 		// TODO Auto-generated method stub
 		return false;
+	}
+
+	@Override
+	public void registerControllers(ControllerRegistrar controllers) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public AnimatableInstanceCache getAnimatableInstanceCache() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

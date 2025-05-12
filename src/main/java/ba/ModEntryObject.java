@@ -2,7 +2,6 @@ package ba;
 
 import jvm.klass.ObjectManipulator;
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.javafmlmod.FMLModContainer;
