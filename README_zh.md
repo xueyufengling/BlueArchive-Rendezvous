@@ -1,8 +1,8 @@
 [English](README.md)
 # 蔚蓝档案：重逢
-##介绍
+## 介绍
 本Minecraft模组为[蔚蓝档案](https://bluearchive.nexon.com)的同人作品，用心制作.<br>
-##许可
+## 许可
 本项目遵循以[AGPL-3.0](https://www.gnu.org/licenses/agpl-3.0.html)为基础的["Commons Clause" License](https://commonsclause.com/)许可.<br>
 简而言之，以下条款是强制性的：<br>
 1. 任何人都有权利免费获取本模组的源代码，并且那些发布本模组的二进制文件或提供基于本mod功能的服务（例如搭建服务器）的人有义务提供源代码。<br>

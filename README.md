@@ -1,9 +1,9 @@
 [中文](README_zh.md)
 <br>
 # BlueArchive: Rendezvous
-##Introduction
+## Introduction
 This Minecraft mod is a communal fan fiction for [BlueArchive](https://bluearchive.nexon.com), made with love.<br>
-##Liscense
+## Liscense
 This project follows ["Commons Clause" License](https://commonsclause.com/) with [AGPL-3.0](https://www.gnu.org/licenses/agpl-3.0.html).<br>
 In conclusion, following rules are mandatory:<br>
 1. Everyone has the right to obtain the mod source code for free, and those who publish the binary files of this mod or provide services based on this mod's function(eg. set up a server with this mod) are obliged to provide the source code.<br>
