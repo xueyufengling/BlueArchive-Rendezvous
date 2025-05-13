@@ -14,7 +14,7 @@ public class ModEntryObject {
 
 	public static final IEventBus ModBus = null;
 
-	public ModEntryObject(FMLModContainer container, IEventBus modBus) {
+	public ModEntryObject(FMLModContainer container, IEventBus modBus) { 
 		ObjectManipulator.setObject(this.getClass(), "ModBus", modBus);// 设置ModBus
 	}
 
