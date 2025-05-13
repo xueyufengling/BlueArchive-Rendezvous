@@ -5,7 +5,7 @@
 &ensp;&ensp;  This project follows [Commons Clause License](https://commonsclause.com/) with [AGPL-3.0](https://www.gnu.org/licenses/agpl-3.0.html).<br>
 
 ### Precautions
-&ensp;&ensp;  In conclusion, following rules are mandatory:<br>
+&ensp;  In conclusion, following rules are mandatory:<br>
   1. Everyone has the right to obtain the mod source code for free, and those who publish the binary files of this mod or provide services based on this mod's function(eg. set up a server with this mod) are obliged to provide the source code.<br>
   2. Anyone who has referenced this project as dependency, or modified this project, will be enforced to open their source code to the public, and the code must be released under the same license as this project([Commons Clause License with AGPL-3.0](LICENSE.txt)).<br>
   3. This is **NOT** a [open-source](https://opensource.org/osd) project, anyone **CANNOT** use this mod for any direct commercial purposes, including but not limited to:<br>
