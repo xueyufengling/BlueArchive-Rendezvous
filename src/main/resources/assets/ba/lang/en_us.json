@@ -1,5 +1,6 @@
 {
-  "itemGroup.examplemod": "Example Mod Tab",
-  "block.examplemod.example_block": "Example Block",
-  "item.examplemod.example_item": "Example Item"
+  "itemGroup.ba.items": "Blue Archive: Items",
+  "itemGroup.ba.blocks": "Blue Archive: Blocks",
+  "block.ba.example_block": "Example Block",
+  "item.ba.example_item": "Example Item"
 }
