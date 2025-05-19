@@ -1,26 +1,28 @@
 package ba.core;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.IdentityHashMap;
 
-import ba.ModEntryObject;
+import jvm.klass.KlassWalker;
 import jvm.klass.ObjectManipulator;
+import jvm.lang.Reflection;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess.Frozen;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.level.block.Block;
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
-@EventBusSubscriber(modid = ModEntryObject.ModId)
+@EventBusSubscriber(modid = Core.ModId)
 public class RegistryFactory {
 	public static final Frozen registryAccess = null;
 
@@ -31,12 +33,13 @@ public class RegistryFactory {
 	 * @return
 	 */
 	public static ResourceLocation resourceLocation(String loc) {
-		return ResourceLocation.fromNamespaceAndPath(ModEntryObject.ModId, loc);
+		return ResourceLocation.fromNamespaceAndPath(Core.ModId, loc);
 	}
 
-	public static final DeferredRegister<Block> BLOCK = deferredRegister(BuiltInRegistries.BLOCK);
-	public static final DeferredRegister<Item> ITEM = deferredRegister(BuiltInRegistries.ITEM);
-	//public static final DeferredRegister<DimensionType> DIMENSION_TYPE = deferredRegister(Registries.DIMENSION_TYPE);
+	public static final DeferredRegister.Blocks BLOCK = deferredBlocksRegister();
+	public static final DeferredRegister.Items ITEM = deferredItemsRegister();
+	public static final DeferredRegister<CreativeModeTab> CREATIVE_TABS = deferredRegister(Registries.CREATIVE_MODE_TAB);
+	public static final DeferredRegister<DimensionType> DIMENSION_TYPE = deferredRegister(Registries.DIMENSION_TYPE);
 
 	/**
 	 * 获取注册表，该表里的条目会自动注册到ModBus
@@ -46,13 +49,56 @@ public class RegistryFactory {
 	 * @return
 	 */
 	public static <T> DeferredRegister<T> deferredRegister(Registry<T> registry) {
-		DeferredRegister<T> deferredRegister = DeferredRegister.create(registry, ModEntryObject.ModId);
-		deferredRegister.register(ModEntryObject.ModBus);
+		DeferredRegister<T> deferredRegister = DeferredRegister.create(registry, Core.ModId);
 		return deferredRegister;
 	}
 
 	public static <T> DeferredRegister<T> deferredRegister(ResourceKey<? extends Registry<T>> resource_key) {
-		return deferredRegister(getRegistry(resource_key));
+		DeferredRegister<T> deferredRegister = DeferredRegister.create(resource_key, Core.ModId);
+		return deferredRegister;
+	}
+
+	public static DeferredRegister.Items deferredItemsRegister() {
+		DeferredRegister.Items deferredRegister = DeferredRegister.createItems(Core.ModId);
+		return deferredRegister;
+	}
+
+	public static DeferredRegister.Blocks deferredBlocksRegister() {
+		DeferredRegister.Blocks deferredRegister = DeferredRegister.createBlocks(Core.ModId);
+		return deferredRegister;
+	}
+
+	private static Field DeferredRegister_f_registeredEventBus = Reflection.getField(DeferredRegister.class, "registeredEventBus");
+
+	/**
+	 * 注册目标类中的所有静态DeferredRegister成员
+	 * 
+	 * @param registryFactory 目标类
+	 * @param modBus
+	 */
+	@SuppressWarnings("rawtypes")
+	public static void registerAll(Class<?> registryFactory, IEventBus modBus) {
+		KlassWalker.walkFields(registryFactory, (Field f, boolean isStatic, Object value) -> {
+			// 判断目标是否是静态字段，以及目标字段是否可以赋值给DeferredRegister（即目标字段是否是DeferredRegister类或其子类）
+			if (value != null && DeferredRegister.class.isAssignableFrom(f.getType())) {
+				DeferredRegister register = (DeferredRegister) value;
+				if (!(boolean) ObjectManipulator.access(register, DeferredRegister_f_registeredEventBus))
+					register.register(modBus);
+			}
+		});
+	}
+
+	/**
+	 * 注册本类中的所有DeferredRegister
+	 * 
+	 * @param modBus
+	 */
+	public static void registerAll(IEventBus modBus) {
+		registerAll(RegistryFactory.class, modBus);
+	}
+
+	static void registerAll() {
+		registerAll(Core.ModBus);
 	}
 
 	public static <R, T extends R> DeferredHolder<R, T> register(DeferredRegister<R> registry, String registerName, T obj) {
@@ -121,4 +167,5 @@ public class RegistryFactory {
 	public static void onServerStartup(ServerStartingEvent event) {
 		ObjectManipulator.setObject(RegistryFactory.class, "registryAccess", event.getServer().registryAccess());
 	}
+
 }
