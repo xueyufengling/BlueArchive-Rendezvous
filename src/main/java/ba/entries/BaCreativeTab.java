@@ -9,7 +9,7 @@ public enum BaCreativeTab implements ExtCreativeTab, ExtLangProvider {
 	BA_CURRENCY(Id.BA_CURRENCY, "gem"),
 
 	@LangDatagen(en_us = "Blue Archive Materials", zh_cn = "蔚蓝档案材料")
-	BA_MATERIALS(Id.BA_MATERIALS, "gem"),
+	BA_MATERIALS(Id.BA_MATERIALS, "ether_3"),
 
 	@LangDatagen(en_us = "Blue Archive Blocks", zh_cn = "蔚蓝档案方块")
 	BA_BLOCKS(Id.BA_BLOCKS, ""),
