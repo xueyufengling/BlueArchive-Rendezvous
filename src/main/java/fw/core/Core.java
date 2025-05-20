@@ -1,4 +1,4 @@
-package ba.core;
+package fw.core;
 
 import ba.ModEntryObject;
 import jvm.klass.ObjectManipulator;

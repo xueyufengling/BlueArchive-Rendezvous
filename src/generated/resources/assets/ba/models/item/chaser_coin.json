@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "ba:item/currency/gem"
+    "layer0": "ba:item/currency/chaser_coin"
   }
 }

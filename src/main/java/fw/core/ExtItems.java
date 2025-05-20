@@ -1,4 +1,4 @@
-package ba.core;
+package fw.core;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -8,7 +8,7 @@ import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.registries.DeferredItem;
 
 public class ExtItems {
-	public static final ArrayList<Class<? extends ExtItems>> itemsClasses = new ArrayList<>();
+	static final ArrayList<Class<? extends ExtItems>> itemsClasses = new ArrayList<>();
 
 	private static final HashMap<String, DeferredItem<Item>> itemsMap = new HashMap<>();
 

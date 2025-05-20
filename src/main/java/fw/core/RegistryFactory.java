@@ -1,4 +1,4 @@
-package ba.core;
+package fw.core;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;

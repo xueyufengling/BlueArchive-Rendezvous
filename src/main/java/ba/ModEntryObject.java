@@ -4,7 +4,8 @@ import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
 
-import ba.core.Core;
+import fw.core.Core;
+import fw.datagen.ExtDataGenerator;
 import jvm.filesystem.KlassPath;
 import jvm.filesystem.jar.JarKlassLoader;
 import jvm.klass.KlassLoader;
@@ -22,6 +23,7 @@ public class ModEntryObject {
 
 	static {
 		loadLibrary();
+		ExtDataGenerator.genLangs("en_us", "zh_cn");
 	}
 
 	public static void loadLibrary() {

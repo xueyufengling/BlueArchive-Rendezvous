@@ -1,0 +1,18 @@
+{
+  "item.ba.arena_coin": "战术奖币",
+  "item.ba.chaser_coin": "悬赏通缉奖币",
+  "item.ba.eliminate_raid_coin": "﻿大决战奖币",
+  "item.ba.eliminate_raid_coin_high": "高级大决战奖币",
+  "item.ba.gem": "青辉石",
+  "item.ba.gold": "信用积分",
+  "item.ba.master_coin": "熟练证书",
+  "item.ba.raid_coin": "总力战奖币",
+  "item.ba.raid_coin_high": "高级总力战奖币",
+  "item.ba.secret_stone": "神名精髓",
+  "item.ba.time_attack_coin": "战术考试奖币",
+  "itemGroup.ba.blocks": "蔚蓝档案方块",
+  "itemGroup.ba.currency": "蔚蓝档案货币",
+  "itemGroup.ba.equipments": "蔚蓝档案装备",
+  "itemGroup.ba.materials": "蔚蓝档案材料",
+  "itemGroup.ba.weapons": "蔚蓝档案武器"
+}

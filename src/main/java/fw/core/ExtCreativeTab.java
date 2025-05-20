@@ -1,4 +1,4 @@
-package ba.core;
+package fw.core;
 
 import java.util.ArrayList;
 import java.util.HashMap;

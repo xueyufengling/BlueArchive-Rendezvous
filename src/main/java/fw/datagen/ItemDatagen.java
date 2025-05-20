@@ -1,10 +1,10 @@
-package ba.core.datagen;
+package fw.datagen;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Datagen {
+public @interface ItemDatagen {
 	/**
 	 * 注册条目名称
 	 * 
@@ -17,5 +17,7 @@ public @interface Datagen {
 	 * 
 	 * @return
 	 */
-	String type() default "basic";
+	String type() default "generated";
+
+	String path() default "";
 }

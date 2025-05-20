@@ -1,0 +1,18 @@
+{
+  "item.ba.arena_coin": "Arena Coin",
+  "item.ba.chaser_coin": "Chaser Coin",
+  "item.ba.eliminate_raid_coin": "Great Coin",
+  "item.ba.eliminate_raid_coin_high": "Rare Great Coin",
+  "item.ba.gem": "Pyroxene",
+  "item.ba.gold": "Credit",
+  "item.ba.master_coin": "Mastery Certificate",
+  "item.ba.raid_coin": "Total War Coin",
+  "item.ba.raid_coin_high": "Rare Coin",
+  "item.ba.secret_stone": "Divine Fragment",
+  "item.ba.time_attack_coin": "Firepower Exercise Coin",
+  "itemGroup.ba.blocks": "Blue Archive Blocks",
+  "itemGroup.ba.currency": "Blue Archive Currency",
+  "itemGroup.ba.equipments": "Blue Archive Equipments",
+  "itemGroup.ba.materials": "Blue Archive Materials",
+  "itemGroup.ba.weapons": "Blue Archive Weapons"
+}
