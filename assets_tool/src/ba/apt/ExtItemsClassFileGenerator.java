@@ -10,30 +10,41 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-public class ItemsClassFileGenerator {
+public class ExtItemsClassFileGenerator {
 
 	/**
 	 * 材质拓展名，根据材质创建Java源文件中的字段
 	 */
 	public static final String texture_type = ".png";
-	public static final String texture_path_prefix = "BaCreativeTab.Id.BA_";
-	public static final String creative_tab_prefix = "BaCreativeTab.BA_";
 
-	public static final String generated_class_prefix = "Ba";
+	public static String texture_path_prefix = "BaCreativeTab.Id.BA_";
+	public static String creative_tab_prefix = "BaCreativeTab.BA_";
+
+	public static String generated_class_prefix = "Ba";
+	public static String generated_class_package = "ba.entries.items";
+	public static String[] generated_class_imports = new String[] { "ba.entries.BaCreativeTab" };
 
 	/**
 	 * 生成的物品类的前缀
 	 */
 
-	public static void generateItemsClassFile(String start_path, String class_name, String tex_path, String creative_tab, String output_dir) {
+	public static void generateItemsClassFile(String start_path, String class_name, String class_package, String[] imports, String tex_path, String creative_tab, String itemGetter, String output_dir) {
 		try {
 			List<String> textures = listAllTextureNames(start_path);
 			String generated_class_name = generated_class_prefix + class_name;
-			List<String> lines = generateJavaCode(generated_class_name, tex_path, creative_tab, textures);
+			List<String> lines = generateJavaCode(class_package, imports, generated_class_name, tex_path, creative_tab, itemGetter, textures);
 			writeToFile(output_dir + File.separatorChar + generated_class_name + ".java", lines);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	public static void generateItemsClassFile(String start_path, String class_name, String class_package, String[] imports, String tex_path, String creative_tab, String output_dir) {
+		generateItemsClassFile(start_path, class_name, class_package, imports, tex_path, creative_tab, null, output_dir);
+	}
+
+	public static void generateItemsClassFile(String start_path, String class_name, String tex_path, String creative_tab, String output_dir) {
+		generateItemsClassFile(start_path, class_name, generated_class_package, generated_class_imports, tex_path, creative_tab, output_dir);
 	}
 
 	public static void generateItemsClassFile(String start_path, String class_name, String output_dir) {
@@ -72,19 +83,19 @@ public class ItemsClassFileGenerator {
 		return result.trim();
 	}
 
-	private static List<String> generateJavaCode(String class_name, String tex_path, String creative_tab, List<String> textures) {
+	private static List<String> generateJavaCode(String class_package, String[] imports, String class_name, String tex_path, String creative_tab, String itemGetter, List<String> textures) {
 		List<String> lines = new ArrayList<>();
-		lines.add("package ba.entries.items;\r\n"
+		lines.add("package " + class_package + ";\r\n"
 				+ "\r\n"
-				+ "import ba.entries.BaCreativeTab;\r\n"
 				+ "import fw.core.ExtItems;\r\n"
 				+ "import fw.datagen.ExtLangProvider;\r\n"
 				+ "import fw.datagen.ItemDatagen;\r\n"
 				+ "import fw.datagen.LangDatagen;\r\n"
 				+ "import net.minecraft.world.item.Item;\r\n"
-				+ "import net.neoforged.neoforge.registries.DeferredItem;\r\n"
-				+ "\r\n"
-				+ "public class " + class_name + " extends ExtItems implements ExtLangProvider {\r\n"
+				+ "import net.neoforged.neoforge.registries.DeferredItem;\r\n");
+		for (String imp : imports)
+			lines.add("import " + imp + ";\r\n");
+		lines.add("public class " + class_name + " extends ExtItems implements ExtLangProvider {\r\n"
 				+ "\r\n"
 				+ "	static {\r\n"
 				+ "		ExtItems.forDatagen(" + class_name + ".class);\r\n"
@@ -96,7 +107,7 @@ public class ItemsClassFileGenerator {
 		for (String tex : textures)
 			lines.add("	@LangDatagen(en_us = \"" + toEnglishWord(tex) + "\", zh_cn = \"\")\r\n"
 					+ "	@ItemDatagen(name = \"" + tex + "\", path = resourcePath)\r\n"
-					+ "	public static final DeferredItem<Item> " + tex + " = register(\"" + tex + "\", " + creative_tab + ");"
+					+ "	public static final DeferredItem<Item> " + tex + " = register(\"" + tex + "\"" + (creative_tab == null ? "" : ", " + creative_tab) + (itemGetter == null ? "" : ", " + itemGetter) + ");"
 					+ "\r\n");
 		lines.add("}");
 		return lines;

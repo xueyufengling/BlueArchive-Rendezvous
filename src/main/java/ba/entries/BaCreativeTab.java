@@ -5,22 +5,22 @@ import fw.datagen.ExtLangProvider;
 import fw.datagen.LangDatagen;
 
 public enum BaCreativeTab implements ExtCreativeTab, ExtLangProvider {
-	@LangDatagen(en_us = "Blue Archive Currency", zh_cn = "蔚蓝档案 货币")
+	@LangDatagen(en_us = "BlueArchive Currency", zh_cn = "蔚蓝档案 货币")
 	BA_CURRENCY(Id.BA_CURRENCY, "gem"),
 
-	@LangDatagen(en_us = "Blue Archive Materials", zh_cn = "蔚蓝档案 材料")
+	@LangDatagen(en_us = "BlueArchive Materials", zh_cn = "蔚蓝档案 材料")
 	BA_MATERIALS(Id.BA_MATERIALS, "ether_3"),
 
-	@LangDatagen(en_us = "Blue Archive Blocks", zh_cn = "蔚蓝档案 方块")
+	@LangDatagen(en_us = "BlueArchive Blocks", zh_cn = "蔚蓝档案 方块")
 	BA_BLOCKS(Id.BA_BLOCKS, ""),
 
-	@LangDatagen(en_us = "Blue Archive Weapons", zh_cn = "蔚蓝档案 武器")
+	@LangDatagen(en_us = "BlueArchive Weapons", zh_cn = "蔚蓝档案 武器")
 	BA_WEAPONS(Id.BA_WEAPONS, ""),
 
-	@LangDatagen(en_us = "Blue Archive Equipments", zh_cn = "蔚蓝档案 装备")
+	@LangDatagen(en_us = "BlueArchive Equipments", zh_cn = "蔚蓝档案 装备")
 	BA_EQUIPMENTS(Id.BA_EQUIPMENTS, "bag_tier5"),
 
-	@LangDatagen(en_us = "Blue Archive Skill Books", zh_cn = "蔚蓝档案 技能书")
+	@LangDatagen(en_us = "BlueArchive Skill Books", zh_cn = "蔚蓝档案 技能书")
 	BA_SKILLBOOKS(Id.BA_SKILLBOOKS, "skillbook_selection_3");
 
 	public final ExtCreativeTab.Definition definition;

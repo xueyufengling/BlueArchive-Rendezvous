@@ -31,12 +31,16 @@ public class ModEntryObject {
 		JarKlassLoader.loadKlass("/libs/CommonUtils.jar");
 	}
 
+	public static void registerEntries() {
+		KlassLoader.loadKlass("ba.entries", true);// 强制加载并初始化未使用的类
+	}
+
 	public ModEntryObject(FMLModContainer container, IEventBus modBus) {
 		// 打印调试信息
 		Logger.info("Running on PID " + VmManipulator.getProcessId());
 		Logger.info("Mod located at " + KlassPath.getKlassPath());
 		Core.init(container, modBus);
-		KlassLoader.loadKlass("ba.entries", true);// 强制加载并初始化未使用的类
+		registerEntries();
 
 		rmVanillaFeatures();
 	}
