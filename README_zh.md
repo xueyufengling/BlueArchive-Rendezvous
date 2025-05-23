@@ -34,7 +34,7 @@
 
 3. 不进行任何形式的盈利并通过许可阻止他人的盈利行为。<br>
 
-    此外，本模组的代码主要依赖于[JvmManipulator](https://github.com/xueyufengling/JvmManipulator)和[CoreFramework](https://github.com/xueyufengling/BlueArchive-Rendezvous/tree/main/src/main/java/fw)实现，这些库不涉及具体的模组逻辑，仅作为模组开发的工具而引入，其源代码由开发者享有完全的知识产权并按照相关的许可进行分发，不会因为任何外部因素删除。
+    此外，本模组的代码主要依赖于[Lyra](https://github.com/xueyufengling/Lyra)和[CoreFramework](https://github.com/xueyufengling/BlueArchive-Rendezvous/tree/main/src/main/java/fw)实现，这些库不涉及具体的模组逻辑，仅作为模组开发的工具而引入，其源代码由开发者享有完全的知识产权并按照相关的许可进行分发，不会因为任何外部因素删除。
 
 ## 介绍
 

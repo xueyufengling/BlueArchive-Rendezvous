@@ -34,7 +34,7 @@
 
 3. Do not make any form of profit and prevent others from making profits through licensing. <br>
 
-    In addition, the code of this mod mainly relies on [JvmManipulator](https://github.com/xueyufengling/JvmManipulator) and [CoreFramework](https://github.com/xueyufengling/BlueArchive-Rendezvous/tree/main/src/main/java/fw) for implementation. These libraries do not involve specific mod logic and are only introduced as utilities for mod development. The source code is fully owned by the developer and distributed in accordance with relevant licenses. It will not be deleted due to any external factors.
+    In addition, the code of this mod mainly relies on [Lyra](https://github.com/xueyufengling/Lyra) and [CoreFramework](https://github.com/xueyufengling/BlueArchive-Rendezvous/tree/main/src/main/java/fw) for implementation. These libraries do not involve specific mod logic and are only introduced as utilities for mod development. The source code is fully owned by the developer and distributed in accordance with relevant licenses. It will not be deleted due to any external factors.
 
 ## Introduction
 

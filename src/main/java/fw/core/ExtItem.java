@@ -3,7 +3,7 @@ package fw.core;
 import java.lang.reflect.Field;
 
 import fw.datagen.ItemDatagen;
-import jvm.klass.KlassWalker;
+import lyra.klass.KlassWalker;
 import net.minecraft.data.PackOutput;
 import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.client.model.generators.ItemModelBuilder;

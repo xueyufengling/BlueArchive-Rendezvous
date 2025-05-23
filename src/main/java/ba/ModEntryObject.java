@@ -6,10 +6,10 @@ import com.mojang.logging.LogUtils;
 
 import fw.core.Core;
 import fw.datagen.ExtDataGenerator;
-import jvm.filesystem.KlassPath;
-import jvm.filesystem.jar.JarKlassLoader;
-import jvm.klass.KlassLoader;
-import jvm.vm.VmManipulator;
+import lyra.filesystem.KlassPath;
+import lyra.filesystem.jar.JarKlassLoader;
+import lyra.klass.KlassLoader;
+import lyra.vm.VmManipulator;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.javafmlmod.FMLModContainer;

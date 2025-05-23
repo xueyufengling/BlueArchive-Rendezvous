@@ -3,7 +3,7 @@ package fw.datagen;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-import jvm.klass.ObjectManipulator;
+import lyra.klass.ObjectManipulator;
 
 @Retention(RetentionPolicy.RUNTIME)
 public @interface LangDatagen {

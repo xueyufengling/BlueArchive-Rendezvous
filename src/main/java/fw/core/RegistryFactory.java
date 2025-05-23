@@ -1,12 +1,11 @@
 package fw.core;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.util.IdentityHashMap;
 
-import jvm.klass.KlassWalker;
-import jvm.klass.ObjectManipulator;
-import jvm.lang.Reflection;
+import lyra.klass.KlassWalker;
+import lyra.klass.ObjectManipulator;
+import lyra.lang.Reflection;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess.Frozen;
 import net.minecraft.core.registries.Registries;

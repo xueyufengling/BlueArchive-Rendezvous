@@ -7,7 +7,7 @@ import java.util.Map.Entry;
 
 import fw.core.Core;
 import fw.core.Localizable;
-import jvm.klass.KlassWalker;
+import lyra.klass.KlassWalker;
 import net.minecraft.data.PackOutput;
 import net.neoforged.neoforge.common.data.LanguageProvider;
 import net.neoforged.neoforge.registries.DeferredHolder;

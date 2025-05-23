@@ -1,7 +1,7 @@
 package fw.core;
 
 import ba.ModEntryObject;
-import jvm.klass.ObjectManipulator;
+import lyra.klass.ObjectManipulator;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.javafmlmod.FMLModContainer;
 

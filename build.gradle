@@ -148,7 +148,7 @@ dependencies {
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
     implementation "software.bernie.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}"
-    implementation files("libs/JvmManipulator.jar")
+    implementation files("libs/Lyra.jar")
     implementation files("libs/CommonUtils.jar")
 }
 
