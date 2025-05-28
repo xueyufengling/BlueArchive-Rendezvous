@@ -1,4 +1,4 @@
-package fw.core;
+package fw.datagen;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;

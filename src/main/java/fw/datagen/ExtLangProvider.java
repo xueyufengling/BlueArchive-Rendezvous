@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.Map.Entry;
 
 import fw.core.Core;
-import fw.core.Localizable;
 import lyra.klass.KlassWalker;
 import net.minecraft.data.PackOutput;
 import net.neoforged.neoforge.common.data.LanguageProvider;

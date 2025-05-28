@@ -1,10 +1,10 @@
 package ba.entries.items;
 
 import ba.entries.BaCreativeTab;
-import fw.core.ExtItems;
 import fw.datagen.ExtLangProvider;
 import fw.datagen.ItemDatagen;
 import fw.datagen.LangDatagen;
+import fw.entries.ExtItems;
 import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.registries.DeferredItem;
 
@@ -57,7 +57,7 @@ public class BaCurrency extends ExtItems implements ExtLangProvider {
 	@ItemDatagen(name = "secret_stone", path = resourcePath)
 	public static final DeferredItem<Item> secret_stone = register("secret_stone", BaCreativeTab.BA_CURRENCY);
 
-	@LangDatagen(en_us = "Firepower Exercise Coin", zh_cn = "战术考试奖币")
+	@LangDatagen(en_us = "Firepower Exercise Coin", zh_cn = "综合战术测试奖币")
 	@ItemDatagen(name = "time_attack_coin", path = resourcePath)
 	public static final DeferredItem<Item> time_attack_coin = register("time_attack_coin", BaCreativeTab.BA_CURRENCY);
 }

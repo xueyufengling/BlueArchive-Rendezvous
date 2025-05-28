@@ -1,10 +1,10 @@
 package ba.entries.items;
 
 import ba.entries.BaCreativeTab;
-import fw.core.ExtItems;
 import fw.datagen.ExtLangProvider;
 import fw.datagen.ItemDatagen;
 import fw.datagen.LangDatagen;
+import fw.entries.ExtItems;
 import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.registries.DeferredItem;
 

@@ -3,7 +3,7 @@ package fw.datagen;
 import java.util.ArrayList;
 
 import fw.core.Core;
-import fw.core.ExtItem;
+import fw.entries.ExtItem;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -27,8 +27,9 @@ public class ExtDataGenerator {
 	}
 
 	public static final void genLang(String lang) {
-		if (!genLangs.contains(lang))
-			genLangs.add(lang);
+		String formatLang = lang.toLowerCase();
+		if (!genLangs.contains(formatLang))
+			genLangs.add(formatLang);
 	}
 
 	public static final void genLangs(String... langs) {

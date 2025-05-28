@@ -1,8 +1,10 @@
-package fw.core;
+package fw.entries;
 
 import java.lang.reflect.Field;
 
+import fw.core.Core;
 import fw.datagen.ItemDatagen;
+import fw.datagen.Localizable;
 import lyra.klass.KlassWalker;
 import net.minecraft.data.PackOutput;
 import net.minecraft.world.item.Item;

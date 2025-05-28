@@ -127,36 +127,42 @@ public class RegistryFactory {
 	}
 
 	/**
+	 * 获取注册表
+	 * 
 	 * @param <T>
 	 * @param resource_key
 	 * @return
+	 * @since 1.21
 	 */
 	public static <T> Registry<T> getRegistry(ResourceKey<? extends Registry<T>> resource_key) {
 		return registryAccess.registryOrThrow(resource_key);
 	}
 
 	/**
-	 * 解冻注册表冻结以注册，不记录入is_registrise_frozen，因此尽量不要使用
+	 * 解冻注册表冻结以注册
 	 * 
 	 * @return 操作是否成功
+	 * @since 1.21
 	 */
 	public static <T> boolean unfreezeRegistry(Registry<T> registry) {
-		return ObjectManipulator.setBoolean(registry, "net.minecraft.core.MappedRegistry.frozen", false) && ObjectManipulator.setObject(registry, "net.minecraft.core.MappedRegistry.unregisteredIntrusiveHolders", new IdentityHashMap<>());
+		return ObjectManipulator.setBoolean(registry, "frozen", false) && ObjectManipulator.setObject(registry, "unregisteredIntrusiveHolders", new IdentityHashMap<>());
 	}
 
 	/**
-	 * 解冻注册表冻结以注册，并记录入is_registrise_frozen，应当总是使用该方法解冻注册表
+	 * 解冻注册表冻结以注册
 	 * 
 	 * @return 操作是否成功
+	 * @since 1.21
 	 */
 	public static <T> boolean unfreezeRegistry(ResourceKey<? extends Registry<T>> resource_key) {
 		return unfreezeRegistry(getRegistry(resource_key));
 	}
 
 	/**
-	 * 冻结注册表，并记录入is_registrise_frozen
+	 * 冻结注册表
 	 * 
 	 * @return
+	 * @since 1.21
 	 */
 	public static <T> void freezeRegistry(Registry<T> registry) {
 		registry.freeze();

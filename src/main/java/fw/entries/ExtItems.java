@@ -1,9 +1,10 @@
-package fw.core;
+package fw.entries;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.function.Function;
 
+import fw.core.RegistryFactory;
 import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.registries.DeferredItem;
 
