@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import fw.core.Core;
-import fw.core.RegistryFactory;
+import fw.core.registry.RegistryFactory;
 import fw.datagen.Localizable;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;

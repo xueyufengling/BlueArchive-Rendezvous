@@ -1,30 +1,22 @@
-package fw.core;
+package fw.core.registry;
 
 import java.lang.reflect.Field;
-import java.util.IdentityHashMap;
 
+import fw.core.Core;
 import lyra.klass.KlassWalker;
 import lyra.klass.ObjectManipulator;
 import lyra.lang.Reflection;
 import net.minecraft.core.Registry;
-import net.minecraft.core.RegistryAccess.Frozen;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.level.dimension.DimensionType;
-import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
-@EventBusSubscriber(modid = Core.ModId)
 public class RegistryFactory {
-	public static final Frozen registryAccess = null;
-
 	/**
 	 * 获取模组命名空间下的ResourceLocation
 	 * 
@@ -67,8 +59,6 @@ public class RegistryFactory {
 		return deferredRegister;
 	}
 
-	private static Field DeferredRegister_f_registeredEventBus = Reflection.getField(DeferredRegister.class, "registeredEventBus");
-
 	/**
 	 * 注册目标类中的所有静态DeferredRegister成员
 	 * 
@@ -81,7 +71,7 @@ public class RegistryFactory {
 			// 判断目标是否是静态字段，以及目标字段是否可以赋值给DeferredRegister（即目标字段是否是DeferredRegister类或其子类）
 			if (value != null && DeferredRegister.class.isAssignableFrom(f.getType())) {
 				DeferredRegister register = (DeferredRegister) value;
-				if (!(boolean) ObjectManipulator.access(register, DeferredRegister_f_registeredEventBus))
+				if (!(boolean) ObjectManipulator.access(register, "registeredEventBus"))
 					register.register(modBus);
 			}
 		});
@@ -96,7 +86,7 @@ public class RegistryFactory {
 		registerAll(RegistryFactory.class, modBus);
 	}
 
-	static void registerAll() {
+	public static void registerAll() {
 		registerAll(Core.ModBus);
 	}
 
@@ -125,52 +115,4 @@ public class RegistryFactory {
 			return null;
 		});
 	}
-
-	/**
-	 * 获取注册表
-	 * 
-	 * @param <T>
-	 * @param resource_key
-	 * @return
-	 * @since 1.21
-	 */
-	public static <T> Registry<T> getRegistry(ResourceKey<? extends Registry<T>> resource_key) {
-		return registryAccess.registryOrThrow(resource_key);
-	}
-
-	/**
-	 * 解冻注册表冻结以注册
-	 * 
-	 * @return 操作是否成功
-	 * @since 1.21
-	 */
-	public static <T> boolean unfreezeRegistry(Registry<T> registry) {
-		return ObjectManipulator.setBoolean(registry, "frozen", false) && ObjectManipulator.setObject(registry, "unregisteredIntrusiveHolders", new IdentityHashMap<>());
-	}
-
-	/**
-	 * 解冻注册表冻结以注册
-	 * 
-	 * @return 操作是否成功
-	 * @since 1.21
-	 */
-	public static <T> boolean unfreezeRegistry(ResourceKey<? extends Registry<T>> resource_key) {
-		return unfreezeRegistry(getRegistry(resource_key));
-	}
-
-	/**
-	 * 冻结注册表
-	 * 
-	 * @return
-	 * @since 1.21
-	 */
-	public static <T> void freezeRegistry(Registry<T> registry) {
-		registry.freeze();
-	}
-
-	@SubscribeEvent(priority = EventPriority.HIGHEST) // 最高优先级以获取注册表
-	public static void onServerStartup(ServerStartingEvent event) {
-		ObjectManipulator.setObject(RegistryFactory.class, "registryAccess", event.getServer().registryAccess());
-	}
-
 }

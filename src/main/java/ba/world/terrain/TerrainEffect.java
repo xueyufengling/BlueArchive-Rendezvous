@@ -1,6 +1,6 @@
 package ba.world.terrain;
 
-import fw.core.RegistryFactory;
+import fw.core.registry.RegistryFactory;
 import net.minecraft.resources.ResourceLocation;
 
 public enum TerrainEffect {
