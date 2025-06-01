@@ -3,7 +3,9 @@ package fw.datagen;
 import java.util.ArrayList;
 
 import fw.core.Core;
-import fw.entries.ExtItem;
+import fw.datagen.annotation.ItemDatagen;
+import fw.datagen.annotation.LangDatagen;
+import fw.datagen.annotation.RegistryDatagen;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -20,10 +22,13 @@ public class ExtDataGenerator {
 		DataGenerator generator = event.getGenerator();
 		PackOutput output = generator.getPackOutput();
 		ExistingFileHelper helper = event.getExistingFileHelper();
+		// 注册表内容生成
+		RegistryDatagen.RegistriesProvider registriesProvider = new RegistryDatagen.RegistriesProvider(output, event.getLookupProvider());
+		generator.addProvider(true, registriesProvider);
 		// 物品数据生成
-		generator.addProvider(event.includeClient(), new ExtItem.ModelProvider(output, helper));
+		generator.addProvider(event.includeClient(), new ItemDatagen.ModelProvider(output, helper));
 		for (String lang : genLangs)
-			generator.addProvider(event.includeClient(), new ExtLangProvider.LangProvider(output, lang));
+			generator.addProvider(event.includeClient(), new LangDatagen.LangProvider(output, lang));
 	}
 
 	public static final void genLang(String lang) {

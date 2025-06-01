@@ -1,37 +1,53 @@
-package fw.entries;
+package fw.datagen.annotation;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 
 import fw.core.Core;
-import fw.datagen.ItemDatagen;
-import fw.datagen.Localizable;
 import lyra.klass.KlassWalker;
+import lyra.lang.GenericTypes;
+import lyra.lang.Reflection;
 import net.minecraft.data.PackOutput;
 import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.client.model.generators.ItemModelBuilder;
 import net.neoforged.neoforge.client.model.generators.ItemModelProvider;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
+import net.neoforged.neoforge.registries.DeferredItem;
+import net.neoforged.neoforge.registries.DeferredRegister;
 
-/**
- * 没有任何功能的简单物品，通常是材料
- */
-public class ExtItem extends Item implements Localizable {
+@Retention(RetentionPolicy.RUNTIME)
+public @interface ItemDatagen {
+	/**
+	 * 注册条目名称
+	 * 
+	 * @return
+	 */
+	String name();
 
-	public ExtItem(Item.Properties properties) {
-		super(properties);
-	}
+	/**
+	 * 注册类型
+	 * 
+	 * @return
+	 */
+	String type() default "generated";
+
+	String path() default "";
 
 	public static class ModelProvider extends ItemModelProvider {
+		private static final ArrayList<Class<?>> itemsClasses = new ArrayList<>();
+
 		public ModelProvider(PackOutput output, ExistingFileHelper helper) {
 			super(output, Core.ModId, helper);
 		}
 
 		@Override
 		protected void registerModels() {
-			for (Class<? extends ExtItems> itemClass : ExtItems.itemsClasses)
+			for (Class<?> itemClass : itemsClasses)
 				KlassWalker.walkFields(itemClass, ItemDatagen.class, (Field f, boolean isStatic, Object value, ItemDatagen annotation) -> {
-					if (value != null) {
+					if (Reflection.is(f, DeferredItem.class) && value != null) {
 						switch (annotation.type()) {
 						case "generated":
 							asGeneratedItem(annotation.name(), annotation.path());
@@ -53,10 +69,15 @@ public class ExtItem extends Item implements Localizable {
 		private ItemModelBuilder asBlockItem(String registeredName, String path) {
 			return withExistingParent(registeredName, modLoc("block/" + path + '/' + registeredName));
 		}
-	}
 
-	@Override
-	public String localizationKey() {
-		return this.getDescriptionId();
+		/**
+		 * 注册数据生成
+		 * 
+		 * @param itemClass
+		 */
+		public static final void forDatagen(Class<?> itemClass) {
+			if (!itemsClasses.contains(itemClass))
+				itemsClasses.add(itemClass);
+		}
 	}
 }

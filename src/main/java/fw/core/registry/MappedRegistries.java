@@ -7,13 +7,45 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.dimension.DimensionType;
+import net.minecraft.world.level.dimension.LevelStem;
 
-public class MappedRegistryManipulator {
+/**
+ * 主要用作运行时修改注册表
+ */
+public class MappedRegistries {
+	@FunctionalInterface
+	public interface Operation<T> {
+		public void operate(MappedRegistry<T> registry);
+	}
+
 	public static final RegistryAccess.Frozen serverRegistryAccess = null;
 
 	public static final RegistryAccess.Frozen clientRegistryAccess() {
 		return Minecraft.getInstance().getConnection().registryAccess();
+	}
+
+	public static final MappedRegistry<DimensionType> DIMENSION_TYPE = null;
+	public static final MappedRegistry<Level> DIMENSION = null;
+	public static final MappedRegistry<LevelStem> LEVEL_STEM = null;
+
+	public static final void fetchRegistries(RegistryAccess.Frozen registryAccess) {
+		ObjectManipulator.setObject(MappedRegistries.class, "DIMENSION_TYPE", getUnfrozenRegistry(registryAccess, Registries.DIMENSION_TYPE));
+		ObjectManipulator.setObject(MappedRegistries.class, "DIMENSION", getUnfrozenRegistry(registryAccess, Registries.DIMENSION));
+		ObjectManipulator.setObject(MappedRegistries.class, "LEVEL_STEM", getUnfrozenRegistry(registryAccess, Registries.LEVEL_STEM));
+	}
+
+	public static final void fetchRegistries() {
+		fetchRegistries(serverRegistryAccess);
+	}
+
+	public static final void freezeRegistries() {
+		freezeRegistry(DIMENSION_TYPE);
+		freezeRegistry(DIMENSION);
+		freezeRegistry(LEVEL_STEM);
 	}
 
 	/**
@@ -28,6 +60,10 @@ public class MappedRegistryManipulator {
 		return registryAccess.registryOrThrow(resource_key);
 	}
 
+	public static <T> Registry<T> getRegistry(ResourceKey<? extends Registry<T>> resource_key) {
+		return getRegistry(serverRegistryAccess, resource_key);
+	}
+
 	/**
 	 * 获取解冻的注册表
 	 * 
@@ -39,21 +75,14 @@ public class MappedRegistryManipulator {
 		return unfreezeRegistry(getRegistry(registryAccess, resource_key));
 	}
 
-	/**
-	 * 操作注册表，自动解冻并在操作完成后冻结注册表
-	 * 
-	 * @param <T>
-	 * @param resource_key
-	 * @param op
-	 */
-	public static <T> void manipulate(RegistryAccess.Frozen registryAccess, ResourceKey<? extends Registry<T>> resource_key, MappedRegistryOperation<T> op) {
-		MappedRegistry<T> registry = getUnfrozenRegistry(registryAccess, resource_key);
+	public static <T> void manipulate(ResourceKey<? extends Registry<T>> resource_key, Operation<T> op) {
+		MappedRegistry<T> registry = getUnfrozenRegistry(serverRegistryAccess, resource_key);
 		op.operate(registry);
 		freezeRegistry(registry);
 	}
 
-	public static <T> void manipulate(ResourceKey<? extends Registry<T>> resource_key, MappedRegistryOperation<T> op) {
-		MappedRegistry<T> registry = getUnfrozenRegistry(serverRegistryAccess, resource_key);
+	public static <T> void manipulate(RegistryAccess.Frozen registryAccess, ResourceKey<? extends Registry<T>> resource_key, Operation<T> op) {
+		MappedRegistry<T> registry = getUnfrozenRegistry(registryAccess, resource_key);
 		op.operate(registry);
 		freezeRegistry(registry);
 	}

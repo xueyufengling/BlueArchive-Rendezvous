@@ -4,22 +4,24 @@ import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
 
+import ba.entries.BaDimensions;
 import fw.core.Core;
 import fw.core.ServerEntry;
-import fw.core.registry.MappedRegistryManipulator;
+import fw.core.registry.MappedRegistries;
 import fw.core.registry.MutableMappedRegistry;
 import fw.datagen.ExtDataGenerator;
 import lyra.filesystem.KlassPath;
 import lyra.filesystem.jar.JarKlassLoader;
+import lyra.klass.FieldReference;
 import lyra.klass.KlassLoader;
 import lyra.klass.ObjectHeader;
 import lyra.vm.Vm;
-import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
 import net.minecraft.world.level.dimension.DimensionType;
+import net.minecraft.world.level.dimension.LevelStem;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.javafmlmod.FMLModContainer;
@@ -54,15 +56,22 @@ public class ModEntryObject {
 		Core.init(container, modBus);
 		registerEntries();
 
-		ServerEntry.setServerCallback(ModEntryObject::rmVanillaFeatures);
+		redirectOverworld();
+		ServerEntry.setServerStartCallback(ModEntryObject::rmVanillaFeatures);
+	}
+
+	// 重定向主世界
+	public static void redirectOverworld() {
+		ServerEntry.delegateTempFieldRedirectors(
+				FieldReference.of(BuiltinDimensionTypes.class, "OVERWORLD", BaDimensions.KIVOTOS_TYPE.resourceKey),
+				FieldReference.of(Level.class, "OVERWORLD", BaDimensions.KIVOTOS_TYPE.resourceKey(Registries.DIMENSION)),
+				FieldReference.of(LevelStem.class, "OVERWORLD", BaDimensions.KIVOTOS_STEM.resourceKey));
 	}
 
 	public static void rmVanillaFeatures(MinecraftServer server) {
-		MappedRegistryManipulator.manipulate(Registries.DIMENSION_TYPE, (MappedRegistry<DimensionType> registry) -> {
-			MutableMappedRegistry<DimensionType> mutableRegistry = MutableMappedRegistry.from(registry);
-			mutableRegistry.deleteEntry(BuiltinDimensionTypes.NETHER, Level.class, "NETHER");// 删除地狱
-			mutableRegistry.deleteEntry(BuiltinDimensionTypes.END, Level.class, "END");// 删除末地
-		});
+		MutableMappedRegistry<DimensionType> mutableRegistry = MutableMappedRegistry.from(MappedRegistries.DIMENSION_TYPE);
+		mutableRegistry.deleteEntry(BuiltinDimensionTypes.NETHER, FieldReference.of(Level.class, "NETHER"));// 删除地狱
+		mutableRegistry.deleteEntry(BuiltinDimensionTypes.END, FieldReference.of(Level.class, "END"));// 删除末地
 	}
 
 }

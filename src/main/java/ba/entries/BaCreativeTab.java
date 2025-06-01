@@ -1,10 +1,9 @@
 package ba.entries;
 
-import fw.datagen.ExtLangProvider;
-import fw.datagen.LangDatagen;
+import fw.datagen.annotation.LangDatagen;
 import fw.entries.ExtCreativeTab;
 
-public enum BaCreativeTab implements ExtCreativeTab, ExtLangProvider {
+public enum BaCreativeTab implements ExtCreativeTab {
 	@LangDatagen(en_us = "BlueArchive Currency", zh_cn = "蔚蓝档案 货币")
 	BA_CURRENCY(Id.BA_CURRENCY, "gem"),
 
@@ -44,6 +43,6 @@ public enum BaCreativeTab implements ExtCreativeTab, ExtLangProvider {
 	}
 
 	static {
-		ExtLangProvider.forDatagen(BaCreativeTab.class);
+		LangDatagen.LangProvider.forDatagen(BaCreativeTab.class);
 	}
 }

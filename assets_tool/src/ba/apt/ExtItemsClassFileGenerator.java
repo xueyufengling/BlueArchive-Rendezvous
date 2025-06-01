@@ -95,11 +95,11 @@ public class ExtItemsClassFileGenerator {
 				+ "import net.neoforged.neoforge.registries.DeferredItem;\r\n");
 		for (String imp : imports)
 			lines.add("import " + imp + ";\r\n");
-		lines.add("public class " + class_name + " extends ExtItems implements ExtLangProvider {\r\n"
+		lines.add("public class " + class_name + " {\r\n"
 				+ "\r\n"
 				+ "	static {\r\n"
-				+ "		ExtItems.forDatagen(" + class_name + ".class);\r\n"
-				+ "		ExtLangProvider.forDatagen(" + class_name + ".class);\r\n"
+				+ "		ItemDatagen.ModelProvider.forDatagen(" + class_name + ".class);\r\n"
+				+ "		LangDatagen.LangProvider.forDatagen(" + class_name + ".class);\r\n"
 				+ "	}\r\n"
 				+ "\r\n"
 				+ "	public static final String resourcePath = " + tex_path + ";\r\n"
@@ -107,7 +107,7 @@ public class ExtItemsClassFileGenerator {
 		for (String tex : textures)
 			lines.add("	@LangDatagen(en_us = \"" + toEnglishWord(tex) + "\", zh_cn = \"\")\r\n"
 					+ "	@ItemDatagen(name = \"" + tex + "\", path = resourcePath)\r\n"
-					+ "	public static final DeferredItem<Item> " + tex + " = register(\"" + tex + "\"" + (creative_tab == null ? "" : ", " + creative_tab) + (itemGetter == null ? "" : ", " + itemGetter) + ");"
+					+ "	public static final DeferredItem<Item> " + tex + " = ExtItems.register(\"" + tex + "\"" + (creative_tab == null ? "" : ", " + creative_tab) + (itemGetter == null ? "" : ", " + itemGetter) + ");"
 					+ "\r\n");
 		lines.add("}");
 		return lines;

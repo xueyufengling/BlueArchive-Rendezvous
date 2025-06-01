@@ -12,14 +12,20 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
 
+/**
+ * 创造模式物品栏
+ */
 public interface ExtCreativeTab extends Localizable {
 
 	public static String header = "itemGroup";
 
+	/**
+	 * 物品栏的定义
+	 */
 	public static class Definition {
 
 		public final String id;
-		public final DeferredHolder<CreativeModeTab, CreativeModeTab> registry;
+		public final DeferredHolder<CreativeModeTab, CreativeModeTab> deferredHolder;
 
 		private ExtCreativeTab derived;
 		private String iconItem;
@@ -32,7 +38,7 @@ public interface ExtCreativeTab extends Localizable {
 			this.id = id;
 			this.iconItem = iconItem;
 			builder = new CreativeModeTab.Builder(CreativeModeTab.Row.TOP, 0);
-			registry = RegistryFactory.CREATIVE_TABS.register(id, () -> {
+			deferredHolder = RegistryFactory.CREATIVE_TABS.register(id, () -> {
 				return builder
 						.icon(() -> new ItemStack((ExtItems.contains(this.iconItem) ? ExtItems.get(this.iconItem) : ExtItems.register(this.iconItem)).get()))
 						.title(this.derived.localizedComponent())
@@ -58,6 +64,14 @@ public interface ExtCreativeTab extends Localizable {
 			return definitions.get(id);
 		}
 
+		/**
+		 * 定义一个物品栏，一个id的物品栏只会定义和注册一次
+		 * 
+		 * @param derived
+		 * @param id
+		 * @param iconItem
+		 * @return
+		 */
 		public static final Definition define(ExtCreativeTab derived, String id, String iconItem) {
 			// 第一次调用该方法时，此时derived.definition()为null，因此避免在本方法内使用derived.definition()
 			Definition def = Definition.get(id);
