@@ -3,7 +3,7 @@ package fw.core;
 import java.util.ArrayList;
 
 import fw.core.registry.MappedRegistries;
-import lyra.klass.FieldReference;
+import lyra.alpha.reference.Recoverable;
 import lyra.klass.ObjectManipulator;
 import lyra.klass.Placeholders;
 import net.minecraft.server.MinecraftServer;
@@ -45,7 +45,7 @@ public class ServerEntry {
 		MappedRegistries.fetchRegistries();
 		if (serverStartCallback != null)
 			serverStartCallback.operate(server);
-		for (FieldReference ref : tempFieldRedirectors)
+		for (Recoverable<?> ref : recoverableRedirectors)
 			ref.redirect();
 		MappedRegistries.freezeRegistries();
 	}
@@ -63,11 +63,11 @@ public class ServerEntry {
 	public static void onServerStartup(ServerStoppingEvent event) {
 		if (serverStopCallback != null)
 			serverStopCallback.operate(server);
-		for (FieldReference ref : tempFieldRedirectors)
+		for (Recoverable<?> ref : recoverableRedirectors)
 			ref.recovery();
 	}
 
-	private static final ArrayList<FieldReference> tempFieldRedirectors = new ArrayList<>();
+	private static final ArrayList<Recoverable<?>> recoverableRedirectors = new ArrayList<>();
 
 	/**
 	 * 托管临时的字段重定向，服务器启动时将字段重定向为指定值，并在服务器退出时将字段恢复。<br>
@@ -75,9 +75,9 @@ public class ServerEntry {
 	 * 
 	 * @param references
 	 */
-	public static final void delegateTempFieldRedirectors(FieldReference... references) {
-		for (FieldReference ref : references)
-			if (!tempFieldRedirectors.contains(ref))
-				tempFieldRedirectors.add(ref);
+	public static final void delegateRecoverableRedirectors(Recoverable<?>... references) {
+		for (Recoverable<?> ref : references)
+			if (!recoverableRedirectors.contains(ref))
+				recoverableRedirectors.add(ref);
 	}
 }

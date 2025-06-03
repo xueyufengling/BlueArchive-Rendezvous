@@ -1,4 +1,4 @@
-package fw.entries;
+package fw.items;
 
 import java.util.ArrayList;
 import java.util.HashMap;

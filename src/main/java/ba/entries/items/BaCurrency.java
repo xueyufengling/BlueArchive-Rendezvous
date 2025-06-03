@@ -3,7 +3,7 @@ package ba.entries.items;
 import ba.entries.BaCreativeTab;
 import fw.datagen.annotation.ItemDatagen;
 import fw.datagen.annotation.LangDatagen;
-import fw.entries.ExtItems;
+import fw.items.ExtItems;
 import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.registries.DeferredItem;
 

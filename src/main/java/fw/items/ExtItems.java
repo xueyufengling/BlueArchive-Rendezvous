@@ -1,4 +1,4 @@
-package fw.entries;
+package fw.items;
 
 import java.util.HashMap;
 import java.util.function.Function;

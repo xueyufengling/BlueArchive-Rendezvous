@@ -4,7 +4,7 @@ import java.util.Map;
 
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.Reference2IntMap;
-import lyra.klass.FieldReference;
+import lyra.alpha.reference.FieldReference;
 import lyra.klass.ObjectManipulator;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;

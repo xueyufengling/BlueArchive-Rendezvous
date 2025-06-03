@@ -47,7 +47,7 @@ public @interface ItemDatagen {
 		protected void registerModels() {
 			for (Class<?> itemClass : itemsClasses)
 				KlassWalker.walkFields(itemClass, ItemDatagen.class, (Field f, boolean isStatic, Object value, ItemDatagen annotation) -> {
-					if (Reflection.is(f, DeferredItem.class) && value != null) {
+					if (isStatic && Reflection.is(f, DeferredItem.class) && value != null) {
 						switch (annotation.type()) {
 						case "generated":
 							asGeneratedItem(annotation.name(), annotation.path());

@@ -2,7 +2,10 @@ package fw.core.registry;
 
 import java.lang.reflect.Field;
 
+import com.mojang.serialization.MapCodec;
+
 import fw.core.Core;
+import lyra.alpha.struct.K2HashMap;
 import lyra.klass.KlassWalker;
 import lyra.klass.ObjectManipulator;
 import lyra.lang.Reflection;
@@ -10,11 +13,10 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.level.dimension.DimensionType;
+import net.minecraft.world.level.levelgen.DensityFunction;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
-import utils.struct.K2HashMap;
 
 /**
  * 启动阶段的注册表操作
@@ -25,15 +27,10 @@ public class RegistryFactory {
 	public static final DeferredRegister.Blocks BLOCK = (DeferredRegister.Blocks) deferredRegister(Registries.BLOCK);
 	public static final DeferredRegister.Items ITEM = (DeferredRegister.Items) deferredRegister(Registries.ITEM);
 	public static final DeferredRegister<CreativeModeTab> CREATIVE_TABS = deferredRegister(Registries.CREATIVE_MODE_TAB);
-	public static final DeferredRegister<DimensionType> DIMENSION_TYPE = deferredRegister(Registries.DIMENSION_TYPE);
 
-	/**
-	 * 获取注册表，该表里的条目会自动注册到ModBus
-	 * 
-	 * @param <T>
-	 * @param registry
-	 * @return
-	 */
+	public static final DeferredRegister<DensityFunction> DENSITY_FUNCTION = deferredRegister(Registries.DENSITY_FUNCTION);
+	public static final DeferredRegister<MapCodec<? extends DensityFunction>> DENSITY_FUNCTION_TYPE = deferredRegister(Registries.DENSITY_FUNCTION_TYPE);
+
 	public static <T> DeferredRegister<T> deferredRegister(Registry<T> registry, String modId) {
 		return deferredRegister(registry.key(), modId);
 	}
@@ -42,6 +39,14 @@ public class RegistryFactory {
 		return deferredRegister(registry, Core.ModId);
 	}
 
+	/**
+	 * 获取注册表，所有通过该方法获取的注册表都可以通过registerAll()一次性全部自动注册到ModBus<br>
+	 * 如果有注册表已经被注册到ModBus，那么将忽略该注册表
+	 * 
+	 * @param <T>
+	 * @param registry
+	 * @return
+	 */
 	@SuppressWarnings("unchecked")
 	public static <T> DeferredRegister<T> deferredRegister(ResourceKey<? extends Registry<T>> resource_key, String modId) {
 		DeferredRegister<T> deferredRegister = (DeferredRegister<T>) registries.computeIfPresent(resource_key, modId, (ResourceKey<?> resKey, String mod_id) -> {

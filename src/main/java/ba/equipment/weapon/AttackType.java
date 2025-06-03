@@ -1,7 +1,7 @@
 package ba.equipment.weapon;
 
 import ba.equipment.armor.DefenseType;
-import utils.struct.BinaryTuple;
+import lyra.alpha.struct.BinaryTuple;
 
 public enum AttackType {
 	/**

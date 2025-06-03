@@ -14,6 +14,7 @@ import lyra.klass.KlassWalker;
 import lyra.klass.ObjectManipulator;
 import lyra.lang.GenericTypes;
 import lyra.lang.Reflection;
+import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistrySetBuilder;
 import net.minecraft.core.registries.Registries;
@@ -40,6 +41,17 @@ public @interface RegistryDatagen {
 		}
 
 		/**
+		 * 判断目标字段是否是泛型参数为genericType的Holder，包括DeferredHolder
+		 * 
+		 * @param f
+		 * @param genericType
+		 * @return
+		 */
+		private static boolean isHolder(Field f, Class<?> genericType) {
+			return Reflection.is(f, Holder.class) && GenericTypes.startWith(f, genericType);
+		}
+
+		/**
 		 * 使用反射绕过编译时泛型检查
 		 */
 		private static final Method BootstrapContext_register;
@@ -59,9 +71,14 @@ public @interface RegistryDatagen {
 		@SuppressWarnings({ "rawtypes", "unchecked" })
 		private static final void registerFields(BootstrapContext<?> context, Class<?> registryClass, Class<?> registryType) {
 			KlassWalker.walkFields(registryClass, RegistryDatagen.class, (Field f, boolean isStatic, Object value, RegistryDatagen annotation) -> {
-				if (isStatic && isDatagenHolder(f, registryType) && value != null) {
-					DatagenHolder datagenHolder = (DatagenHolder) value;
-					ObjectManipulator.invoke(context, BootstrapContext_register, datagenHolder.resourceKey, datagenHolder.value(context));
+				if (isStatic && value != null) {
+					if (isDatagenHolder(f, registryType)) {
+						DatagenHolder datagenHolder = (DatagenHolder) value;
+						ObjectManipulator.invoke(context, BootstrapContext_register, datagenHolder.resourceKey, datagenHolder.value(context));
+					} else if (isHolder(f, registryType)) {
+						Holder holder = (Holder) value;
+						ObjectManipulator.invoke(context, BootstrapContext_register, holder.getKey(), holder.value());
+					}
 				}
 			});
 		}
@@ -73,10 +90,13 @@ public @interface RegistryDatagen {
 		}
 
 		/**
-		 * 过滤掉重复的ResourceKey字段，只有位于该Set内的字段才会被被添加到数据生成。<br>
-		 * 例如DIMENSION和LEVEL_STEM的ResourceKey完全一致，只能保留一个否则报错Multiple entries with same key: minecraft:dimension
+		 * 过滤掉Registries的ResourceKey字段，只有位于该Set内的字段才会被被添加到数据生成。<br>
+		 * Registries中的部分注册表可以通过数据包加载，这些注册表可以加入过滤器。那些不能通过数据包加载的，例如密度函数DENSITY_FUNCTION_TYPE，物品ITEM等则不能用于数据生成。
 		 */
-		private static final Set<String> registryFieldFilter = Set.of("DIMENSION_TYPE", "LEVEL_STEM");
+		public static final Set<String> registryFieldFilter = Set.of(
+				"DIMENSION_TYPE",
+				"LEVEL_STEM",
+				"NOISE_SETTINGS");
 
 		@SuppressWarnings({ "rawtypes" })
 		private static final RegistrySetBuilder allRegistrySetBuilder() {

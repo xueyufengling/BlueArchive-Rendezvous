@@ -149,7 +149,7 @@ dependencies {
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
     implementation "software.bernie.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}"
     implementation files("libs/Lyra.jar")
-    implementation files("libs/CommonUtils.jar")
+    implementation files("libs/Alpha-Lyr.jar")
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.

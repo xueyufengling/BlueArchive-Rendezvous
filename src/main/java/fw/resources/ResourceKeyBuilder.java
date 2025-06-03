@@ -7,20 +7,32 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 
 public class ResourceKeyBuilder {
-	public static <T> ResourceKey<T> build(ResourceKey<? extends Registry<T>> resource_key, ResourceLocation resource_location) {
-		return ResourceKey.create(resource_key, resource_location);
+	/**
+	 * 从一个resource_key生成相同路径的其他registry_key下的值
+	 * 
+	 * @param <T>
+	 * @param registry_key
+	 * @param resource_key
+	 * @return
+	 */
+	public static <T> ResourceKey<T> build(ResourceKey<? extends Registry<T>> registry_key, ResourceKey<?> resource_key) {
+		return build(registry_key, resource_key.location());
+	}
+
+	public static <T> ResourceKey<T> build(ResourceKey<? extends Registry<T>> registry_key, ResourceLocation resource_location) {
+		return ResourceKey.create(registry_key, resource_location);
 	}
 
 	/**
 	 * 获取ResourceKey
 	 * 
 	 * @param <T>                 注册表类型
-	 * @param resource_key        ResourceKey参数定义于net.minecraft.core.registries.Registries
+	 * @param registry_key        ResourceKey参数定义于net.minecraft.core.registries.Registries
 	 * @param reslocWithNamespace ResourceLocation字符串
 	 * @return 返回name对应的T类型注册表的ResourceKey
 	 */
-	public static <T> ResourceKey<T> build(ResourceKey<? extends Registry<T>> resource_key, String reslocWithNamespace) {
-		return ResourceKey.create(resource_key, ResourceLocationBuilder.build(reslocWithNamespace));
+	public static <T> ResourceKey<T> build(ResourceKey<? extends Registry<T>> registry_key, String reslocWithNamespace) {
+		return ResourceKey.create(registry_key, ResourceLocationBuilder.build(reslocWithNamespace));
 	}
 
 	/**
@@ -30,8 +42,8 @@ public class ResourceKeyBuilder {
 	 * @param path         命名空间path
 	 * @return 返回name对应的T类型注册表的ResourceKey
 	 */
-	public static <T> ResourceKey<T> build(ResourceKey<? extends Registry<T>> resource_key, String namespace, String path) {
-		return ResourceKey.create(resource_key, ResourceLocationBuilder.build(namespace, path));
+	public static <T> ResourceKey<T> build(ResourceKey<? extends Registry<T>> registry_key, String namespace, String path) {
+		return ResourceKey.create(registry_key, ResourceLocationBuilder.build(namespace, path));
 	}
 
 	/**
