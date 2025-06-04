@@ -1,6 +1,8 @@
-package fw.core.registry;
+package fw.datagen;
 
 import fw.core.Core;
+import fw.core.registry.MappedRegistries;
+import fw.core.registry.RegistryFactory;
 import fw.resources.ResourceKeyBuilder;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
@@ -41,6 +43,11 @@ public class DatagenHolder<T> {
 		this.value = value;
 	}
 
+	/**
+	 * 仅运行时可获取完整的注册表，runData期间的注册表是不完整的，缺失部分注册表。
+	 * 
+	 * @return
+	 */
 	public final Registry<T> registry() {
 		return MappedRegistries.getRegistry(registryKey);
 	}
@@ -50,7 +57,7 @@ public class DatagenHolder<T> {
 	}
 
 	/**
-	 * 数据生成时获取注册值
+	 * 数据生成、运行时获取注册值。运行时只能获取常量值
 	 * 
 	 * @param context
 	 * @return
@@ -61,6 +68,11 @@ public class DatagenHolder<T> {
 		return value;
 	}
 
+	/**
+	 * 获取常量值，不是常量值则返回null
+	 * 
+	 * @return
+	 */
 	public final T value() {
 		return value;
 	}
@@ -74,10 +86,30 @@ public class DatagenHolder<T> {
 		return registry().getHolderOrThrow(resourceKey);
 	}
 
+	/**
+	 * 数据生成时注册到BootstrapContext的常量值。并且在运行时也会注册到MappedRegistry。
+	 * 
+	 * @param <T>
+	 * @param registryKey
+	 * @param namespace
+	 * @param path
+	 * @param value
+	 * @return
+	 */
 	public static final <T> DatagenHolder<T> of(ResourceKey<? extends Registry<T>> registryKey, String namespace, String path, T value) {
 		return new DatagenHolder<>(registryKey, namespace, path, null, RegistryFactory.deferredRegister(registryKey, namespace).register(path, () -> value), value);
 	}
 
+	/**
+	 * 仅数据生成时注册到BootstrapContext的值，可以通过HolderGetter动态生成依赖其他注册项的值，不需要是常量。在运行时不注册到MappedRegistry，也无法读取值。
+	 * 
+	 * @param <T>
+	 * @param registryKey
+	 * @param namespace
+	 * @param path
+	 * @param valueSource
+	 * @return
+	 */
 	public static final <T> DatagenHolder<T> of(ResourceKey<? extends Registry<T>> registryKey, String namespace, String path, ValueSource<T> valueSource) {
 		return new DatagenHolder<>(registryKey, namespace, path, valueSource, null, null);
 	}
@@ -92,6 +124,6 @@ public class DatagenHolder<T> {
 
 	@Override
 	public String toString() {
-		return "{Key=" + resourceKey + ", value=" + value + "}";
+		return "{Key=" + resourceKey + ", value=" + value + ", deferredHolder=" + deferredHolder + ", isBound=" + (deferredHolder == null ? false : deferredHolder.isBound()) + "}";
 	}
 }

@@ -1,25 +1,26 @@
 package ba.entries;
 
 import fw.datagen.annotation.LangDatagen;
+import fw.datagen.annotation.Translation;
 import fw.items.ExtCreativeTab;
 
 public enum BaCreativeTab implements ExtCreativeTab {
-	@LangDatagen(en_us = "BlueArchive Currency", zh_cn = "蔚蓝档案 货币")
+	@LangDatagen(translations = { @Translation(locale = "en_us", text = "BlueArchive Currency"), @Translation(locale = "zh_cn", text = "蔚蓝档案 货币") })
 	BA_CURRENCY(Id.BA_CURRENCY, "gem"),
 
-	@LangDatagen(en_us = "BlueArchive Materials", zh_cn = "蔚蓝档案 材料")
+	@LangDatagen(translations = { @Translation(locale = "en_us", text = "BlueArchive Materials"), @Translation(locale = "zh_cn", text = "蔚蓝档案 材料") })
 	BA_MATERIALS(Id.BA_MATERIALS, "ether_3"),
 
-	@LangDatagen(en_us = "BlueArchive Blocks", zh_cn = "蔚蓝档案 方块")
+	@LangDatagen(translations = { @Translation(locale = "en_us", text = "BlueArchive Blocks"), @Translation(locale = "zh_cn", text = "蔚蓝档案 方块") })
 	BA_BLOCKS(Id.BA_BLOCKS, ""),
 
-	@LangDatagen(en_us = "BlueArchive Weapons", zh_cn = "蔚蓝档案 武器")
+	@LangDatagen(translations = { @Translation(locale = "en_us", text = "BlueArchive Weapons"), @Translation(locale = "zh_cn", text = "蔚蓝档案 武器") })
 	BA_WEAPONS(Id.BA_WEAPONS, ""),
 
-	@LangDatagen(en_us = "BlueArchive Equipments", zh_cn = "蔚蓝档案 装备")
+	@LangDatagen(translations = { @Translation(locale = "en_us", text = "BlueArchive Equipments"), @Translation(locale = "zh_cn", text = "蔚蓝档案 装备") })
 	BA_EQUIPMENTS(Id.BA_EQUIPMENTS, "bag_tier5"),
 
-	@LangDatagen(en_us = "BlueArchive Skill Books", zh_cn = "蔚蓝档案 技能书")
+	@LangDatagen(translations = { @Translation(locale = "en_us", text = "BlueArchive Skill Books"), @Translation(locale = "zh_cn", text = "蔚蓝档案 技能书") })
 	BA_SKILLBOOKS(Id.BA_SKILLBOOKS, "skillbook_selection_3");
 
 	public final ExtCreativeTab.Definition definition;

@@ -10,27 +10,14 @@ import java.util.Map.Entry;
 import fw.core.Core;
 import fw.datagen.Localizable;
 import lyra.klass.KlassWalker;
-import lyra.klass.ObjectManipulator;
+import net.minecraft.core.Holder;
 import net.minecraft.data.PackOutput;
 import net.neoforged.neoforge.common.data.LanguageProvider;
-import net.neoforged.neoforge.registries.DeferredHolder;
 
 @Retention(RetentionPolicy.RUNTIME)
 public @interface LangDatagen {
-	public static final String undefined = "'undefined'";
 
-	String zh_cn() default undefined;
-
-	String en_us() default undefined;
-
-	public static class Resolver {
-		public static final String resolve(LangDatagen annotation, String locale) {
-			String description = (String) ObjectManipulator.invoke(annotation, locale, null);
-			if (LangDatagen.undefined.equals(description))
-				description = null;
-			return description;
-		}
-	}
+	Translation[] translations() default {};
 
 	public static class LangProvider extends LanguageProvider {
 		static final HashMap<String, HashMap<String, String>> keyvalsMap = new HashMap<>();
@@ -47,10 +34,20 @@ public @interface LangDatagen {
 		protected void addTranslations() {
 			for (Class<?> langClass : langClasses) {
 				KlassWalker.walkFields(langClass, LangDatagen.class, (Field f, boolean isStatic, Object value, LangDatagen annotation) -> {
-					if (value instanceof Localizable localizable) {// 优先使用Localizable指定的key
-						super.add(localizable.localizationKey(), LangDatagen.Resolver.resolve(annotation, locale));
-					} else if (value instanceof DeferredHolder deferredHolder) {
-						super.add(Localizable.localizationKey(deferredHolder), LangDatagen.Resolver.resolve(annotation, locale));
+					Translation[] translations = annotation.translations();
+					for (Translation translation : translations) {
+						if (locale.equals(translation.locale())) {// 当前Translation的语言是LangProvider的语言
+							String final_text = null;
+							if (value instanceof Localizable localizable) {// 优先使用Localizable指定的key
+								final_text = Translation.Resolver.resolveText(translation);
+								if (final_text != null)
+									super.add(localizable.localizationKey(), final_text);
+							} else if (value instanceof Holder holder) {
+								final_text = Translation.Resolver.resolveText(translation);
+								if (final_text != null)
+									super.add(Localizable.localizationKey(holder), final_text);
+							}
+						}
 					}
 				});
 			}

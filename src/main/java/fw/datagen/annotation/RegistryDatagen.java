@@ -3,15 +3,13 @@ package fw.datagen.annotation;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 import fw.core.Core;
-import fw.core.registry.DatagenHolder;
+import fw.datagen.DatagenHolder;
 import lyra.klass.KlassWalker;
-import lyra.klass.ObjectManipulator;
 import lyra.lang.GenericTypes;
 import lyra.lang.Reflection;
 import net.minecraft.core.Holder;
@@ -28,6 +26,105 @@ import net.neoforged.neoforge.common.data.DatapackBuiltinEntriesProvider;
 public @interface RegistryDatagen {
 	public static class RegistriesProvider extends DatapackBuiltinEntriesProvider {
 		private static final ArrayList<Class<?>> registryClasses = new ArrayList<>();
+
+		/**
+		 * 过滤掉Registries的ResourceKey字段，只有位于该Set内的字段才会被被添加到数据生成。<br>
+		 * Registries中的部分注册表可以通过数据包加载，这些注册表可以加入过滤器。那些不能通过数据包加载的，例如密度函数DENSITY_FUNCTION，物品ITEM等则不能用于数据生成。<br>
+		 * 见{@link net.minecraft.data.registries.VanillaRegistries}<br>
+		 * 参考runData时{@link net.minecraft.core.registries.BuiltInRegistries}{@code .REGISTRY}存在的注册表：<br>
+		 * minecraft:command_argument_type<br>
+		 * minecraft:decorated_pot_pattern<br>
+		 * minecraft:item<br>
+		 * neoforge:global_loot_modifier_serializers<br>
+		 * minecraft:block_entity_type<br>
+		 * minecraft:custom_stat<br>
+		 * minecraft:worldgen/foliage_placer_type<br>
+		 * minecraft:number_format_type<br>
+		 * minecraft:stat_type<br>
+		 * neoforge:ingredient_serializer<br>
+		 * minecraft:worldgen/material_rule<br>
+		 * minecraft:worldgen/structure_type<br>
+		 * minecraft:attribute<br>
+		 * minecraft:position_source_type<br>
+		 * minecraft:height_provider_type<br>
+		 * minecraft:data_component_type<br>
+		 * neoforge:fluid_ingredient_type<br>
+		 * minecraft:rule_block_entity_modifier<br>
+		 * neoforge:attachment_types<br>
+		 * minecraft:worldgen/density_function_type<br>
+		 * minecraft:fluid<br>
+		 * minecraft:loot_condition_type<br>
+		 * minecraft:worldgen/structure_pool_element<br>
+		 * minecraft:activity<br>
+		 * minecraft:block_type<br>
+		 * minecraft:recipe_serializer<br>
+		 * neoforge:fluid_type<br>
+		 * minecraft:enchantment_provider_type<br>
+		 * neoforge:biome_modifier_serializers<br>
+		 * minecraft:frog_variant<br>
+		 * minecraft:instrument<br>
+		 * neoforge:holder_set_type<br>
+		 * minecraft:worldgen/feature_size_type<br>
+		 * minecraft:point_of_interest_type<br>
+		 * minecraft:mob_effect<br>
+		 * minecraft:loot_pool_entry_type<br>
+		 * minecraft:worldgen/block_state_provider_type<br>
+		 * minecraft:worldgen/chunk_generator<br>
+		 * minecraft:float_provider_type<br>
+		 * minecraft:chunk_status<br>
+		 * minecraft:loot_function_type<br>
+		 * minecraft:worldgen/structure_processor<br>
+		 * minecraft:enchantment_effect_component_type<br>
+		 * minecraft:loot_score_provider_type<br>
+		 * minecraft:worldgen/tree_decorator_type<br>
+		 * minecraft:schedule<br>
+		 * minecraft:worldgen/material_condition<br>
+		 * minecraft:worldgen/pool_alias_binding<br>
+		 * minecraft:item_sub_predicate_type<br>
+		 * minecraft:entity_type<br>
+		 * minecraft:villager_profession<br>
+		 * minecraft:potion<br>
+		 * minecraft:enchantment_entity_effect_type<br>
+		 * minecraft:recipe_type<br>
+		 * minecraft:int_provider_type<br>
+		 * minecraft:worldgen/feature<br>
+		 * minecraft:enchantment_level_based_value_type<br>
+		 * minecraft:cat_variant<br>
+		 * minecraft:pos_rule_test<br>
+		 * minecraft:worldgen/structure_placement<br>
+		 * minecraft:enchantment_value_effect_type<br>
+		 * minecraft:loot_nbt_provider_type<br>
+		 * minecraft:menu<br>
+		 * minecraft:worldgen/trunk_placer_type<br>
+		 * minecraft:creative_mode_tab<br>
+		 * minecraft:entity_sub_predicate_type<br>
+		 * minecraft:enchantment_location_based_effect_type<br>
+		 * minecraft:worldgen/placement_modifier_type<br>
+		 * minecraft:worldgen/carver<br>
+		 * minecraft:loot_number_provider_type<br>
+		 * minecraft:worldgen/structure_piece<br>
+		 * minecraft:sound_event<br>
+		 * minecraft:particle_type<br>
+		 * minecraft:game_event<br>
+		 * minecraft:worldgen/biome_source<br>
+		 * neoforge:entity_data_serializers<br>
+		 * minecraft:worldgen/root_placer_type<br>
+		 * minecraft:villager_type<br>
+		 * minecraft:block_predicate_type<br>
+		 * minecraft:block<br>
+		 * neoforge:structure_modifier_serializers<br>
+		 * minecraft:trigger_type<br>
+		 * minecraft:sensor_type<br>
+		 * minecraft:rule_test<br>
+		 * minecraft:armor_material<br>
+		 * minecraft:map_decoration_type<br>
+		 * minecraft:memory_module_type<br>
+		 * neoforge:condition_codecs<br>
+		 */
+		public static final Set<String> registryFieldFilter = Set.of(
+				"DIMENSION_TYPE",
+				"LEVEL_STEM",
+				"NOISE_SETTINGS");
 
 		/**
 		 * 判断目标字段是否是泛型参数为genericType的DatagenHolder
@@ -52,15 +149,6 @@ public @interface RegistryDatagen {
 		}
 
 		/**
-		 * 使用反射绕过编译时泛型检查
-		 */
-		private static final Method BootstrapContext_register;
-
-		static {
-			BootstrapContext_register = Reflection.getDeclaredMethod(BootstrapContext.class, "register", ResourceKey.class, Object.class);
-		}
-
-		/**
 		 * 注册某个类中的全部静态字段
 		 * 
 		 * @param <T>
@@ -70,35 +158,21 @@ public @interface RegistryDatagen {
 		 */
 		@SuppressWarnings({ "rawtypes", "unchecked" })
 		private static final void registerFields(BootstrapContext<?> context, Class<?> registryClass, Class<?> registryType) {
+			BootstrapContext raw_context = (BootstrapContext) context;
 			KlassWalker.walkFields(registryClass, RegistryDatagen.class, (Field f, boolean isStatic, Object value, RegistryDatagen annotation) -> {
 				if (isStatic && value != null) {
 					if (isDatagenHolder(f, registryType)) {
 						DatagenHolder datagenHolder = (DatagenHolder) value;
-						ObjectManipulator.invoke(context, BootstrapContext_register, datagenHolder.resourceKey, datagenHolder.value(context));
+						raw_context.register(datagenHolder.resourceKey, datagenHolder.value(context));
 					} else if (isHolder(f, registryType)) {
 						Holder holder = (Holder) value;
-						ObjectManipulator.invoke(context, BootstrapContext_register, holder.getKey(), holder.value());
+						raw_context.register(holder.getKey(), holder.value());
 					}
 				}
 			});
 		}
 
-		private static final Method RegistrySetBuilder_add;
-
-		static {
-			RegistrySetBuilder_add = Reflection.getDeclaredMethod(RegistrySetBuilder.class, "add", ResourceKey.class, RegistrySetBuilder.RegistryBootstrap.class);
-		}
-
-		/**
-		 * 过滤掉Registries的ResourceKey字段，只有位于该Set内的字段才会被被添加到数据生成。<br>
-		 * Registries中的部分注册表可以通过数据包加载，这些注册表可以加入过滤器。那些不能通过数据包加载的，例如密度函数DENSITY_FUNCTION_TYPE，物品ITEM等则不能用于数据生成。
-		 */
-		public static final Set<String> registryFieldFilter = Set.of(
-				"DIMENSION_TYPE",
-				"LEVEL_STEM",
-				"NOISE_SETTINGS");
-
-		@SuppressWarnings({ "rawtypes" })
+		@SuppressWarnings({ "rawtypes", "unchecked" })
 		private static final RegistrySetBuilder allRegistrySetBuilder() {
 			RegistrySetBuilder registrySetBuilder = new RegistrySetBuilder();
 			// 遍历net.minecraft.core.registries.Registries的所有静态字段并添加对应的数据生成器
@@ -109,7 +183,7 @@ public @interface RegistryDatagen {
 							for (Class<?> registryClass : registryClasses)
 								registerFields(context, registryClass, GenericTypes.classes(f, 0)[0]);
 						};
-						ObjectManipulator.invoke(registrySetBuilder, RegistrySetBuilder_add, registryKey, bootstrap);
+						registrySetBuilder.add((ResourceKey) registryKey, bootstrap);
 					}
 				}
 			});

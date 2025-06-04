@@ -13,11 +13,11 @@ public final class KivotosDensityFunction implements DensityFunction.SimpleFunct
 	public static final KeyDispatchDataCodec<KivotosDensityFunction> CODEC = KeyDispatchDataCodec.of(
 			MapCodec.unit(new KivotosDensityFunction(0L)));
 
-	private final SimplexNoise terrainNoise;
+	private final SimplexNoise baseNoise;
 
 	public KivotosDensityFunction(long seed) {
 		RandomSource randomsource = new LegacyRandomSource(seed);
-		this.terrainNoise = new SimplexNoise(randomsource);
+		this.baseNoise = new SimplexNoise(randomsource);
 	}
 
 	private static float getHeightValue(SimplexNoise noise, int x, int z) {
@@ -48,7 +48,7 @@ public final class KivotosDensityFunction implements DensityFunction.SimpleFunct
 
 	@Override
 	public double compute(DensityFunction.FunctionContext context) {
-		return ((double) getHeightValue(this.terrainNoise, context.blockX() / 8, context.blockZ() / 8) - 8.0) / 128.0;
+		return ((double) getHeightValue(this.baseNoise, context.blockX() / 8, context.blockZ() / 8) - 8.0) / 128.0;
 	}
 
 	@Override

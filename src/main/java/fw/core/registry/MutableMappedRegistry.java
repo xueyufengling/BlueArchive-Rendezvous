@@ -1,12 +1,18 @@
 package fw.core.registry;
 
+import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Map;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.Reference2IntMap;
+import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
 import lyra.alpha.reference.FieldReference;
+import lyra.alpha.reference.Recoverable;
 import lyra.klass.ObjectManipulator;
 import net.minecraft.core.Holder;
+import net.minecraft.core.Holder.Reference;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.HolderLookup.RegistryLookup;
 import net.minecraft.core.HolderSet;
@@ -23,17 +29,17 @@ import net.minecraft.tags.TagKey;
  * 
  * @param <T>
  */
-public class MutableMappedRegistry<T> {
+public class MutableMappedRegistry<T> implements Recoverable<MutableMappedRegistry<T>> {
 	private final MappedRegistry<T> mappedRegistry;
-	public final ResourceKey<? extends Registry<T>> key;
-	public final ObjectList<Holder.Reference<T>> byId;
-	public final Reference2IntMap<T> toId;
-	public final Map<ResourceLocation, Holder.Reference<T>> byLocation;
-	public final Map<ResourceKey<T>, Holder.Reference<T>> byKey;
-	public final Map<T, Holder.Reference<T>> byValue;
-	public final Map<ResourceKey<T>, RegistrationInfo> registrationInfos;
-	public final Map<TagKey<T>, HolderSet.Named<T>> tags;
-	public final Map<T, Holder.Reference<T>> unregisteredIntrusiveHolders;
+	public ResourceKey<? extends Registry<T>> key;
+	public ObjectList<Holder.Reference<T>> byId;
+	public Reference2IntMap<T> toId;
+	public Map<ResourceLocation, Holder.Reference<T>> byLocation;
+	public Map<ResourceKey<T>, Holder.Reference<T>> byKey;
+	public Map<T, Holder.Reference<T>> byValue;
+	public Map<ResourceKey<T>, RegistrationInfo> registrationInfos;
+	public Map<TagKey<T>, HolderSet.Named<T>> tags;
+	public Map<T, Holder.Reference<T>> unregisteredIntrusiveHolders;
 	public final HolderLookup.RegistryLookup<T> lookup;
 	public final Object tagAdditionLock;
 
@@ -51,6 +57,7 @@ public class MutableMappedRegistry<T> {
 		unregisteredIntrusiveHolders = (Map<T, Holder.Reference<T>>) ObjectManipulator.access(registry, "unregisteredIntrusiveHolders");
 		lookup = (RegistryLookup<T>) ObjectManipulator.access(registry, "lookup");
 		tagAdditionLock = ObjectManipulator.access(registry, "tagAdditionLock");
+		this.asPrimary();
 	}
 
 	/**
@@ -66,6 +73,62 @@ public class MutableMappedRegistry<T> {
 	}
 
 	/**
+	 * 修改前的原始副本
+	 */
+	private ResourceKey<? extends Registry<T>> pkey;
+	private ObjectArrayList<Holder.Reference<T>> pbyId;
+	private Reference2IntOpenHashMap<T> ptoId;
+	private HashMap<ResourceLocation, Holder.Reference<T>> pbyLocation;
+	private HashMap<ResourceKey<T>, Holder.Reference<T>> pbyKey;
+	private IdentityHashMap<T, Holder.Reference<T>> pbyValue;
+	private IdentityHashMap<ResourceKey<T>, RegistrationInfo> pregistrationInfos;
+	private IdentityHashMap<TagKey<T>, HolderSet.Named<T>> ptags;
+	private IdentityHashMap<T, Holder.Reference<T>> punregisteredIntrusiveHolders;
+
+	@Override
+	public final MutableMappedRegistry<T> redirect() {
+		ObjectManipulator.setObject(mappedRegistry, "key", key);
+		ObjectManipulator.setObject(mappedRegistry, "byId", byId);
+		ObjectManipulator.setObject(mappedRegistry, "toId", toId);
+		ObjectManipulator.setObject(mappedRegistry, "byLocation", byLocation);
+		ObjectManipulator.setObject(mappedRegistry, "byKey", byKey);
+		ObjectManipulator.setObject(mappedRegistry, "byValue", byValue);
+		ObjectManipulator.setObject(mappedRegistry, "registrationInfos", registrationInfos);
+		ObjectManipulator.setObject(mappedRegistry, "tags", tags);
+		ObjectManipulator.setObject(mappedRegistry, "unregisteredIntrusiveHolders", unregisteredIntrusiveHolders);
+		return this;
+	}
+
+	@Override
+	public MutableMappedRegistry<T> recovery() {
+		ObjectManipulator.setObject(mappedRegistry, "key", pkey);
+		ObjectManipulator.setObject(mappedRegistry, "byId", pbyId);
+		ObjectManipulator.setObject(mappedRegistry, "toId", ptoId);
+		ObjectManipulator.setObject(mappedRegistry, "byLocation", pbyLocation);
+		ObjectManipulator.setObject(mappedRegistry, "byKey", pbyKey);
+		ObjectManipulator.setObject(mappedRegistry, "byValue", pbyValue);
+		ObjectManipulator.setObject(mappedRegistry, "registrationInfos", pregistrationInfos);
+		ObjectManipulator.setObject(mappedRegistry, "tags", ptags);
+		ObjectManipulator.setObject(mappedRegistry, "unregisteredIntrusiveHolders", punregisteredIntrusiveHolders);
+		return this;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public MutableMappedRegistry<T> asPrimary() {
+		pkey = key;
+		pbyId = ((ObjectArrayList<Reference<T>>) byId).clone();
+		ptoId = ((Reference2IntOpenHashMap<T>) toId).clone();
+		pbyLocation = (HashMap<ResourceLocation, Reference<T>>) ((HashMap<ResourceLocation, Reference<T>>) byLocation).clone();
+		pbyKey = (HashMap<ResourceKey<T>, Reference<T>>) ((HashMap<ResourceKey<T>, Reference<T>>) byKey).clone();
+		pbyValue = (IdentityHashMap<T, Reference<T>>) ((IdentityHashMap<T, Reference<T>>) byValue).clone();
+		pregistrationInfos = (IdentityHashMap<ResourceKey<T>, RegistrationInfo>) ((IdentityHashMap<ResourceKey<T>, RegistrationInfo>) registrationInfos).clone();
+		ptags = (IdentityHashMap<TagKey<T>, Named<T>>) ((IdentityHashMap<TagKey<T>, Named<T>>) tags).clone();
+		punregisteredIntrusiveHolders = (IdentityHashMap<T, Reference<T>>) ((IdentityHashMap<T, Reference<T>>) unregisteredIntrusiveHolders).clone();
+		return this;
+	}
+
+	/**
 	 * 进入世界时会验证注册表完整性，如果要修改原版注册表，需要在退出世界时将注册表恢复至完整的初始状态
 	 */
 	@SuppressWarnings("deprecation")
@@ -75,7 +138,7 @@ public class MutableMappedRegistry<T> {
 		T value = holder.value();
 		byValue.remove(value);
 		int id = mappedRegistry.getId(value);
-		byId.remove(id);
+		byId.set(id, null);// 不能remove(id)，否则该id后的所有元素的id（实际上就是索引）会前移
 		toId.remove(value);
 		ResourceKey<T> resource_key = holder.getKey();
 		byKey.remove(resource_key);
@@ -167,14 +230,16 @@ public class MutableMappedRegistry<T> {
 	 * @param redirectRefs
 	 * @return
 	 */
-	public Holder.Reference<T> deleteEntry(ResourceKey<T> resource_key, FieldReference... redirectRefs) {
+	@Deprecated
+	public Holder.Reference<T> unregister(ResourceKey<T> resource_key, FieldReference... redirectRefs) {
 		Holder.Reference<T> holder = unregister(resource_key);
 		for (FieldReference ref : redirectRefs)
 			ref.redirect();
 		return holder;
 	}
 
-	public Holder.Reference<T> redirectEntry(ResourceKey<T> resource_key, Holder.Reference<T> new_value, FieldReference... redirectRefs) {
+	@Deprecated
+	public Holder.Reference<T> modify(ResourceKey<T> resource_key, Holder.Reference<T> new_value, FieldReference... redirectRefs) {
 		Holder.Reference<T> holder = modify(resource_key, new_value);
 		for (FieldReference ref : redirectRefs)
 			ref.redirect();

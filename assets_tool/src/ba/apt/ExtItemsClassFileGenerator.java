@@ -87,12 +87,12 @@ public class ExtItemsClassFileGenerator {
 		List<String> lines = new ArrayList<>();
 		lines.add("package " + class_package + ";\r\n"
 				+ "\r\n"
-				+ "import fw.core.ExtItems;\r\n"
-				+ "import fw.datagen.ExtLangProvider;\r\n"
-				+ "import fw.datagen.ItemDatagen;\r\n"
-				+ "import fw.datagen.LangDatagen;\r\n"
+				+ "import fw.datagen.annotation.ItemDatagen;\r\n"
+				+ "import fw.datagen.annotation.LangDatagen;\r\n"
+				+ "import fw.datagen.annotation.Translation;\r\n"
+				+ "import fw.items.ExtItems;\r\n"
 				+ "import net.minecraft.world.item.Item;\r\n"
-				+ "import net.neoforged.neoforge.registries.DeferredItem;\r\n");
+				+ "import net.neoforged.neoforge.registries.DeferredItem;");
 		for (String imp : imports)
 			lines.add("import " + imp + ";\r\n");
 		lines.add("public class " + class_name + " {\r\n"
@@ -105,8 +105,8 @@ public class ExtItemsClassFileGenerator {
 				+ "	public static final String resourcePath = " + tex_path + ";\r\n"
 				+ "\r\n");
 		for (String tex : textures)
-			lines.add("	@LangDatagen(en_us = \"" + toEnglishWord(tex) + "\", zh_cn = \"\")\r\n"
-					+ "	@ItemDatagen(name = \"" + tex + "\", path = resourcePath)\r\n"
+			lines.add("	@LangDatagen(translations = { @Translation(locale = \"en_us\" , text = \"" + toEnglishWord(tex) + "\"), @Translation(locale = \"zh_cn\" , text = \"\") })\r\n"
+					+ "	@ItemDatagen(tex_path = resourcePath)\r\n"
 					+ "	public static final DeferredItem<Item> " + tex + " = ExtItems.register(\"" + tex + "\"" + (creative_tab == null ? "" : ", " + creative_tab) + (itemGetter == null ? "" : ", " + itemGetter) + ");"
 					+ "\r\n");
 		lines.add("}");

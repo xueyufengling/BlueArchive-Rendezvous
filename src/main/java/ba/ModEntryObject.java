@@ -5,13 +5,12 @@ import org.slf4j.Logger;
 import com.mojang.logging.LogUtils;
 
 import ba.entries.dimension.kivotos.Kivotos;
-import ba.entries.items.BaCurrency;
 import fw.core.Core;
 import fw.core.ServerEntry;
 import fw.core.registry.MappedRegistries;
 import fw.core.registry.MutableMappedRegistry;
 import fw.datagen.ExtDataGenerator;
-import fw.resources.ResourceKeyBuilder;
+import fw.datagen.annotation.Translation;
 import lyra.alpha.reference.FieldReference;
 import lyra.filesystem.KlassPath;
 import lyra.klass.KlassLoader;
@@ -34,8 +33,11 @@ public class ModEntryObject {
 
 	public static final Logger Logger = LogUtils.getLogger();
 
+	public static boolean unregisterNether = true;
+	public static boolean unregisterEnd = true;
+
 	static {
-		ExtDataGenerator.genLangs("en_us", "zh_cn");
+		ExtDataGenerator.genLangs(Translation.EN_US, Translation.ZH_CN);
 	}
 
 	public static void registerEntries() {
@@ -50,24 +52,38 @@ public class ModEntryObject {
 		Logger.info("Running on PID " + Vm.getProcessId());
 		Logger.info("Mod located at " + KlassPath.getKlassPath());
 		registerEntries();
-		redirectOverworld();
-		ServerEntry.setServerStartCallback(ModEntryObject::rmVanillaFeatures);
-	}
-
-	// 重定向主世界
-	public static void redirectOverworld() {
-		ServerEntry.delegateRecoverableRedirectors(
-				FieldReference.of(BuiltinDimensionTypes.class, "OVERWORLD", Kivotos.DIMENSION_TYPE.resourceKey),
-				FieldReference.of(Level.class, "OVERWORLD", Kivotos.DIMENSION_TYPE.resourceKey(Registries.DIMENSION)),
-				FieldReference.of(LevelStem.class, "OVERWORLD", Kivotos.LEVEL_STEM.resourceKey));
+		// ServerEntry.setServerStartCallback(ModEntryObject::rmVanillaFeatures);
 	}
 
 	public static void rmVanillaFeatures(MinecraftServer server) {
-		System.err.println("kivotos/land " + Kivotos.LAND_DENSITY_FUNCTION.value());
-		System.err.println("gem " + BaCurrency.gem.value());
 		MutableMappedRegistry<DimensionType> mutableDimensionTypeRegistry = MutableMappedRegistry.from(MappedRegistries.DIMENSION_TYPE);
-		mutableDimensionTypeRegistry.deleteEntry(BuiltinDimensionTypes.NETHER, FieldReference.of(Level.class, "NETHER"));// 删除地狱
-		mutableDimensionTypeRegistry.deleteEntry(BuiltinDimensionTypes.END, FieldReference.of(Level.class, "END"));// 删除末地
+		MutableMappedRegistry<Level> mutableDimensionRegistry = MutableMappedRegistry.from(MappedRegistries.DIMENSION);
+		MutableMappedRegistry<LevelStem> mutableLevelStemRegistry = MutableMappedRegistry.from(MappedRegistries.LEVEL_STEM);
+		ServerEntry.delegateRecoverableRedirectors(
+				mutableDimensionTypeRegistry,
+				mutableDimensionRegistry,
+				mutableLevelStemRegistry,
+				// FieldReference.of(BuiltinDimensionTypes.class, "OVERWORLD", Kivotos.DIMENSION_TYPE.resourceKey),
+				FieldReference.of(Level.class, "OVERWORLD", Kivotos.DIMENSION_TYPE.resourceKey(Registries.DIMENSION)) // 重定向主世界
+		);
+		if (unregisterNether) {// 删除下界
+			mutableDimensionTypeRegistry.unregister(BuiltinDimensionTypes.NETHER);
+			mutableDimensionRegistry.unregister(Level.NETHER);
+			mutableLevelStemRegistry.unregister(LevelStem.NETHER);
+			ServerEntry.delegateRecoverableRedirectors(
+					FieldReference.of(BuiltinDimensionTypes.class, "NETHER"),
+					FieldReference.of(Level.class, "NETHER"),
+					FieldReference.of(LevelStem.class, "NETHER"));
+		}
+		if (unregisterEnd) { // 删除末地
+			mutableDimensionTypeRegistry.unregister(BuiltinDimensionTypes.END);
+			mutableDimensionRegistry.unregister(Level.END);
+			mutableLevelStemRegistry.unregister(LevelStem.END);
+			ServerEntry.delegateRecoverableRedirectors(
+					FieldReference.of(BuiltinDimensionTypes.class, "END"),
+					FieldReference.of(Level.class, "END"),
+					FieldReference.of(LevelStem.class, "END"));
+		}
 	}
 
 }

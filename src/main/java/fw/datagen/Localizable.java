@@ -1,9 +1,9 @@
 package fw.datagen;
 
+import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.neoforged.neoforge.registries.DeferredHolder;
 
 public interface Localizable {
 
@@ -26,7 +26,7 @@ public interface Localizable {
 	}
 
 	@SuppressWarnings("rawtypes")
-	public static String localizationKey(DeferredHolder holder) {
+	public static String localizationKey(Holder holder) {
 		return localizationKey(holder.getKey());
 	}
 }

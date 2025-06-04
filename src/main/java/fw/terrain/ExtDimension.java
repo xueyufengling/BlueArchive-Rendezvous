@@ -2,8 +2,8 @@ package fw.terrain;
 
 import com.mojang.serialization.MapCodec;
 
-import fw.core.registry.DatagenHolder;
 import fw.core.registry.RegistryFactory;
+import fw.datagen.DatagenHolder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.util.KeyDispatchDataCodec;
 import net.minecraft.world.level.dimension.DimensionType;
@@ -68,8 +68,16 @@ public class ExtDimension {
 			return registerType(name, dfKeyCodec.codec());
 		}
 
-		public static final DeferredHolder<DensityFunction, ? extends DensityFunction> register(String name, DensityFunction func) {
-			return RegistryFactory.DENSITY_FUNCTION.register(name, () -> func);
+		/**
+		 * DENSITY_FUNCTION注册表在数据生成阶段使用时，只能向BootstrapContext注册，不能向MappedRegistry注册，因为数据生成时不存在该注册表，只有运行时才有。<br>
+		 * 运行时需要调用该注册项的值来进行计算，因此运行时也要注册该条目。
+		 * 
+		 * @param name
+		 * @param func
+		 * @return
+		 */
+		public static final DatagenHolder<DensityFunction> register(String name, DensityFunction func) {
+			return DatagenHolder.of(Registries.DENSITY_FUNCTION, name, func);
 		}
 
 	}

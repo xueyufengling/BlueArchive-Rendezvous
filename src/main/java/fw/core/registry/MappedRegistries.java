@@ -1,8 +1,12 @@
 package fw.core.registry;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.IdentityHashMap;
 
+import lyra.klass.KlassWalker;
 import lyra.klass.ObjectManipulator;
+import lyra.lang.Reflection;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
@@ -32,10 +36,19 @@ public class MappedRegistries {
 	public static final MappedRegistry<Level> DIMENSION = null;
 	public static final MappedRegistry<LevelStem> LEVEL_STEM = null;
 
+	/**
+	 * 根据该类声明的静态MappedRegistry字段获取实际的注册表并赋值给这些静态字段
+	 * 
+	 * @param registryAccess
+	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static final void fetchRegistries(RegistryAccess.Frozen registryAccess) {
-		ObjectManipulator.setObject(MappedRegistries.class, "DIMENSION_TYPE", getUnfrozenRegistry(registryAccess, Registries.DIMENSION_TYPE));
-		ObjectManipulator.setObject(MappedRegistries.class, "DIMENSION", getUnfrozenRegistry(registryAccess, Registries.DIMENSION));
-		ObjectManipulator.setObject(MappedRegistries.class, "LEVEL_STEM", getUnfrozenRegistry(registryAccess, Registries.LEVEL_STEM));
+		KlassWalker.walkFields(MappedRegistries.class, (Field f, boolean isStatic, Object value) -> {
+			// 判断目标是否是静态字段，以及目标字段是否可以赋值给MappedRegistry（即目标字段是否是MappedRegistry类或其子类）
+			if (isStatic && Reflection.is(f, MappedRegistry.class)) {
+				ObjectManipulator.setObject(MappedRegistries.class, f.getName(), getUnfrozenRegistry(registryAccess, (ResourceKey) ObjectManipulator.access(Registries.class, f.getName())));
+			}
+		});
 	}
 
 	public static final void fetchRegistries() {
@@ -43,9 +56,12 @@ public class MappedRegistries {
 	}
 
 	public static final void freezeRegistries() {
-		freezeRegistry(DIMENSION_TYPE);
-		freezeRegistry(DIMENSION);
-		freezeRegistry(LEVEL_STEM);
+		KlassWalker.walkFields(MappedRegistries.class, (Field f, boolean isStatic, Object value) -> {
+			// 判断目标是否是静态字段，以及目标字段是否可以赋值给MappedRegistry（即目标字段是否是MappedRegistry类或其子类）
+			if (isStatic && Reflection.is(f, MappedRegistry.class)) {
+				freezeRegistry((Registry<?>) value);
+			}
+		});
 	}
 
 	/**

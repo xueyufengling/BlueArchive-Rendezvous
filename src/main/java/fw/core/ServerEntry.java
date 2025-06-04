@@ -2,6 +2,7 @@ package fw.core;
 
 import java.util.ArrayList;
 
+import ba.entries.dimension.kivotos.Kivotos;
 import fw.core.registry.MappedRegistries;
 import lyra.alpha.reference.Recoverable;
 import lyra.klass.ObjectManipulator;
@@ -13,6 +14,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
+import net.neoforged.neoforge.event.brewing.RegisterBrewingRecipesEvent;
 
 @EventBusSubscriber(modid = Core.ModId)
 public class ServerEntry {
@@ -54,13 +56,18 @@ public class ServerEntry {
 		return server;
 	}
 
+	@SubscribeEvent
+	public static void on(RegisterBrewingRecipesEvent event) {
+		System.err.println(Kivotos.DF_CONTINENTS);
+	}
+
 	@SubscribeEvent(priority = EventPriority.HIGHEST) // 最高优先级以获取注册表
 	public static void onServerStartup(ServerStartingEvent event) {
 		setServer(event.getServer());
 	}
 
 	@SubscribeEvent(priority = EventPriority.LOWEST)
-	public static void onServerStartup(ServerStoppingEvent event) {
+	public static void onServerStop(ServerStoppingEvent event) {
 		if (serverStopCallback != null)
 			serverStopCallback.operate(server);
 		for (Recoverable<?> ref : recoverableRedirectors)
@@ -71,7 +78,7 @@ public class ServerEntry {
 
 	/**
 	 * 托管临时的字段重定向，服务器启动时将字段重定向为指定值，并在服务器退出时将字段恢复。<br>
-	 * 该功能用于重定向MC原版的静态ResourceKey引用，防止修改后重新进入世界时验证数据包失败，这是因为代码和数据包json的耦合性，进入世界时需要确保原版的数据包和引用完整如初。
+	 * 该功能用于重定向MC原版的静态ResourceKey引用，防止修改后退出重新进入世界时验证数据包失败，这是因为代码和数据包json的耦合性，进入世界时需要确保原版的数据包和引用完整如初。
 	 * 
 	 * @param references
 	 */

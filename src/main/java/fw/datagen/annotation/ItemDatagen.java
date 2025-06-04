@@ -7,34 +7,41 @@ import java.util.ArrayList;
 
 import fw.core.Core;
 import lyra.klass.KlassWalker;
-import lyra.lang.GenericTypes;
 import lyra.lang.Reflection;
 import net.minecraft.data.PackOutput;
-import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.client.model.generators.ItemModelBuilder;
 import net.neoforged.neoforge.client.model.generators.ItemModelProvider;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.neoforged.neoforge.registries.DeferredItem;
-import net.neoforged.neoforge.registries.DeferredRegister;
 
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ItemDatagen {
 	/**
-	 * 注册条目名称
+	 * 默认材质文件名称就是注册名称
+	 */
+	public static final String registeredName = "'registered'";
+
+	/**
+	 * 材质文件名称
 	 * 
 	 * @return
 	 */
-	String name();
+	String tex_name() default registeredName;
 
 	/**
 	 * 注册类型
 	 * 
 	 * @return
 	 */
-	String type() default "generated";
+	String model_type() default "generated";
 
-	String path() default "";
+	/**
+	 * 材质文件路径
+	 * 
+	 * @return
+	 */
+	String tex_path() default "";
 
 	public static class ModelProvider extends ItemModelProvider {
 		private static final ArrayList<Class<?>> itemsClasses = new ArrayList<>();
@@ -44,30 +51,34 @@ public @interface ItemDatagen {
 		}
 
 		@Override
+		@SuppressWarnings("rawtypes")
 		protected void registerModels() {
 			for (Class<?> itemClass : itemsClasses)
 				KlassWalker.walkFields(itemClass, ItemDatagen.class, (Field f, boolean isStatic, Object value, ItemDatagen annotation) -> {
 					if (isStatic && Reflection.is(f, DeferredItem.class) && value != null) {
-						switch (annotation.type()) {
+						String tex_name = annotation.tex_name();
+						if (tex_name.equals(registeredName))
+							tex_name = ((DeferredItem) value).getId().getPath();
+						switch (annotation.model_type()) {
 						case "generated":
-							asGeneratedItem(annotation.name(), annotation.path());
+							asGeneratedItem(tex_name, annotation.tex_path());
 							break;
 						case "block":
-							asBlockItem(annotation.name(), annotation.path());
+							asBlockItem(tex_name, annotation.tex_path());
 							break;
 						}
 					}
 				});
 		}
 
-		private ItemModelBuilder asGeneratedItem(String registeredName, String path) {
-			return getBuilder(registeredName)
+		private ItemModelBuilder asGeneratedItem(String textureName, String path) {
+			return getBuilder(textureName)
 					.parent(new ModelFile.UncheckedModelFile("item/generated"))
-					.texture("layer0", modLoc("item/" + path + '/' + registeredName));
+					.texture("layer0", modLoc("item/" + path + '/' + textureName));
 		}
 
-		private ItemModelBuilder asBlockItem(String registeredName, String path) {
-			return withExistingParent(registeredName, modLoc("block/" + path + '/' + registeredName));
+		private ItemModelBuilder asBlockItem(String textureName, String path) {
+			return withExistingParent(textureName, modLoc("block/" + path + '/' + textureName));
 		}
 
 		/**

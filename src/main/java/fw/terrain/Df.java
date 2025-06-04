@@ -1,5 +1,6 @@
 package fw.terrain;
 
+import fw.core.Core;
 import fw.resources.ResourceKeyBuilder;
 import lyra.klass.ObjectManipulator;
 import net.minecraft.core.Holder;
@@ -7,6 +8,7 @@ import net.minecraft.core.HolderGetter;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.levelgen.DensityFunction;
 import net.minecraft.world.level.levelgen.DensityFunctions;
 import net.minecraft.world.level.levelgen.NoiseRouterData;
@@ -40,6 +42,10 @@ public class Df {
 		return param(ResourceKeyBuilder.build(Registries.NOISE, noiseParametersKey));
 	}
 
+	public DensityFunction modParam(String noiseParametersKey) {
+		return func(Core.ModId + ResourceLocation.NAMESPACE_SEPARATOR + noiseParametersKey);
+	}
+
 	/**
 	 * 访问某个类的私有静态字段作为noiseParametersKey
 	 * 
@@ -61,6 +67,16 @@ public class Df {
 
 	public DensityFunction func(String densityFunctionsKey) {
 		return func(ResourceKeyBuilder.build(Registries.DENSITY_FUNCTION, densityFunctionsKey));
+	}
+
+	/**
+	 * 返回ModId命名空间下的密度函数
+	 * 
+	 * @param densityFunctionsKey
+	 * @return
+	 */
+	public DensityFunction modFunc(String densityFunctionsKey) {
+		return func(Core.ModId + ResourceLocation.NAMESPACE_SEPARATOR + densityFunctionsKey);
 	}
 
 	/**

@@ -3,9 +3,7 @@ package ba.entries.dimension.kivotos;
 import java.util.List;
 import java.util.OptionalLong;
 
-import com.mojang.serialization.MapCodec;
-
-import fw.core.registry.DatagenHolder;
+import fw.datagen.DatagenHolder;
 import fw.datagen.annotation.RegistryDatagen;
 import fw.terrain.Df;
 import fw.terrain.ExtDimension;
@@ -29,7 +27,6 @@ import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 import net.minecraft.world.level.levelgen.NoiseRouter;
 import net.minecraft.world.level.levelgen.NoiseSettings;
 import net.minecraft.world.level.levelgen.Noises;
-import net.neoforged.neoforge.registries.DeferredHolder;
 
 public class Kivotos {
 	static {
@@ -63,10 +60,10 @@ public class Kivotos {
 			0.0F,
 			new DimensionType.MonsterSettings(true, false, UniformInt.of(0, 15), 0)));
 
-	public static final String DF_ID = ID + "/land";
+	public static final String DF_ID = ID + "/continents";
 
 	@RegistryDatagen
-	public static final DeferredHolder<MapCodec<? extends DensityFunction>, MapCodec<KivotosDensityFunction>> LAND_DENSITY_FUNCTION = ExtDimension.Df.registerType(DF_ID, KivotosDensityFunction.CODEC);
+	public static final DatagenHolder<DensityFunction> DF_CONTINENTS = ExtDimension.Df.register(DF_ID, new KivotosDensityFunction(0));
 
 	/**
 	 * 噪声地形生成器
@@ -81,48 +78,20 @@ public class Kivotos {
 				2,
 				2);
 
-		// 1. 大陆生成 (板块构造模拟)
 		DensityFunction continents = DensityFunctions.add(
 				DensityFunctions.constant(-0.2), // 全局海平面调整
-				df.func("minecraft:overworld/continents"));
-
-		// 2. 板块碰撞形成的山脉
-		DensityFunction plateCollision = DensityFunctions.mul(
-				DensityFunctions.constant(2.5),
-				DensityFunctions.max(
-						DensityFunctions.min(
-								DensityFunctions.add(
-										df.func("minecraft:overworld/erosion"),
-										df.func("minecraft:overworld/ridges")),
-								DensityFunctions.constant(0.5)),
-						DensityFunctions.constant(-0.5)));
-
-		// 3. 海拔梯度 (从海岸到内陆)
-		DensityFunction elevationGradient = DensityFunctions.mul(
-				DensityFunctions.constant(2.0),
-				DensityFunctions.add(
-						continents,
-						DensityFunctions.constant(0.3))
-						.clamp(-1.0, 1.0));
+				df.modFunc(DF_ID));
 
 		// 4. 细节噪声 (侵蚀效果)
 		DensityFunction detailNoise = DensityFunctions.mul(
 				DensityFunctions.constant(0.8),
 				df.func("minecraft:overworld/jaggedness"));
 
-		// 5. 最终地形密度计算
-		DensityFunction initialDensity = DensityFunctions.add(
-				DensityFunctions.add(
-						continents,
-						plateCollision),
-				elevationGradient);
-
 		DensityFunction finalDensity = DensityFunctions.add(
-				initialDensity,
+				continents,
 				detailNoise);
 
-		// 6. 河流系统 (基于侵蚀噪声)
-		DensityFunction riverSystem = DensityFunctions.add(
+		DensityFunction river = DensityFunctions.add(
 				DensityFunctions.constant(-0.7),
 				df.func("minecraft:overworld/erosion"));
 
@@ -132,11 +101,7 @@ public class Kivotos {
 				Blocks.WATER.defaultBlockState(), // 海平面处的默认流体
 				new NoiseRouter(
 						DensityFunctions.zero(), // barrier
-						DensityFunctions.min(
-								DensityFunctions.mul(
-										DensityFunctions.constant(1.5),
-										riverSystem),
-								DensityFunctions.constant(1.0)), // fluid_level_floodedness
+						river, // fluid_level_floodedness
 						DensityFunctions.noise(df.param(Noises.AQUIFER_FLUID_LEVEL_SPREAD), 0.7), // fluid_level_spread
 						DensityFunctions.zero(), // lava
 						DensityFunctions.shiftedNoise2d(
@@ -151,10 +116,12 @@ public class Kivotos {
 								df.param(Noises.VEGETATION_LARGE)), // vegetation
 						continents, // continents
 						df.func("minecraft:overworld/erosion"), // erosion
-						df.func("minecraft:overworld/depth"), // depth
+						DensityFunctions.add(
+								DensityFunctions.yClampedGradient(MIN_Y, MAX_Y, 1.5, -1.5),
+								finalDensity), // depth
 						df.func("minecraft:overworld/ridges"), // ridges
-						initialDensity, // initial_density_without_jaggedness
-						finalDensity,//df.func("ba:" + DF_ID), // final_density
+						finalDensity, // initial_density_without_jaggedness
+						finalDensity, // final_density
 						DensityFunctions.zero(), // vein_toggle
 						DensityFunctions.zero(), // vein_ridged
 						DensityFunctions.zero()), // vein_gap

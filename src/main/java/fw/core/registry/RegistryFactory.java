@@ -40,8 +40,8 @@ public class RegistryFactory {
 	}
 
 	/**
-	 * 获取注册表，所有通过该方法获取的注册表都可以通过registerAll()一次性全部自动注册到ModBus<br>
-	 * 如果有注册表已经被注册到ModBus，那么将忽略该注册表
+	 * 获取注册表，所有通过该方法获取的注册表将缓存至Map，并且都可以通过registerAll()一次性全部自动注册到ModBus。<br>
+	 * 如果有注册表已经被注册到ModBus，那么将忽略该注册表。
 	 * 
 	 * @param <T>
 	 * @param registry
