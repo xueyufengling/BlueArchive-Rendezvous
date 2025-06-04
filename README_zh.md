@@ -4,25 +4,21 @@
 
 ## 许可
 
-    本项目遵循以[AGPL-3.0](https://www.gnu.org/licenses/agpl-3.0.html)为基础的[Commons Clause License](https://commonsclause.com/)许可。<br>
+    本仓库包含两个独立项目，[CoreFramework](https://github.com/xueyufengling/BlueArchive-Rendezvous/tree/main/src/main/java/fw)和[BlueArchive-Rendezvous](https://github.com/xueyufengling/BlueArchive-Rendezvous/tree/main/src/main/java/ba)，仅是为了方便而发布在同一个仓库中。其中CoreFramework为mod开发的通用框架库，以[LGPL-v3.0](https://www.gnu.org/licenses/lgpl-3.0.html.en)许可发布源代码。BlueArchive-Rendezvous为mod实际内容源代码，以[PolyForm Noncommercial License 1.0.0](https://polyformproject.org/licenses/noncommercial/1.0.0/)许可发布源代码，下文中所有出现的“本项目”均代指此项目。本模组所使用的[相关素材](https://github.com/xueyufengling/BlueArchive-Rendezvous/tree/main/src/main/resources/assets/ba/textures)中，所有自游戏内提取的素材版权均归[蔚蓝档案](https://bluearchive.nexon.com)版权方所有。<br>
 
 ### 注意事项
 
-    简而言之，以下条款是强制性的：<br>
+   本项目**不是[开源](https://opensource.org/osd)项目**，任何人**不能将本模组用于任何形式的商业用途**，包括但不限于：<br>
+a. 贩卖本模组或修改版的源代码、二进制文件。<br>
+b. 关于本模组或其修改版的付费技术支持、咨询服务。<br>
+c. 搭建一个以本模组为主要功能的服务器并向玩家收取费用。<br>
+更多情形可以从[许可条款](LICENSE-BlueArchive-Rendezvous.txt)中推断。<br>
 
-1. 任何人都有权利免费获取本模组的源代码，并且那些发布本模组的二进制文件或提供基于本mod功能的服务（例如搭建服务器）的人有义务提供源代码。<br>
-2. 任何使用本项目作为依赖，或修改本项目的人，必须强制公开源代码，并且那些代码必须以和本项目相同的协议（[Commons Clause License with AGPL-3.0](LICENSE.txt)）发布。<br>
-3. 本项目**不是[开源](https://opensource.org/osd)项目**，任何人**不能将本模组用于任何形式的直接的商业用途**，包括但不限于：<br>
-   a. 贩卖本模组的二进制文件或修改版、附属模组。<br>
-   b. 关于本模组或其修改版、附属模组的付费技术支持、咨询服务。<br>
-   c. 搭建一个以本模组为主要功能的服务器并向玩家收取费用。<br>
-   更多情形可以从[许可条款](LICENSE.txt)中关于“Sell”的定义中推断。<br>
-
-### 为什么要采用Commons Clause License？
+### 为什么要采用PolyForm Noncommercial License？
 
 &emsp;&emsp;  首先，我们创作这个模组的目的是为了让所有人都能免费地、沉浸式地游玩体验Minecraft风格的蔚蓝档案。<br>
 &emsp;&emsp;  从法律上讲，游戏厂商拥有其所设计的游戏的角色、剧情设定等相关的版权，进行同人创作并发布实质上侵犯了它们的权益。但现在，大部分的游戏厂商都默许非盈利性的同人创作。作为模组开发者，我们会免费发布模组的二进制文件，但我们也要想办法阻止其他人将本模组用于任何形式的盈利，这就是为何本模组采用了强约束性的许可。<br>
-&emsp;&emsp;  现有的开源许可都明确允许商业用途，尽管这些许可可能强制要求公开源代码，但却无法阻止用户将这些源代码的二进制文件用于贩卖或提供服务以盈利，这与我们的初衷背道而驰。[CC-NC许可](https://opensource.creativecommons.org/)明确禁止将作品用于任何形式的商业用途，但它并不是针对软件而设计的许可，对源代码的分发和修改等事项没有明确定义，并且Creative Commons组织也不建议将其作为软件许可。为此，我们选择了基于其他开源许可并添加限制的[Commons Clause License](https://commonsclause.com/)许可，在不改动其他条款的情况下仅明确禁止作品的商业用途。
+&emsp;&emsp;  现有的开源许可都明确允许商业用途，尽管这些许可可能强制要求公开源代码，但却无法阻止用户将这些源代码的二进制文件用于贩卖或提供服务以盈利，这与我们的初衷背道而驰。[CC-NC许可](https://opensource.creativecommons.org/)明确禁止将作品用于任何形式的商业用途，但它并不是针对软件而设计的许可，对源代码的分发和修改等事项没有明确定义，并且Creative Commons组织也不建议将其作为软件许可。此时，采用“源代码可用许可”成了允许免费分发、修改mod及其源代码并且禁止商业用于商业目的的唯一选择。<br>
 
 ## 声明
 
@@ -34,7 +30,13 @@
 
 3. 不进行任何形式的盈利并通过许可阻止他人的盈利行为。<br>
 
-    此外，本模组的代码主要依赖于[Lyra](https://github.com/xueyufengling/Lyra)和[CoreFramework](https://github.com/xueyufengling/BlueArchive-Rendezvous/tree/main/src/main/java/fw)实现，这些库不涉及具体的模组逻辑，仅作为模组开发的工具而引入，其源代码由开发者享有完全的知识产权并按照相关的许可进行分发，不会因为任何外部因素删除。
+    此外，本模组的代码主要依赖于[Lyra](https://github.com/xueyufengling/Lyra)和[CoreFramework](https://github.com/xueyufengling/BlueArchive-Rendezvous/tree/main/src/main/java/fw)实现，这些库不涉及具体的模组逻辑，仅作为模组开发的工具而引入，其源代码由开发者享有完全的知识产权并按照相关的许可进行分发，不会因为任何外部因素删除。<br>
+
+    模组的全部构成，包括源代码、地图、建筑、模型等，其版权均属于相关贡献者本身，具体可参见下方贡献者列表。<br>
+
+## 贡献者列表
+
+    [雪羽风铃](https://space.bilibili.com/136619285)：源代码。<br>
 
 ## 介绍
 
