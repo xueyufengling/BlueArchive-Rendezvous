@@ -34,7 +34,7 @@ more situation can be inferred from [liscense terms](LICENSE-BlueArchive-Rendezv
 
     The copyright of all components of the mod, including source code, maps, buildings, models, etc., belongs to the relevant contributors themselves. For details, please see the list of contributors below.<br>
 
-## List of contributors.
+## Contributors List
 
     [雪羽风铃](https://space.bilibili.com/136619285): Source code。<br>
 
