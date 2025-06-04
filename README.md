@@ -36,7 +36,7 @@ more situation can be inferred from [liscense terms](LICENSE-BlueArchive-Rendezv
 
 ## List of contributors.
 
-    [雪羽风铃]([https://space.bilibili.com/136619285): Source code。<br>
+    [雪羽风铃](https://space.bilibili.com/136619285): Source code。<br>
 
 ## Introduction
 
