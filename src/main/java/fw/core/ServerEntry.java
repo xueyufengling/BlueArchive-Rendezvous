@@ -2,11 +2,12 @@ package fw.core;
 
 import java.util.ArrayList;
 
-import ba.entries.dimension.kivotos.Kivotos;
 import fw.core.registry.MappedRegistries;
 import lyra.alpha.reference.Recoverable;
-import lyra.klass.ObjectManipulator;
-import lyra.klass.Placeholders;
+import lyra.lang.annotation.Annotations;
+import lyra.lang.annotation.CallerSensitive;
+import lyra.object.ObjectManipulator;
+import lyra.object.Placeholders;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerConnectionListener;
 import net.neoforged.bus.api.EventPriority;
@@ -14,7 +15,6 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
-import net.neoforged.neoforge.event.brewing.RegisterBrewingRecipesEvent;
 
 @EventBusSubscriber(modid = Core.ModId)
 public class ServerEntry {
@@ -29,6 +29,13 @@ public class ServerEntry {
 	private static Operation serverStartCallback;
 	private static Operation serverStopCallback;
 
+	static {
+		//ForceLoad.target(ServerEntry.class);
+		System.err.println("cinit");
+		Annotations.enableIntrinsicAnnotations();
+	}
+
+	@CallerSensitive
 	public static final void setServerStartCallback(Operation op) {
 		serverStartCallback = op;
 	}
@@ -54,11 +61,6 @@ public class ServerEntry {
 
 	public static final MinecraftServer getServer() {
 		return server;
-	}
-
-	@SubscribeEvent
-	public static void on(RegisterBrewingRecipesEvent event) {
-		System.err.println(Kivotos.DF_CONTINENTS);
 	}
 
 	@SubscribeEvent(priority = EventPriority.HIGHEST) // 最高优先级以获取注册表

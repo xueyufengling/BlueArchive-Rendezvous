@@ -1,14 +1,16 @@
 package fw.core.registry;
 
 import java.lang.reflect.Field;
+import java.util.Map;
+import java.util.function.Supplier;
 
 import com.mojang.serialization.MapCodec;
 
 import fw.core.Core;
 import lyra.alpha.struct.K2HashMap;
 import lyra.klass.KlassWalker;
-import lyra.klass.ObjectManipulator;
 import lyra.lang.Reflection;
+import lyra.object.ObjectManipulator;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
@@ -92,6 +94,7 @@ public class RegistryFactory {
 	 */
 	public static void registerAll(IEventBus modBus) {
 		for (DeferredRegister<?> register : registries.values()) {
+			// System.out.println("Auto registered registry " + register.getRegistryKey());
 			register(register, modBus);
 		}
 	}
@@ -124,5 +127,10 @@ public class RegistryFactory {
 			}
 			return null;
 		});
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <R> Map<DeferredHolder<R, ? extends R>, Supplier<? extends R>> deferredRegisterEntries(DeferredRegister<R> register) {
+		return (Map<DeferredHolder<R, ? extends R>, Supplier<? extends R>>) ObjectManipulator.access(register, "entries");
 	}
 }

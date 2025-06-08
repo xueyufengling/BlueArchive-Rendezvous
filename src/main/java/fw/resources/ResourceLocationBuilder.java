@@ -1,7 +1,7 @@
 package fw.resources;
 
-import lyra.klass.ObjectManipulator;
 import lyra.lang.InternalUnsafe;
+import lyra.object.ObjectManipulator;
 import net.minecraft.resources.ResourceLocation;
 
 public class ResourceLocationBuilder {

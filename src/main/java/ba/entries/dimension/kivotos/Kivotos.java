@@ -60,11 +60,6 @@ public class Kivotos {
 			0.0F,
 			new DimensionType.MonsterSettings(true, false, UniformInt.of(0, 15), 0)));
 
-	public static final String DF_ID = ID + "/continents";
-
-	@RegistryDatagen
-	public static final DatagenHolder<DensityFunction> DF_CONTINENTS = ExtDimension.Df.register(DF_ID, new KivotosDensityFunction(0));
-
 	/**
 	 * 噪声地形生成器
 	 */
@@ -78,9 +73,11 @@ public class Kivotos {
 				2,
 				2);
 
+		DensityFunction base3dNoise = df.func(KivotosDensityFunctions.KIVOTOS_BASE_3D_NOISE.resourceKey);
+
 		DensityFunction continents = DensityFunctions.add(
-				DensityFunctions.constant(-0.2), // 全局海平面调整
-				df.modFunc(DF_ID));
+				base3dNoise, // 全局海平面调整
+				df.func("minecraft:overworld/continents"));
 
 		// 4. 细节噪声 (侵蚀效果)
 		DensityFunction detailNoise = DensityFunctions.mul(

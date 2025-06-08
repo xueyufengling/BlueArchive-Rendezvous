@@ -1,7 +1,9 @@
 package fw.datagen.annotation;
 
+import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Set;
@@ -9,8 +11,8 @@ import java.util.concurrent.CompletableFuture;
 
 import fw.core.Core;
 import fw.datagen.DatagenHolder;
+import lyra.klass.GenericTypes;
 import lyra.klass.KlassWalker;
-import lyra.lang.GenericTypes;
 import lyra.lang.Reflection;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
@@ -23,6 +25,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.common.data.DatapackBuiltinEntriesProvider;
 
 @Retention(RetentionPolicy.RUNTIME)
+@Target({ ElementType.FIELD })
 public @interface RegistryDatagen {
 	public static class RegistriesProvider extends DatapackBuiltinEntriesProvider {
 		private static final ArrayList<Class<?>> registryClasses = new ArrayList<>();
@@ -124,6 +127,7 @@ public @interface RegistryDatagen {
 		public static final Set<String> registryFieldFilter = Set.of(
 				"DIMENSION_TYPE",
 				"LEVEL_STEM",
+				"DENSITY_FUNCTION",
 				"NOISE_SETTINGS");
 
 		/**

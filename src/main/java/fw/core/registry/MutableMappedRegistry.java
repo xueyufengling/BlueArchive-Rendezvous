@@ -10,7 +10,7 @@ import it.unimi.dsi.fastutil.objects.Reference2IntMap;
 import it.unimi.dsi.fastutil.objects.Reference2IntOpenHashMap;
 import lyra.alpha.reference.FieldReference;
 import lyra.alpha.reference.Recoverable;
-import lyra.klass.ObjectManipulator;
+import lyra.object.ObjectManipulator;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Holder.Reference;
 import net.minecraft.core.HolderLookup;

@@ -4,8 +4,8 @@ import java.lang.reflect.Field;
 import java.util.IdentityHashMap;
 
 import lyra.klass.KlassWalker;
-import lyra.klass.ObjectManipulator;
 import lyra.lang.Reflection;
+import lyra.object.ObjectManipulator;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;

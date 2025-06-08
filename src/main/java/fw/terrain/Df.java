@@ -2,7 +2,7 @@ package fw.terrain;
 
 import fw.core.Core;
 import fw.resources.ResourceKeyBuilder;
-import lyra.klass.ObjectManipulator;
+import lyra.object.ObjectManipulator;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.registries.Registries;
@@ -17,7 +17,8 @@ import net.minecraft.world.level.levelgen.synth.NormalNoise;
 import net.minecraft.world.level.levelgen.synth.NormalNoise.NoiseParameters;
 
 /**
- * 简化对地形生成时DensityFunction（原版密度函数定义于NoiseRouterData）和NormalNoise.NoiseParameters的使用
+ * 简化对地形生成时DensityFunction（原版密度函数定义于NoiseRouterData）和NormalNoise.NoiseParameters的使用。<br>
+ * 仅数据生成阶段有效。
  */
 public class Df {
 	private HolderGetter<DensityFunction> densityFunctions;
@@ -65,12 +66,18 @@ public class Df {
 		return new DensityFunctions.HolderHolder(densityFunctions.getOrThrow(densityFunctionsKey));
 	}
 
+	/**
+	 * 返回带命名空间的密度函数，即便没有注册也可以返回并写入json
+	 * 
+	 * @param densityFunctionsKey
+	 * @return
+	 */
 	public DensityFunction func(String densityFunctionsKey) {
 		return func(ResourceKeyBuilder.build(Registries.DENSITY_FUNCTION, densityFunctionsKey));
 	}
 
 	/**
-	 * 返回ModId命名空间下的密度函数
+	 * 返回ModId命名空间下的密度函数，即便没有注册也可以返回并写入json
 	 * 
 	 * @param densityFunctionsKey
 	 * @return

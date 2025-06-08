@@ -21,8 +21,8 @@
     "barrier": 0.0,
     "continents": {
       "type": "minecraft:add",
-      "argument1": -0.2,
-      "argument2": "ba:kivotos/continents"
+      "argument1": "ba:kivotos/base_3d_noise",
+      "argument2": "minecraft:overworld/continents"
     },
     "depth": {
       "type": "minecraft:add",
@@ -37,8 +37,8 @@
         "type": "minecraft:add",
         "argument1": {
           "type": "minecraft:add",
-          "argument1": -0.2,
-          "argument2": "ba:kivotos/continents"
+          "argument1": "ba:kivotos/base_3d_noise",
+          "argument2": "minecraft:overworld/continents"
         },
         "argument2": {
           "type": "minecraft:mul",
@@ -52,8 +52,8 @@
       "type": "minecraft:add",
       "argument1": {
         "type": "minecraft:add",
-        "argument1": -0.2,
-        "argument2": "ba:kivotos/continents"
+        "argument1": "ba:kivotos/base_3d_noise",
+        "argument2": "minecraft:overworld/continents"
       },
       "argument2": {
         "type": "minecraft:mul",
@@ -76,8 +76,8 @@
       "type": "minecraft:add",
       "argument1": {
         "type": "minecraft:add",
-        "argument1": -0.2,
-        "argument2": "ba:kivotos/continents"
+        "argument1": "ba:kivotos/base_3d_noise",
+        "argument2": "minecraft:overworld/continents"
       },
       "argument2": {
         "type": "minecraft:mul",
