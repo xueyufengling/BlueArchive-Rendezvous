@@ -1,7 +1,7 @@
 plugins {
     id 'java-library'
     id 'maven-publish'
-    id 'net.neoforged.moddev' version '1.0.21'
+    id 'net.neoforged.moddev' version '2.0.91'
 }
 
 tasks.named('wrapper', Wrapper).configure {
@@ -19,15 +19,15 @@ group = mod_group_id
 repositories {
     mavenLocal()
     exclusiveContent {
-	    forRepository {
-	        maven {
-	            name = 'GeckoLib'
-	            url = 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/'
-	        }
-	    }
-	    filter {
-	        includeGroup('software.bernie.geckolib')
-	    }
+        forRepository {
+            maven {
+                name = 'GeckoLib'
+                url = 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/'
+            }
+        }
+        filter {
+            includeGroup('software.bernie.geckolib')
+        }
     }
     flatDir {
         dirs 'libs'
@@ -148,8 +148,10 @@ dependencies {
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
     implementation "software.bernie.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}"
-    implementation files("libs/Lyra.jar")
-    implementation files("libs/Alpha-Lyr.jar")
+    additionalRuntimeClasspath(implementation(files("libs/Lyra.jar")))
+    additionalRuntimeClasspath(implementation(files("libs/Alpha-Lyr.jar")))
+    jarJar(files("libs/Lyra.jar"))
+    jarJar(files("libs/Alpha-Lyr.jar"))
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.
@@ -198,9 +200,9 @@ tasks.withType(JavaCompile).configureEach {
 }
 
 // IDEA no longer automatically downloads sources/javadoc jars for dependencies, so we need to explicitly enable the behavior.
-idea {
-    module {
-        downloadSources = true
-        downloadJavadoc = true
-    }
-}
+//idea {
+//    module {
+//        downloadSources = true
+//        downloadJavadoc = true
+//    }
+//}

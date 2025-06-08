@@ -17,13 +17,14 @@ public class Core {
 
 	public static final IEventBus ModBus = null;
 
+	@SuppressWarnings("unused")
 	private static void loadLibrary() {
 		JarKlassLoader.parentClassLoaderField = "fallbackClassLoader";// FML类加载器的默认父类加载器
 		JarKlassLoader.loadKlass(Config.LyraPath, Config.AlphaLyrPath);
 	}
 
 	public static final void init(FMLModContainer container, IEventBus modBus) {
-		loadLibrary();
+//		loadLibrary();
 		// 初始化赋值ModBus
 		ObjectManipulator.setObject(Core.class, "ModBus", modBus);
 		RegistryFactory.registerAll();
