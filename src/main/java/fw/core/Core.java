@@ -23,7 +23,7 @@ public class Core {
 	}
 
 	public static final void init(FMLModContainer container, IEventBus modBus) {
-		loadLibrary();
+//		loadLibrary();
 		// 初始化赋值ModBus
 		ObjectManipulator.setObject(Core.class, "ModBus", modBus);
 		RegistryFactory.registerAll();
