@@ -38,6 +38,8 @@ c. 搭建一个以本模组为主要功能的服务器并向玩家收取费用�
 
     [雪羽风铃](https://space.bilibili.com/136619285)：源代码。<br>
 
+    [vfyjxf](https://github.com/vfyjxf): Gradle构建脚本。<br>
+
 ## 介绍
 
 &emsp;&emsp;  本Minecraft模组为[蔚蓝档案](https://bluearchive.nexon.com)的同人作品，用心制作。<br>

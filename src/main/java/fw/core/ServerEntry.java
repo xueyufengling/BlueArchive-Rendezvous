@@ -29,13 +29,6 @@ public class ServerEntry {
 	private static Operation serverStartCallback;
 	private static Operation serverStopCallback;
 
-	static {
-		//ForceLoad.target(ServerEntry.class);
-		System.err.println("cinit");
-		Annotations.enableIntrinsicAnnotations();
-	}
-
-	@CallerSensitive
 	public static final void setServerStartCallback(Operation op) {
 		serverStartCallback = op;
 	}

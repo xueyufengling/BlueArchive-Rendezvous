@@ -14,7 +14,7 @@ import fw.core.ServerEntry;
 import fw.core.registry.MappedRegistries;
 import fw.core.registry.MutableMappedRegistry;
 import fw.core.registry.RegistryFactory;
-import fw.datagen.ExtDataGenerator;
+import fw.datagen.annotation.LangDatagen;
 import fw.datagen.annotation.Translation;
 import lyra.alpha.reference.FieldReference;
 import lyra.filesystem.KlassPath;
@@ -44,7 +44,7 @@ public class ModEntryObject {
 	public static boolean unregisterEnd = true;
 
 	static {
-		ExtDataGenerator.genLangs(Translation.EN_US, Translation.ZH_CN);
+		LangDatagen.LangProvider.genLangs(Translation.EN_US, Translation.ZH_CN);
 	}
 
 	public static void registerEntries() {
@@ -57,7 +57,7 @@ public class ModEntryObject {
 		Logger.info("JVM is " + Vm.NATIVE_JVM_BIT_VERSION + "-bit with flag UseCompressedOops=" + Vm.UseCompressedOops);
 		Logger.info("KlassWord offset is " + markWord.KLASS_WORD_OFFSET + ", lenght is " + markWord.KLASS_WORD_LENGTH);
 		Logger.info("Running on PID " + Vm.getProcessId());
-		Logger.info("Mod located at " + KlassPath.getKlassPath());
+		//Logger.info("Mod located at " + KlassPath.getKlassPath());
 		registerEntries();
 
 		System.err.println(Kivotos.DIMENSION_TYPE.getClass().getCanonicalName());

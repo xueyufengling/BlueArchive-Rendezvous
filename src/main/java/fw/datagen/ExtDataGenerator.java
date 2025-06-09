@@ -6,6 +6,7 @@ import fw.core.Core;
 import fw.datagen.annotation.ItemDatagen;
 import fw.datagen.annotation.LangDatagen;
 import fw.datagen.annotation.RegistryDatagen;
+import lyra.object.ObjectManipulator;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -15,9 +16,8 @@ import net.neoforged.neoforge.data.event.GatherDataEvent;
 
 @EventBusSubscriber(modid = Core.ModId, bus = EventBusSubscriber.Bus.MOD)
 public class ExtDataGenerator {
-	private static final ArrayList<String> genLangs = new ArrayList<>();
-
 	@SubscribeEvent
+	@SuppressWarnings("unchecked")
 	public static void gatherData(GatherDataEvent event) {
 		DataGenerator generator = event.getGenerator();
 		PackOutput output = generator.getPackOutput();
@@ -27,18 +27,8 @@ public class ExtDataGenerator {
 		generator.addProvider(true, registriesProvider);
 		// 物品数据生成
 		generator.addProvider(event.includeClient(), new ItemDatagen.ModelProvider(output, helper));
+		ArrayList<String> genLangs = (ArrayList<String>) ObjectManipulator.access(LangDatagen.LangProvider.class, "genLangs");
 		for (String lang : genLangs)
 			generator.addProvider(event.includeClient(), new LangDatagen.LangProvider(output, lang));
-	}
-
-	public static final void genLang(String lang) {
-		String formatLang = lang.toLowerCase();
-		if (!genLangs.contains(formatLang))
-			genLangs.add(formatLang);
-	}
-
-	public static final void genLangs(String... langs) {
-		for (String lang : langs)
-			genLang(lang);
 	}
 }

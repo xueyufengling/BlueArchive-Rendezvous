@@ -25,6 +25,7 @@ public @interface LangDatagen {
 	public static class LangProvider extends LanguageProvider {
 		static final HashMap<String, HashMap<String, String>> keyvalsMap = new HashMap<>();
 		static final ArrayList<Class<?>> langClasses = new ArrayList<>();
+		static final ArrayList<String> genLangs = new ArrayList<>();
 
 		String locale;
 
@@ -74,6 +75,17 @@ public @interface LangDatagen {
 				keyvalsMap.put(locale, map);
 			}
 			map.put(key, value);
+		}
+
+		public static final void genLang(String lang) {
+			String formatLang = lang.toLowerCase();
+			if (!genLangs.contains(formatLang))
+				genLangs.add(formatLang);
+		}
+
+		public static final void genLangs(String... langs) {
+			for (String lang : langs)
+				genLang(lang);
 		}
 	}
 }
