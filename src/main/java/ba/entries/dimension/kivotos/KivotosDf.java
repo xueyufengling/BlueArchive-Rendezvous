@@ -1,6 +1,6 @@
 package ba.entries.dimension.kivotos;
 
-import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 
 import fw.codec.annotation.CodecAutogen;
 import fw.codec.annotation.CodecEntry;
@@ -18,7 +18,7 @@ public class KivotosDf implements DensityFunction.SimpleFunction {
 	}
 
 	@CodecAutogen
-	public static final Codec<KivotosDf> CODEC = null;
+	public static final MapCodec<KivotosDf> CODEC = null;
 
 	@CodecEntry
 	public long seed;
@@ -73,7 +73,7 @@ public class KivotosDf implements DensityFunction.SimpleFunction {
 
 	@Override
 	public KeyDispatchDataCodec<? extends DensityFunction> codec() {
-		return null;
+		return KeyDispatchDataCodec.of(CODEC);
 	}
 
 }

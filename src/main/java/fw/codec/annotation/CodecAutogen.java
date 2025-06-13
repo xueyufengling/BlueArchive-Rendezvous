@@ -21,6 +21,7 @@ import fw.core.registry.RegistryFactory;
 import fw.core.registry.RegistryWalker;
 import lyra.klass.KlassWalker;
 import lyra.klass.special.TypeWrapper;
+import lyra.lang.Handles;
 import lyra.lang.Reflection;
 import lyra.lang.internal.HandleBase;
 import lyra.object.ObjectManipulator;
@@ -60,8 +61,15 @@ public @interface CodecAutogen {
 		 */
 		public static final HashMap<Class<?>, String> CODEC_FIELD_NAMES = new HashMap<>();
 
-		private static final ArrayList<Class<?>> codecClasses = new ArrayList<>();// 目标CODEC所在类及其构造函数参数类型
-		private static final HashMap<Class<?>, MethodHandle> codecCtors = new HashMap<>();// 构造函数
+		/**
+		 * 目标CODEC所在类的列表
+		 */
+		private static final ArrayList<Class<?>> codecClasses = new ArrayList<>();
+
+		/**
+		 * 目标类的构造函数。自动寻找构造函数需要与{@code @CodecEntry}注解字段的顺序和类型完全一致，如果不一致则需要手动指定构造函数。
+		 */
+		private static final HashMap<Class<?>, MethodHandle> codecCtors = new HashMap<>();
 
 		/**
 		 * 获取CODEC的默认注册名称，将单词以下划线分隔并转换为全小写。
@@ -79,11 +87,27 @@ public @interface CodecAutogen {
 			return defaultCodecRegisterName(codecClass.getSimpleName());
 		}
 
+		public static final MethodHandle create;
+		public static final MethodHandle mapCodec;
+
+		static {
+			create = Handles.findStaticMethodHandle(RecordCodecBuilder.class, "create", Codec.class, Function.class);
+			mapCodec = Handles.findStaticMethodHandle(RecordCodecBuilder.class, "mapCodec", MapCodec.class, Function.class);
+		}
+
+		/**
+		 * 扫描目标类的全部{@code @CodecEntry}注解字段并构造CODEC
+		 * 
+		 * @param <T>
+		 * @param targetClass
+		 * @param buildMethod 构造CODEC的方法
+		 * @return
+		 */
 		@SuppressWarnings({ "rawtypes", "unchecked" })
-		public static final <T> Codec<T> generate(Class<T> target) {
+		public static final <T> Object generate(Class<T> targetClass, MethodHandle buildMethod) {
 			ArrayList<App> entries = new ArrayList<>();
 			ArrayList<Class<?>> arg_types = new ArrayList<>();
-			KlassWalker.walkFields(target, CodecEntry.class, (Field f, boolean isStatic, Object value, CodecEntry annotation) -> {
+			KlassWalker.walkFields(targetClass, CodecEntry.class, (Field f, boolean isStatic, Object value, CodecEntry annotation) -> {
 				if (!isStatic) {// 只有非静态成员变量需要序列化
 					String key = annotation.key();
 					if (key.equals(CodecEntry.fieldName))
@@ -126,7 +150,11 @@ public @interface CodecAutogen {
 						if (sl != null)
 							field_codec = Codec.string(sl.min(), sl.max());
 					} else {// 如果不是内置的类型，则查找对应类的CODEC_FIELD字段作为CODEC。
-						field_codec = (Codec) ObjectManipulator.access(field_type, CODEC_FIELD_NAMES.computeIfAbsent(target, (Class<?> t) -> DEFAULT_CODEC_FIELD));
+						Object class_codec = ObjectManipulator.access(field_type, CODEC_FIELD_NAMES.computeIfAbsent(targetClass, (Class<?> t) -> DEFAULT_CODEC_FIELD));
+						if (class_codec instanceof Codec c)
+							field_codec = c;
+						else if (class_codec instanceof MapCodec mc)
+							field_codec = mc.codec();
 					}
 					arg_types.add(field_type);// 储存该字段的类型，该类型必须和构造函数的参数类型和顺序严格匹配
 					String[] namespaces = annotation.path() == null ? new String[0] : annotation.path().split(CodecEntry.pathSeparator);
@@ -147,337 +175,401 @@ public @interface CodecAutogen {
 			});
 			Class<?>[] __types = new Class<?>[arg_types.size()];
 			arg_types.toArray(__types);
-			final MethodHandle ctor = codecCtors.computeIfAbsent(target, (Class<?> t) -> HandleBase.findConstructor(target, __types));// 寻找目标类的构造函数，如果没有在forCodec()时手动指定构造函数参数类型，则依据收集到的字段声明类型严格匹配寻找构造函数
+			final MethodHandle ctor = codecCtors.computeIfAbsent(targetClass, (Class<?> t) -> HandleBase.findConstructor(targetClass, __types));// 寻找目标类的构造函数，如果没有在forCodec()时手动指定构造函数参数类型，则依据收集到的字段声明类型严格匹配寻找构造函数
 			if (ctor == null)
-				System.err.println("Cannot find constructor when generating CODEC for " + target + ", check the fields annotated with CodecEntry's order and type, make sure that both order and type are completely the same.");
-			Codec CODEC = null;
+				System.err.println("Cannot find constructor when generating CODEC for " + targetClass + ", check the fields annotated with CodecEntry's order and type, make sure that both order and type are completely the same.");
+			Object CODEC = null;
 			switch (entries.size()) {
 			case 1:
-				CODEC = RecordCodecBuilder.create(ins -> {
-					App entry0 = entries.get(0);
-					return ins.group(entry0).apply(ins, (Object arg0) -> {
-						try {
-							return ctor.invoke(arg0);
-						} catch (Throwable ex) {
-							ex.printStackTrace();
-						}
-						return null;
-					});
-				});
+				try {
+					CODEC = buildMethod.invoke((Function<RecordCodecBuilder.Instance, App>) (ins -> {
+						App entry0 = entries.get(0);
+						return ins.group(entry0).apply(ins, (Object arg0) -> {
+							try {
+								return ctor.invoke(arg0);
+							} catch (Throwable ex) {
+								ex.printStackTrace();
+							}
+							return null;
+						});
+					}));
+				} catch (Throwable e) {
+					e.printStackTrace();
+				}
 				break;
 			case 2:
-				CODEC = RecordCodecBuilder.create(ins -> {
-					App entry0 = entries.get(0);
-					App entry1 = entries.get(1);
-					return ins.group(entry0, entry1).apply(ins, (Object arg0, Object arg1) -> {
-						try {
-							return ctor.invoke(arg0, arg1);
-						} catch (Throwable ex) {
-							ex.printStackTrace();
-						}
-						return null;
-					});
-				});
+				try {
+					CODEC = buildMethod.invoke((Function<RecordCodecBuilder.Instance, App>) (ins -> {
+						App entry0 = entries.get(0);
+						App entry1 = entries.get(1);
+						return ins.group(entry0, entry1).apply(ins, (Object arg0, Object arg1) -> {
+							try {
+								return ctor.invoke(arg0, arg1);
+							} catch (Throwable ex) {
+								ex.printStackTrace();
+							}
+							return null;
+						});
+					}));
+				} catch (Throwable e) {
+					e.printStackTrace();
+				}
 				break;
 			case 3:
-				CODEC = RecordCodecBuilder.create(ins -> {
-					App entry0 = entries.get(0);
-					App entry1 = entries.get(1);
-					App entry2 = entries.get(2);
-					return ins.group(entry0, entry1, entry2).apply(ins, (Object arg0, Object arg1, Object arg2) -> {
-						try {
-							return ctor.invoke(arg0, arg1, arg2);
-						} catch (Throwable ex) {
-							ex.printStackTrace();
-						}
-						return null;
-					});
-				});
+				try {
+					CODEC = buildMethod.invoke((Function<RecordCodecBuilder.Instance, App>) (ins -> {
+						App entry0 = entries.get(0);
+						App entry1 = entries.get(1);
+						App entry2 = entries.get(2);
+						return ins.group(entry0, entry1, entry2).apply(ins, (Object arg0, Object arg1, Object arg2) -> {
+							try {
+								return ctor.invoke(arg0, arg1, arg2);
+							} catch (Throwable ex) {
+								ex.printStackTrace();
+							}
+							return null;
+						});
+					}));
+				} catch (Throwable e) {
+					e.printStackTrace();
+				}
 				break;
 			case 4:
-				CODEC = RecordCodecBuilder.create(ins -> {
-					App entry0 = entries.get(0);
-					App entry1 = entries.get(1);
-					App entry2 = entries.get(2);
-					App entry3 = entries.get(3);
-					return ins.group(entry0, entry1, entry2, entry3).apply(ins, (Object arg0, Object arg1, Object arg2, Object arg3) -> {
-						try {
-							return ctor.invoke(arg0, arg1, arg2, arg3);
-						} catch (Throwable ex) {
-							ex.printStackTrace();
-						}
-						return null;
-					});
-				});
+				try {
+					CODEC = buildMethod.invoke((Function<RecordCodecBuilder.Instance, App>) (ins -> {
+						App entry0 = entries.get(0);
+						App entry1 = entries.get(1);
+						App entry2 = entries.get(2);
+						App entry3 = entries.get(3);
+						return ins.group(entry0, entry1, entry2, entry3).apply(ins, (Object arg0, Object arg1, Object arg2, Object arg3) -> {
+							try {
+								return ctor.invoke(arg0, arg1, arg2, arg3);
+							} catch (Throwable ex) {
+								ex.printStackTrace();
+							}
+							return null;
+						});
+					}));
+				} catch (Throwable e) {
+					e.printStackTrace();
+				}
 				break;
 			case 5:
-				CODEC = RecordCodecBuilder.create(ins -> {
-					App entry0 = entries.get(0);
-					App entry1 = entries.get(1);
-					App entry2 = entries.get(2);
-					App entry3 = entries.get(3);
-					App entry4 = entries.get(4);
-					return ins.group(entry0, entry1, entry2, entry3, entry4).apply(ins, (Object arg0, Object arg1, Object arg2, Object arg3, Object arg4) -> {
-						try {
-							return ctor.invoke(arg0, arg1, arg2, arg3, arg4);
-						} catch (Throwable ex) {
-							ex.printStackTrace();
-						}
-						return null;
-					});
-				});
+				try {
+					CODEC = buildMethod.invoke((Function<RecordCodecBuilder.Instance, App>) (ins -> {
+						App entry0 = entries.get(0);
+						App entry1 = entries.get(1);
+						App entry2 = entries.get(2);
+						App entry3 = entries.get(3);
+						App entry4 = entries.get(4);
+						return ins.group(entry0, entry1, entry2, entry3, entry4).apply(ins, (Object arg0, Object arg1, Object arg2, Object arg3, Object arg4) -> {
+							try {
+								return ctor.invoke(arg0, arg1, arg2, arg3, arg4);
+							} catch (Throwable ex) {
+								ex.printStackTrace();
+							}
+							return null;
+						});
+					}));
+				} catch (Throwable e) {
+					e.printStackTrace();
+				}
 				break;
 			case 6:
-				CODEC = RecordCodecBuilder.create(ins -> {
-					App entry0 = entries.get(0);
-					App entry1 = entries.get(1);
-					App entry2 = entries.get(2);
-					App entry3 = entries.get(3);
-					App entry4 = entries.get(4);
-					App entry5 = entries.get(5);
-					return ins.group(entry0, entry1, entry2, entry3, entry4, entry5).apply(ins, (Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5) -> {
-						try {
-							return ctor.invoke(arg0, arg1, arg2, arg3, arg4, arg5);
-						} catch (Throwable ex) {
-							ex.printStackTrace();
-						}
-						return null;
-					});
-				});
+				try {
+					CODEC = buildMethod.invoke((Function<RecordCodecBuilder.Instance, App>) (ins -> {
+						App entry0 = entries.get(0);
+						App entry1 = entries.get(1);
+						App entry2 = entries.get(2);
+						App entry3 = entries.get(3);
+						App entry4 = entries.get(4);
+						App entry5 = entries.get(5);
+						return ins.group(entry0, entry1, entry2, entry3, entry4, entry5).apply(ins, (Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5) -> {
+							try {
+								return ctor.invoke(arg0, arg1, arg2, arg3, arg4, arg5);
+							} catch (Throwable ex) {
+								ex.printStackTrace();
+							}
+							return null;
+						});
+					}));
+				} catch (Throwable e) {
+					e.printStackTrace();
+				}
 			case 7:
-				CODEC = RecordCodecBuilder.create(ins -> {
-					App entry0 = entries.get(0);
-					App entry1 = entries.get(1);
-					App entry2 = entries.get(2);
-					App entry3 = entries.get(3);
-					App entry4 = entries.get(4);
-					App entry5 = entries.get(5);
-					App entry6 = entries.get(6);
-					return ins.group(entry0, entry1, entry2, entry3, entry4, entry5, entry6).apply(ins, (Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6) -> {
-						try {
-							return ctor.invoke(arg0, arg1, arg2, arg3, arg4, arg5, arg6);
-						} catch (Throwable ex) {
-							ex.printStackTrace();
-						}
-						return null;
-					});
-				});
+				try {
+					CODEC = buildMethod.invoke((Function<RecordCodecBuilder.Instance, App>) (ins -> {
+						App entry0 = entries.get(0);
+						App entry1 = entries.get(1);
+						App entry2 = entries.get(2);
+						App entry3 = entries.get(3);
+						App entry4 = entries.get(4);
+						App entry5 = entries.get(5);
+						App entry6 = entries.get(6);
+						return ins.group(entry0, entry1, entry2, entry3, entry4, entry5, entry6).apply(ins, (Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6) -> {
+							try {
+								return ctor.invoke(arg0, arg1, arg2, arg3, arg4, arg5, arg6);
+							} catch (Throwable ex) {
+								ex.printStackTrace();
+							}
+							return null;
+						});
+					}));
+				} catch (Throwable e) {
+					e.printStackTrace();
+				}
 				break;
 			case 8:
-				CODEC = RecordCodecBuilder.create(ins -> {
-					App entry0 = entries.get(0);
-					App entry1 = entries.get(1);
-					App entry2 = entries.get(2);
-					App entry3 = entries.get(3);
-					App entry4 = entries.get(4);
-					App entry5 = entries.get(5);
-					App entry6 = entries.get(6);
-					App entry7 = entries.get(7);
-					return ins.group(entry0, entry1, entry2, entry3, entry4, entry5, entry6, entry7).apply(ins, (Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6, Object arg7) -> {
-						try {
-							return ctor.invoke(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
-						} catch (Throwable ex) {
-							ex.printStackTrace();
-						}
-						return null;
-					});
-				});
+				try {
+					CODEC = buildMethod.invoke((Function<RecordCodecBuilder.Instance, App>) (ins -> {
+						App entry0 = entries.get(0);
+						App entry1 = entries.get(1);
+						App entry2 = entries.get(2);
+						App entry3 = entries.get(3);
+						App entry4 = entries.get(4);
+						App entry5 = entries.get(5);
+						App entry6 = entries.get(6);
+						App entry7 = entries.get(7);
+						return ins.group(entry0, entry1, entry2, entry3, entry4, entry5, entry6, entry7).apply(ins, (Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6, Object arg7) -> {
+							try {
+								return ctor.invoke(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+							} catch (Throwable ex) {
+								ex.printStackTrace();
+							}
+							return null;
+						});
+					}));
+				} catch (Throwable e) {
+					e.printStackTrace();
+				}
 				break;
 			case 9:
-				CODEC = RecordCodecBuilder.create(ins -> {
-					App entry0 = entries.get(0);
-					App entry1 = entries.get(1);
-					App entry2 = entries.get(2);
-					App entry3 = entries.get(3);
-					App entry4 = entries.get(4);
-					App entry5 = entries.get(5);
-					App entry6 = entries.get(6);
-					App entry7 = entries.get(7);
-					App entry8 = entries.get(8);
-					return ins.group(entry0, entry1, entry2, entry3, entry4, entry5, entry6, entry7, entry8).apply(ins, (Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6, Object arg7, Object arg8) -> {
-						try {
-							return ctor.invoke(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
-						} catch (Throwable ex) {
-							ex.printStackTrace();
-						}
-						return null;
-					});
-				});
+				try {
+					CODEC = buildMethod.invoke((Function<RecordCodecBuilder.Instance, App>) (ins -> {
+						App entry0 = entries.get(0);
+						App entry1 = entries.get(1);
+						App entry2 = entries.get(2);
+						App entry3 = entries.get(3);
+						App entry4 = entries.get(4);
+						App entry5 = entries.get(5);
+						App entry6 = entries.get(6);
+						App entry7 = entries.get(7);
+						App entry8 = entries.get(8);
+						return ins.group(entry0, entry1, entry2, entry3, entry4, entry5, entry6, entry7, entry8).apply(ins, (Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6, Object arg7, Object arg8) -> {
+							try {
+								return ctor.invoke(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8);
+							} catch (Throwable ex) {
+								ex.printStackTrace();
+							}
+							return null;
+						});
+					}));
+				} catch (Throwable e) {
+					e.printStackTrace();
+				}
 				break;
 			case 10:
-				CODEC = RecordCodecBuilder.create(ins -> {
-					App entry0 = entries.get(0);
-					App entry1 = entries.get(1);
-					App entry2 = entries.get(2);
-					App entry3 = entries.get(3);
-					App entry4 = entries.get(4);
-					App entry5 = entries.get(5);
-					App entry6 = entries.get(6);
-					App entry7 = entries.get(7);
-					App entry8 = entries.get(8);
-					App entry9 = entries.get(9);
-					return ins.group(entry0, entry1, entry2, entry3, entry4, entry5, entry6, entry7, entry8, entry9).apply(ins, (Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6, Object arg7, Object arg8, Object arg9) -> {
-						try {
-							return ctor.invoke(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
-						} catch (Throwable ex) {
-							ex.printStackTrace();
-						}
-						return null;
-					});
-				});
+				try {
+					CODEC = buildMethod.invoke((Function<RecordCodecBuilder.Instance, App>) (ins -> {
+						App entry0 = entries.get(0);
+						App entry1 = entries.get(1);
+						App entry2 = entries.get(2);
+						App entry3 = entries.get(3);
+						App entry4 = entries.get(4);
+						App entry5 = entries.get(5);
+						App entry6 = entries.get(6);
+						App entry7 = entries.get(7);
+						App entry8 = entries.get(8);
+						App entry9 = entries.get(9);
+						return ins.group(entry0, entry1, entry2, entry3, entry4, entry5, entry6, entry7, entry8, entry9).apply(ins, (Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6, Object arg7, Object arg8, Object arg9) -> {
+							try {
+								return ctor.invoke(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9);
+							} catch (Throwable ex) {
+								ex.printStackTrace();
+							}
+							return null;
+						});
+					}));
+				} catch (Throwable e) {
+					e.printStackTrace();
+				}
 				break;
 			case 11:
-				CODEC = RecordCodecBuilder.create(ins -> {
-					App entry0 = entries.get(0);
-					App entry1 = entries.get(1);
-					App entry2 = entries.get(2);
-					App entry3 = entries.get(3);
-					App entry4 = entries.get(4);
-					App entry5 = entries.get(5);
-					App entry6 = entries.get(6);
-					App entry7 = entries.get(7);
-					App entry8 = entries.get(8);
-					App entry9 = entries.get(9);
-					App entry10 = entries.get(10);
-					return ins.group(entry0, entry1, entry2, entry3, entry4, entry5, entry6, entry7, entry8, entry9, entry10).apply(ins, (Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6, Object arg7, Object arg8, Object arg9, Object arg10) -> {
-						try {
-							return ctor.invoke(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
-						} catch (Throwable ex) {
-							ex.printStackTrace();
-						}
-						return null;
-					});
-				});
+				try {
+					CODEC = buildMethod.invoke((Function<RecordCodecBuilder.Instance, App>) (ins -> {
+						App entry0 = entries.get(0);
+						App entry1 = entries.get(1);
+						App entry2 = entries.get(2);
+						App entry3 = entries.get(3);
+						App entry4 = entries.get(4);
+						App entry5 = entries.get(5);
+						App entry6 = entries.get(6);
+						App entry7 = entries.get(7);
+						App entry8 = entries.get(8);
+						App entry9 = entries.get(9);
+						App entry10 = entries.get(10);
+						return ins.group(entry0, entry1, entry2, entry3, entry4, entry5, entry6, entry7, entry8, entry9, entry10).apply(ins, (Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6, Object arg7, Object arg8, Object arg9, Object arg10) -> {
+							try {
+								return ctor.invoke(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10);
+							} catch (Throwable ex) {
+								ex.printStackTrace();
+							}
+							return null;
+						});
+					}));
+				} catch (Throwable e) {
+					e.printStackTrace();
+				}
 				break;
 			case 12:
-				CODEC = RecordCodecBuilder.create(ins -> {
-					App entry0 = entries.get(0);
-					App entry1 = entries.get(1);
-					App entry2 = entries.get(2);
-					App entry3 = entries.get(3);
-					App entry4 = entries.get(4);
-					App entry5 = entries.get(5);
-					App entry6 = entries.get(6);
-					App entry7 = entries.get(7);
-					App entry8 = entries.get(8);
-					App entry9 = entries.get(9);
-					App entry10 = entries.get(10);
-					App entry11 = entries.get(11);
-					return ins.group(entry0, entry1, entry2, entry3, entry4, entry5, entry6, entry7, entry8, entry9, entry10, entry11).apply(ins, (Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6, Object arg7, Object arg8, Object arg9, Object arg10, Object arg11) -> {
-						try {
-							return ctor.invoke(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11);
-						} catch (Throwable ex) {
-							ex.printStackTrace();
-						}
-						return null;
-					});
-				});
+				try {
+					CODEC = buildMethod.invoke((Function<RecordCodecBuilder.Instance, App>) (ins -> {
+						App entry0 = entries.get(0);
+						App entry1 = entries.get(1);
+						App entry2 = entries.get(2);
+						App entry3 = entries.get(3);
+						App entry4 = entries.get(4);
+						App entry5 = entries.get(5);
+						App entry6 = entries.get(6);
+						App entry7 = entries.get(7);
+						App entry8 = entries.get(8);
+						App entry9 = entries.get(9);
+						App entry10 = entries.get(10);
+						App entry11 = entries.get(11);
+						return ins.group(entry0, entry1, entry2, entry3, entry4, entry5, entry6, entry7, entry8, entry9, entry10, entry11).apply(ins, (Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6, Object arg7, Object arg8, Object arg9, Object arg10, Object arg11) -> {
+							try {
+								return ctor.invoke(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11);
+							} catch (Throwable ex) {
+								ex.printStackTrace();
+							}
+							return null;
+						});
+					}));
+				} catch (Throwable e) {
+					e.printStackTrace();
+				}
 				break;
 			case 13:
-				CODEC = RecordCodecBuilder.create(ins -> {
-					App entry0 = entries.get(0);
-					App entry1 = entries.get(1);
-					App entry2 = entries.get(2);
-					App entry3 = entries.get(3);
-					App entry4 = entries.get(4);
-					App entry5 = entries.get(5);
-					App entry6 = entries.get(6);
-					App entry7 = entries.get(7);
-					App entry8 = entries.get(8);
-					App entry9 = entries.get(9);
-					App entry10 = entries.get(10);
-					App entry11 = entries.get(11);
-					App entry12 = entries.get(12);
-					return ins.group(entry0, entry1, entry2, entry3, entry4, entry5, entry6, entry7, entry8, entry9, entry10, entry11, entry12).apply(ins, (Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6, Object arg7, Object arg8, Object arg9, Object arg10, Object arg11, Object arg12) -> {
-						try {
-							return ctor.invoke(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12);
-						} catch (Throwable ex) {
-							ex.printStackTrace();
-						}
-						return null;
-					});
-				});
+				try {
+					CODEC = buildMethod.invoke((Function<RecordCodecBuilder.Instance, App>) (ins -> {
+						App entry0 = entries.get(0);
+						App entry1 = entries.get(1);
+						App entry2 = entries.get(2);
+						App entry3 = entries.get(3);
+						App entry4 = entries.get(4);
+						App entry5 = entries.get(5);
+						App entry6 = entries.get(6);
+						App entry7 = entries.get(7);
+						App entry8 = entries.get(8);
+						App entry9 = entries.get(9);
+						App entry10 = entries.get(10);
+						App entry11 = entries.get(11);
+						App entry12 = entries.get(12);
+						return ins.group(entry0, entry1, entry2, entry3, entry4, entry5, entry6, entry7, entry8, entry9, entry10, entry11, entry12).apply(ins, (Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6, Object arg7, Object arg8, Object arg9, Object arg10, Object arg11, Object arg12) -> {
+							try {
+								return ctor.invoke(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12);
+							} catch (Throwable ex) {
+								ex.printStackTrace();
+							}
+							return null;
+						});
+					}));
+				} catch (Throwable e) {
+					e.printStackTrace();
+				}
 				break;
 			case 14:
-				CODEC = RecordCodecBuilder.create(ins -> {
-					App entry0 = entries.get(0);
-					App entry1 = entries.get(1);
-					App entry2 = entries.get(2);
-					App entry3 = entries.get(3);
-					App entry4 = entries.get(4);
-					App entry5 = entries.get(5);
-					App entry6 = entries.get(6);
-					App entry7 = entries.get(7);
-					App entry8 = entries.get(8);
-					App entry9 = entries.get(9);
-					App entry10 = entries.get(10);
-					App entry11 = entries.get(11);
-					App entry12 = entries.get(12);
-					App entry13 = entries.get(13);
-					return ins.group(entry0, entry1, entry2, entry3, entry4, entry5, entry6, entry7, entry8, entry9, entry10, entry11, entry12, entry13).apply(ins, (Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6, Object arg7, Object arg8, Object arg9, Object arg10, Object arg11, Object arg12, Object arg13) -> {
-						try {
-							return ctor.invoke(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13);
-						} catch (Throwable ex) {
-							ex.printStackTrace();
-						}
-						return null;
-					});
-				});
+				try {
+					CODEC = buildMethod.invoke((Function<RecordCodecBuilder.Instance, App>) (ins -> {
+						App entry0 = entries.get(0);
+						App entry1 = entries.get(1);
+						App entry2 = entries.get(2);
+						App entry3 = entries.get(3);
+						App entry4 = entries.get(4);
+						App entry5 = entries.get(5);
+						App entry6 = entries.get(6);
+						App entry7 = entries.get(7);
+						App entry8 = entries.get(8);
+						App entry9 = entries.get(9);
+						App entry10 = entries.get(10);
+						App entry11 = entries.get(11);
+						App entry12 = entries.get(12);
+						App entry13 = entries.get(13);
+						return ins.group(entry0, entry1, entry2, entry3, entry4, entry5, entry6, entry7, entry8, entry9, entry10, entry11, entry12, entry13).apply(ins, (Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6, Object arg7, Object arg8, Object arg9, Object arg10, Object arg11, Object arg12, Object arg13) -> {
+							try {
+								return ctor.invoke(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13);
+							} catch (Throwable ex) {
+								ex.printStackTrace();
+							}
+							return null;
+						});
+					}));
+				} catch (Throwable e) {
+					e.printStackTrace();
+				}
 				break;
 			case 15:
-				CODEC = RecordCodecBuilder.create(ins -> {
-					App entry0 = entries.get(0);
-					App entry1 = entries.get(1);
-					App entry2 = entries.get(2);
-					App entry3 = entries.get(3);
-					App entry4 = entries.get(4);
-					App entry5 = entries.get(5);
-					App entry6 = entries.get(6);
-					App entry7 = entries.get(7);
-					App entry8 = entries.get(8);
-					App entry9 = entries.get(9);
-					App entry10 = entries.get(10);
-					App entry11 = entries.get(11);
-					App entry12 = entries.get(12);
-					App entry13 = entries.get(13);
-					App entry14 = entries.get(14);
-					return ins.group(entry0, entry1, entry2, entry3, entry4, entry5, entry6, entry7, entry8, entry9, entry10, entry11, entry12, entry13, entry14).apply(ins, (Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6, Object arg7, Object arg8, Object arg9, Object arg10, Object arg11, Object arg12, Object arg13, Object arg14) -> {
-						try {
-							return ctor.invoke(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14);
-						} catch (Throwable ex) {
-							ex.printStackTrace();
-						}
-						return null;
-					});
-				});
+				try {
+					CODEC = buildMethod.invoke((Function<RecordCodecBuilder.Instance, App>) (ins -> {
+						App entry0 = entries.get(0);
+						App entry1 = entries.get(1);
+						App entry2 = entries.get(2);
+						App entry3 = entries.get(3);
+						App entry4 = entries.get(4);
+						App entry5 = entries.get(5);
+						App entry6 = entries.get(6);
+						App entry7 = entries.get(7);
+						App entry8 = entries.get(8);
+						App entry9 = entries.get(9);
+						App entry10 = entries.get(10);
+						App entry11 = entries.get(11);
+						App entry12 = entries.get(12);
+						App entry13 = entries.get(13);
+						App entry14 = entries.get(14);
+						return ins.group(entry0, entry1, entry2, entry3, entry4, entry5, entry6, entry7, entry8, entry9, entry10, entry11, entry12, entry13, entry14).apply(ins, (Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6, Object arg7, Object arg8, Object arg9, Object arg10, Object arg11, Object arg12, Object arg13, Object arg14) -> {
+							try {
+								return ctor.invoke(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14);
+							} catch (Throwable ex) {
+								ex.printStackTrace();
+							}
+							return null;
+						});
+					}));
+				} catch (Throwable e) {
+					e.printStackTrace();
+				}
 				break;
 			case 16:
-				CODEC = RecordCodecBuilder.create(ins -> {
-					App entry0 = entries.get(0);
-					App entry1 = entries.get(1);
-					App entry2 = entries.get(2);
-					App entry3 = entries.get(3);
-					App entry4 = entries.get(4);
-					App entry5 = entries.get(5);
-					App entry6 = entries.get(6);
-					App entry7 = entries.get(7);
-					App entry8 = entries.get(8);
-					App entry9 = entries.get(9);
-					App entry10 = entries.get(10);
-					App entry11 = entries.get(11);
-					App entry12 = entries.get(12);
-					App entry13 = entries.get(13);
-					App entry14 = entries.get(14);
-					App entry15 = entries.get(15);
-					return ins.group(entry0, entry1, entry2, entry3, entry4, entry5, entry6, entry7, entry8, entry9, entry10, entry11, entry12, entry13, entry14, entry15).apply(ins, (Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6, Object arg7, Object arg8, Object arg9, Object arg10, Object arg11, Object arg12, Object arg13, Object arg14, Object arg15) -> {
-						try {
-							return ctor.invoke(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15);
-						} catch (Throwable ex) {
-							ex.printStackTrace();
-						}
-						return null;
-					});
-				});
+				try {
+					CODEC = buildMethod.invoke((Function<RecordCodecBuilder.Instance, App>) (ins -> {
+						App entry0 = entries.get(0);
+						App entry1 = entries.get(1);
+						App entry2 = entries.get(2);
+						App entry3 = entries.get(3);
+						App entry4 = entries.get(4);
+						App entry5 = entries.get(5);
+						App entry6 = entries.get(6);
+						App entry7 = entries.get(7);
+						App entry8 = entries.get(8);
+						App entry9 = entries.get(9);
+						App entry10 = entries.get(10);
+						App entry11 = entries.get(11);
+						App entry12 = entries.get(12);
+						App entry13 = entries.get(13);
+						App entry14 = entries.get(14);
+						App entry15 = entries.get(15);
+						return ins.group(entry0, entry1, entry2, entry3, entry4, entry5, entry6, entry7, entry8, entry9, entry10, entry11, entry12, entry13, entry14, entry15).apply(ins, (Object arg0, Object arg1, Object arg2, Object arg3, Object arg4, Object arg5, Object arg6, Object arg7, Object arg8, Object arg9, Object arg10, Object arg11, Object arg12, Object arg13, Object arg14, Object arg15) -> {
+							try {
+								return ctor.invoke(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10, arg11, arg12, arg13, arg14, arg15);
+							} catch (Throwable ex) {
+								ex.printStackTrace();
+							}
+							return null;
+						});
+					}));
+				} catch (Throwable e) {
+					e.printStackTrace();
+				}
 				break;
 			default:
 				System.err.println("Invalid Codec entries count: " + entries.size() + ", should be in (0, 16]");
@@ -486,16 +578,17 @@ public @interface CodecAutogen {
 		}
 
 		/**
-		 * 生成目标类的CODEC并注册到相应的注册表中
+		 * 生成目标类的CODEC并注册到相应的注册表中，并返回对应的DeferredHolder
 		 * 
 		 * @param <T>
+		 * @param codecName    注册名称
 		 * @param target       要生成CODEC的类
 		 * @param registryType 要将CODEC注册到哪个类型
 		 * @return
 		 */
 		@SuppressWarnings({ "rawtypes", "unchecked" })
-		public static final <T> DeferredHolder<Codec, Codec<T>> generateAndRegister(String codecName, Class<T> target, Class<?> registryType) {
-			Codec<T> CODEC = generate(target);
+		public static final DeferredHolder generateAndRegisterHolder(String codecName, Class<?> target, MethodHandle buildMethod, Class<?> registryType) {
+			Object CODEC = generate(target, buildMethod);
 			TypeWrapper<DeferredHolder> holderWrapper = TypeWrapper.wrap();
 			RegistryWalker.walkMapCodecRegistries((Field f, ResourceKey registryKey, Class<?> codecType) -> {
 				if (Reflection.is(registryType, codecType)) {// 当注册表MapCodec的泛型参数和传入的registryType匹配时注册
@@ -505,14 +598,41 @@ public @interface CodecAutogen {
 			return holderWrapper.value;
 		}
 
+		/**
+		 * 生成目标类的CODEC并注册到相应的注册表中，并返回CODEC，可用于给静态字段初始化
+		 * 
+		 * @param <T>
+		 * @param codecName    注册名称
+		 * @param target       要生成CODEC的类
+		 * @param registryType 要将CODEC注册到哪个类型
+		 * @return
+		 */
+		@SuppressWarnings({ "rawtypes", "unchecked" })
+		private static final Object generateAndRegister(String codecName, Class<?> target, MethodHandle buildMethod, Class<?> registryType) {
+			Object CODEC = generate(target, buildMethod);
+			RegistryWalker.walkMapCodecRegistries((Field f, ResourceKey registryKey, Class<?> codecType) -> {
+				if (Reflection.is(registryType, codecType)) {// 当注册表MapCodec的泛型参数和传入的registryType匹配时注册
+					RegistryFactory.deferredRegister(registryKey).register(codecName, () -> CODEC);
+				}
+			});
+			return CODEC;
+		}
+
 		private static final void generateAndRegisterCodecs() {
 			for (Class<?> codecClass : codecClasses) {
 				KlassWalker.walkFields(codecClass, CodecAutogen.class, (Field f, boolean isStatic, Object value, CodecAutogen annotation) -> {
-					if (isStatic && Reflection.is(f, Codec.class)) {
+					if (isStatic) {
+						MethodHandle internalBuildMethod = null;
+						if (Reflection.is(f, Codec.class))
+							internalBuildMethod = create;
+						else if (Reflection.is(f, MapCodec.class))
+							internalBuildMethod = mapCodec;
+						else// 如果字段不是有效的CODEC类型，则直接略过
+							return;
 						String registerName = annotation.name();
 						if (classSimpleName.equals(registerName))
 							registerName = defaultCodecRegisterName(codecClass);
-						ObjectManipulator.setObject(codecClass, f, generateAndRegister(registerName, codecClass, RegistryWalker.getGenericType(f)));
+						ObjectManipulator.setObject(codecClass, f, generateAndRegister(registerName, codecClass, internalBuildMethod, RegistryWalker.getGenericType(f)));
 					}
 				});
 			}

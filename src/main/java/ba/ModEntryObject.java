@@ -6,6 +6,7 @@ import com.mojang.logging.LogUtils;
 
 import ba.entries.dimension.kivotos.Kivotos;
 import ba.entries.dimension.kivotos.KivotosDensityFunctions;
+import ba.entries.dimension.kivotos.KivotosDf;
 import fw.core.Core;
 import fw.core.ServerEntry;
 import fw.core.registry.MappedRegistries;
@@ -60,7 +61,7 @@ public class ModEntryObject {
 	}
 
 	public static void rmVanillaFeatures(MinecraftServer server) {
-		System.err.println("into server " + KivotosDensityFunctions.KIVOTOS_BASE_3D_NOISE);
+		System.err.println("into server " + KivotosDf.CODEC.getClass());
 
 		MutableMappedRegistry<DimensionType> mutableDimensionTypeRegistry = MutableMappedRegistry.from(MappedRegistries.DIMENSION_TYPE);
 		MutableMappedRegistry<Level> mutableDimensionRegistry = MutableMappedRegistry.from(MappedRegistries.DIMENSION);
