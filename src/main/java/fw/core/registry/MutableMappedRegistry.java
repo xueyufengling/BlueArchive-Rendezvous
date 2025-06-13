@@ -129,17 +129,35 @@ public class MutableMappedRegistry<T> implements Recoverable<MutableMappedRegist
 	}
 
 	/**
-	 * 进入世界时会验证注册表完整性，如果要修改原版注册表，需要在退出世界时将注册表恢复至完整的初始状态
+	 * 安全地移除指定元素的ID相关Map和List并进行重排序。
+	 * 
+	 * @param value 要移除的元素
+	 * @return 移除的元素ID
 	 */
 	@SuppressWarnings("deprecation")
+	private int removeId(T value) {
+		int id = mappedRegistry.getId(value);
+		int restLength = byId.size() - id - 1;// 该id元素后的剩余元素总长度
+		Object[] restValues = new Object[restLength];
+		byId.remove(id);// 必须remove(id)，如果设置为null不移除，那么打包数据注册表的时候将引发空指针异常。但是该id后的所有元素的id（实际上就是索引）会前移
+		byId.getElements(id, restValues, 0, restLength);
+		toId.remove(value);
+		for (int restIdx = 0; restIdx < restLength; ++restIdx) {
+			int newId = id + restIdx;
+			toId.put(byId.get(newId).value(), newId);
+		}
+		return id;
+	}
+
+	/**
+	 * 进入世界时会验证注册表完整性，如果要修改原版注册表，需要在退出世界时将注册表恢复至完整的初始状态
+	 */
 	public MutableMappedRegistry<T> unregister(Holder.Reference<T> holder) {
 		if (holder == null)
 			return this;
 		T value = holder.value();
 		byValue.remove(value);
-		int id = mappedRegistry.getId(value);
-		byId.set(id, null);// 不能remove(id)，否则该id后的所有元素的id（实际上就是索引）会前移
-		toId.remove(value);
+		removeId(value);
 		ResourceKey<T> resource_key = holder.getKey();
 		byKey.remove(resource_key);
 		ResourceLocation resloc = resource_key.location();
@@ -174,19 +192,18 @@ public class MutableMappedRegistry<T> implements Recoverable<MutableMappedRegist
 	/**
 	 * 修改注册表的值，如果要修改原版注册表，需要在退出世界时将注册表恢复至完整的初始状态
 	 * 
-	 * @param target
-	 * @param new_value
+	 * @param target    要被替换的目标Holder
+	 * @param new_value 方法内部有null检查，因为该值不能为null否则引发空指针异常
 	 * @return
 	 */
 	public MutableMappedRegistry<T> modify(Holder.Reference<T> target, Holder.Reference<T> new_value) {
-		if (target == null)
+		if (target == null || new_value == null)
 			return this;
 		T value = target.value();
 		byValue.put(value, new_value);
 		int id = mappedRegistry.getId(value);
 		byId.set(id, new_value);
-		if (new_value != null)
-			toId.put(new_value.value(), id);
+		toId.put(new_value.value(), id);
 		ResourceKey<T> resource_key = target.getKey();
 		byKey.put(resource_key, new_value);
 		ResourceLocation resloc = resource_key.location();

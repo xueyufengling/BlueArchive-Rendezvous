@@ -11,7 +11,7 @@ public final class KivotosDensityFunctions {
 		RegistryDatagen.RegistriesProvider.forDatagen(KivotosDensityFunctions.class);
 	}
 
-	@RegistryDatagen
+	@RegistryDatagen(reg_runtime = true)
 	public static final DatagenHolder<DensityFunction> KIVOTOS_BASE_3D_NOISE = ExtDimension.Df.register(Kivotos.ID + "/base_3d_noise", BlendedNoise.createUnseeded(
 			0.25, // xz_scale
 			0.25, // y_scale

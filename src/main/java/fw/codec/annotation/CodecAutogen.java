@@ -26,6 +26,7 @@ import lyra.lang.Reflection;
 import lyra.lang.internal.HandleBase;
 import lyra.object.ObjectManipulator;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.util.KeyDispatchDataCodec;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -601,6 +602,10 @@ public @interface CodecAutogen {
 			return (Codec<T>) generate(targetClass, create);
 		}
 
+		public static final <T> KeyDispatchDataCodec<T> generateKeyDispatchDataCodec(Class<T> targetClass) {
+			return KeyDispatchDataCodec.of(generateMapCodec(targetClass));
+		}
+
 		/**
 		 * 生成目标类的CODEC并注册到相应的注册表中，并返回对应的DeferredHolder
 		 * 
@@ -642,29 +647,42 @@ public @interface CodecAutogen {
 			return CODEC;
 		}
 
-		private static final void generateAndRegisterCodecs() {
-			for (Class<?> codecClass : codecClasses) {
-				KlassWalker.walkFields(codecClass, CodecAutogen.class, (Field f, boolean isStatic, Object value, CodecAutogen annotation) -> {
-					if (isStatic) {
-						MethodHandle internalBuildMethod = null;
-						if (Reflection.is(f, Codec.class))
-							internalBuildMethod = create;
-						else if (Reflection.is(f, MapCodec.class))
-							internalBuildMethod = mapCodec;
-						else// 如果字段不是有效的CODEC类型，则直接略过
-							return;
-						String registerName = annotation.name();
-						if (classSimpleName.equals(registerName))
-							registerName = defaultCodecRegisterName(codecClass);
-						ObjectManipulator.setObject(codecClass, f, generateAndRegister(registerName, codecClass, internalBuildMethod, RegistryWalker.getGenericType(f)));
-					}
-				});
-			}
+		/**
+		 * 扫描字段并构建、注册目标类的CODEC。
+		 * 
+		 * @param codecClass
+		 */
+		@SuppressWarnings({ "rawtypes", "unchecked" })
+		private static final void generateAndRegisterCodecs(Class<?> codecClass) {
+			KlassWalker.walkFields(codecClass, CodecAutogen.class, (Field f, boolean isStatic, Object value, CodecAutogen annotation) -> {
+				if (isStatic) {
+					MethodHandle internalBuildMethod = null;
+					boolean isKeyDispatchDataCodec = false;
+					if (Reflection.is(f, Codec.class))
+						internalBuildMethod = create;
+					else if (Reflection.is(f, MapCodec.class))
+						internalBuildMethod = mapCodec;
+					else if (Reflection.is(f, KeyDispatchDataCodec.class)) {
+						internalBuildMethod = mapCodec;
+						isKeyDispatchDataCodec = true;
+					} else// 如果字段不是有效的CODEC类型，则直接略过
+						return;
+					String registerName = annotation.name();
+					if (classSimpleName.equals(registerName))
+						registerName = defaultCodecRegisterName(codecClass);
+					Object CODEC = generateAndRegister(registerName, codecClass, internalBuildMethod, RegistryWalker.getGenericType(f));
+					if (isKeyDispatchDataCodec)
+						CODEC = KeyDispatchDataCodec.of((MapCodec) CODEC);
+					ObjectManipulator.setObject(codecClass, f, CODEC);
+					Core.logInfo("Generated CODEC for " + codecClass + " in field " + f);
+				}
+			});
 		}
 
 		@SubscribeEvent(priority = EventPriority.HIGH)
 		public static final void autoGenerateCodecs(FMLConstructModEvent event) {
-			generateAndRegisterCodecs();
+			for (Class<?> codecClass : codecClasses)
+				generateAndRegisterCodecs(codecClass);
 		}
 
 		/**

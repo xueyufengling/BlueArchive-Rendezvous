@@ -16,7 +16,12 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.level.levelgen.DensityFunction;
+import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.common.EventBusSubscriber.Bus;
+import net.neoforged.fml.event.lifecycle.FMLConstructModEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
@@ -30,7 +35,6 @@ public class RegistryFactory {
 	public static final DeferredRegister.Items ITEM = (DeferredRegister.Items) deferredRegister(Registries.ITEM);
 	public static final DeferredRegister<CreativeModeTab> CREATIVE_TABS = deferredRegister(Registries.CREATIVE_MODE_TAB);
 
-	public static final DeferredRegister<DensityFunction> DENSITY_FUNCTION = deferredRegister(Registries.DENSITY_FUNCTION);
 	public static final DeferredRegister<MapCodec<? extends DensityFunction>> DENSITY_FUNCTION_TYPE = deferredRegister(Registries.DENSITY_FUNCTION_TYPE);
 
 	public static <T> DeferredRegister<T> deferredRegister(Registry<T> registry, String modId) {
@@ -94,13 +98,24 @@ public class RegistryFactory {
 	 */
 	public static void registerAll(IEventBus modBus) {
 		for (DeferredRegister<?> register : registries.values()) {
-			// System.out.println("Auto registered registry " + register.getRegistryKey());
+			Core.logInfo("Auto registered registry " + register.getRegistryKey());
 			register(register, modBus);
 		}
 	}
 
 	public static void registerAll() {
 		registerAll(Core.ModBus);
+	}
+
+	/**
+	 * 在mod构造函数后注册所有获取的注册表
+	 */
+	@EventBusSubscriber(modid = Core.ModId, bus = Bus.MOD)
+	public static class AutoRegister {
+		@SubscribeEvent(priority = EventPriority.HIGH)
+		public static final void autoRegisterRegistries(FMLConstructModEvent event) {
+			registerAll();
+		}
 	}
 
 	public static <R, T extends R> DeferredHolder<R, T> register(DeferredRegister<R> registry, String registerName, T obj) {

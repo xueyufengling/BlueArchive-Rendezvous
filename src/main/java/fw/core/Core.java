@@ -1,8 +1,8 @@
 package fw.core;
 
+import org.slf4j.Logger;
+
 import fw.Config;
-import fw.codec.annotation.CodecAutogen;
-import fw.core.registry.RegistryFactory;
 import fw.resources.ResourceLocationBuilder;
 import lyra.klass.JarKlassLoader;
 import lyra.object.ObjectManipulator;
@@ -18,17 +18,18 @@ public class Core {
 
 	public static final IEventBus ModBus = null;
 
-	@SuppressWarnings("unused")
+	public static final Logger Logger = Config.Logger;
+
 	private static void loadLibrary() {
 		JarKlassLoader.parentClassLoaderField = "fallbackClassLoader";// FML类加载器的默认父类加载器
 		JarKlassLoader.loadKlass(Config.LyraPath, Config.AlphaLyrPath);
 	}
 
 	public static final void init(FMLModContainer container, IEventBus modBus) {
-//		loadLibrary();
+		if (Config.loadLibBySelf)
+			loadLibrary();
 		// 初始化赋值ModBus
 		ObjectManipulator.setObject(Core.class, "ModBus", modBus);
-		RegistryFactory.registerAll();
 	}
 
 	/**
@@ -39,5 +40,15 @@ public class Core {
 	 */
 	public static ResourceLocation resourceLocation(String loc) {
 		return ResourceLocationBuilder.build(Core.ModId, loc);
+	}
+
+	public static final void logInfo(String msg) {
+		if (Config.logInfo)
+			Logger.info(msg);
+	}
+
+	public static final void logError(String msg) {
+		if (Config.logInfo)
+			Logger.error(msg);
 	}
 }

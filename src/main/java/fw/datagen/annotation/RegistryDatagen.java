@@ -89,6 +89,7 @@ public @interface RegistryDatagen {
 					if (annotation.reg_runtime() && RegistryType.isDatagenHolder(f)) {
 						DatagenHolder datagenHolder = (DatagenHolder) value;
 						ObjectManipulator.setObject(value, "deferredHolder", RegistryFactory.deferredRegister(datagenHolder.registryKey, datagenHolder.namespace).register(datagenHolder.path, () -> datagenHolder.value()));
+						Core.logInfo("Registered " + datagenHolder.resourceKey + " with value=" + datagenHolder.value() + " to registry " + datagenHolder.registryKey + " in runtime.");
 					}
 				}
 			});

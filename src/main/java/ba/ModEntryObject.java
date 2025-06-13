@@ -5,8 +5,6 @@ import org.slf4j.Logger;
 import com.mojang.logging.LogUtils;
 
 import ba.entries.dimension.kivotos.Kivotos;
-import ba.entries.dimension.kivotos.KivotosDensityFunctions;
-import ba.entries.dimension.kivotos.KivotosDf;
 import fw.core.Core;
 import fw.core.ServerEntry;
 import fw.core.registry.MappedRegistries;
@@ -56,12 +54,13 @@ public class ModEntryObject {
 		Logger.info("Running on PID " + Vm.getProcessId());
 		Logger.info("Mod located at " + KlassPath.getKlassPath());
 		registerEntries();
+		//String a=Kivotos.ID;
 
 		ServerEntry.setServerStartCallback(ModEntryObject::rmVanillaFeatures);
 	}
 
 	public static void rmVanillaFeatures(MinecraftServer server) {
-		System.err.println("into server " + KivotosDf.CODEC.getClass());
+		// System.err.println("into server " + KivotosDf.CODEC.getClass());
 
 		MutableMappedRegistry<DimensionType> mutableDimensionTypeRegistry = MutableMappedRegistry.from(MappedRegistries.DIMENSION_TYPE);
 		MutableMappedRegistry<Level> mutableDimensionRegistry = MutableMappedRegistry.from(MappedRegistries.DIMENSION);

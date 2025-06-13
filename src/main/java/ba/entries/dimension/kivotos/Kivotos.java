@@ -3,6 +3,7 @@ package ba.entries.dimension.kivotos;
 import java.util.List;
 import java.util.OptionalLong;
 
+import ba.entries.biome.kivotos.KivotosBiomes;
 import fw.datagen.DatagenHolder;
 import fw.datagen.annotation.RegistryDatagen;
 import fw.terrain.Df;
@@ -16,6 +17,7 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.biome.FixedBiomeSource;
+import net.minecraft.world.level.biome.MultiNoiseBiomeSource;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
 import net.minecraft.world.level.dimension.DimensionType;
@@ -79,6 +81,8 @@ public class Kivotos {
 				base3dNoise, // 全局海平面调整
 				df.func("minecraft:overworld/continents"));
 
+		// DensityFunction continents = df.func("minecraft:overworld/continents");
+
 		// 4. 细节噪声 (侵蚀效果)
 		DensityFunction detailNoise = DensityFunctions.mul(
 				DensityFunctions.constant(0.8),
@@ -139,10 +143,8 @@ public class Kivotos {
 		Holder<DimensionType> dimType = dimensionTypes.getOrThrow(DIMENSION_TYPE.resourceKey);
 		Holder<NoiseGeneratorSettings> noise = noiseSettings.getOrThrow(NOISE_SETTINGS.resourceKey);
 
-		// MultiNoiseBiomeSource biomeSource = preset.getBiomeSource(biomes);
-
 		return new LevelStem(dimType, new NoiseBasedChunkGenerator(
-				new FixedBiomeSource(context.lookup(Registries.BIOME).getOrThrow(Biomes.PLAINS)),
+				null,
 				noise));
 	});
 }
