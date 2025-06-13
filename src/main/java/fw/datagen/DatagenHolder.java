@@ -97,7 +97,7 @@ public class DatagenHolder<T> {
 	 * @return
 	 */
 	public static final <T> DatagenHolder<T> of(ResourceKey<? extends Registry<T>> registryKey, String namespace, String path, T value) {
-		return new DatagenHolder<>(registryKey, namespace, path, null, RegistryFactory.deferredRegister(registryKey, namespace).register(path, () -> value), value);
+		return new DatagenHolder<>(registryKey, namespace, path, null, null, value);
 	}
 
 	/**
@@ -124,6 +124,6 @@ public class DatagenHolder<T> {
 
 	@Override
 	public String toString() {
-		return "{Key=" + resourceKey + ", value=" + value + ", deferredHolder=" + deferredHolder + ", isBound=" + (deferredHolder == null ? false : deferredHolder.isBound()) + "}";
+		return "{key=" + resourceKey + ", value=" + value + ", deferredHolder=" + deferredHolder + ", isBound=" + (deferredHolder == null ? false : deferredHolder.isBound()) + "}";
 	}
 }

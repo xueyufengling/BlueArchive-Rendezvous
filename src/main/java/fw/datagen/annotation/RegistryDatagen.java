@@ -10,25 +10,105 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 import fw.core.Core;
+import fw.core.registry.RegistryFactory;
+import fw.core.registry.RegistryWalker;
 import fw.datagen.DatagenHolder;
 import lyra.klass.GenericTypes;
 import lyra.klass.KlassWalker;
 import lyra.lang.Reflection;
+import lyra.object.ObjectManipulator;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistrySetBuilder;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.common.EventBusSubscriber.Bus;
+import net.neoforged.fml.event.lifecycle.FMLConstructModEvent;
 import net.neoforged.neoforge.common.data.DatapackBuiltinEntriesProvider;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.FIELD })
 public @interface RegistryDatagen {
+
+	/**
+	 * 是否在运行时注册到DefferedRegister，默认为false
+	 * 
+	 * @return
+	 */
+	boolean reg_runtime() default false;
+
+	public static class RegistryType {
+
+		/**
+		 * 判断目标字段是否是泛型参数为genericType的DatagenHolder
+		 * 
+		 * @param f
+		 * @param genericType
+		 * @return
+		 */
+		public static boolean isDatagenHolder(Field f, Class<?> genericType) {
+			return Reflection.is(f, DatagenHolder.class) && GenericTypes.is(f, genericType);
+		}
+
+		public static boolean isDatagenHolder(Field f) {
+			return Reflection.is(f, DatagenHolder.class);
+		}
+
+		/**
+		 * 判断目标字段是否是泛型参数为genericType的Holder，包括DeferredHolder
+		 * 
+		 * @param f
+		 * @param genericType
+		 * @return
+		 */
+		public static boolean isHolder(Field f, Class<?> genericType) {
+			return Reflection.is(f, Holder.class) && GenericTypes.startWith(f, genericType);
+		}
+
+		public static boolean isHolder(Field f) {
+			return Reflection.is(f, Holder.class);
+		}
+	}
+
+	@EventBusSubscriber(modid = Core.ModId, bus = Bus.MOD)
+	public static class RuntimeDatagenHolderRegister {
+		/**
+		 * 注册给定类中的所有DatagenHolder到运行时的注册表。
+		 * 
+		 * @param registryClass
+		 */
+		@SuppressWarnings({ "rawtypes", "unchecked" })
+		public static final void registerDatagenHoldersToRegistry(Class<?> registryClass) {
+			KlassWalker.walkFields(registryClass, RegistryDatagen.class, (Field f, boolean isStatic, Object value, RegistryDatagen annotation) -> {
+				if (isStatic && value != null) {
+					if (annotation.reg_runtime() && RegistryType.isDatagenHolder(f)) {
+						DatagenHolder datagenHolder = (DatagenHolder) value;
+						ObjectManipulator.setObject(value, "deferredHolder", RegistryFactory.deferredRegister(datagenHolder.registryKey, datagenHolder.namespace).register(datagenHolder.path, () -> datagenHolder.value()));
+					}
+				}
+			});
+		}
+
+		/**
+		 * mod构建完成以后注册需要注册的DatagenHolder
+		 * 
+		 * @param event
+		 */
+		@SubscribeEvent(priority = EventPriority.HIGHEST)
+		public static void onFMLConstructMod(FMLConstructModEvent event) {
+			for (Class<?> registryClass : RegistriesProvider.registryClasses) {
+				registerDatagenHoldersToRegistry(registryClass);
+			}
+		}
+	}
+
 	public static class RegistriesProvider extends DatapackBuiltinEntriesProvider {
-		private static final ArrayList<Class<?>> registryClasses = new ArrayList<>();
+		static final ArrayList<Class<?>> registryClasses = new ArrayList<>();
 
 		/**
 		 * 过滤掉Registries的ResourceKey字段，只有位于该Set内的字段才会被被添加到数据生成。<br>
@@ -131,28 +211,6 @@ public @interface RegistryDatagen {
 				"NOISE_SETTINGS");
 
 		/**
-		 * 判断目标字段是否是泛型参数为genericType的DatagenHolder
-		 * 
-		 * @param f
-		 * @param genericType
-		 * @return
-		 */
-		private static boolean isDatagenHolder(Field f, Class<?> genericType) {
-			return Reflection.is(f, DatagenHolder.class) && GenericTypes.is(f, genericType);
-		}
-
-		/**
-		 * 判断目标字段是否是泛型参数为genericType的Holder，包括DeferredHolder
-		 * 
-		 * @param f
-		 * @param genericType
-		 * @return
-		 */
-		private static boolean isHolder(Field f, Class<?> genericType) {
-			return Reflection.is(f, Holder.class) && GenericTypes.startWith(f, genericType);
-		}
-
-		/**
 		 * 注册某个类中的全部静态字段
 		 * 
 		 * @param <T>
@@ -165,10 +223,10 @@ public @interface RegistryDatagen {
 			BootstrapContext raw_context = (BootstrapContext) context;
 			KlassWalker.walkFields(registryClass, RegistryDatagen.class, (Field f, boolean isStatic, Object value, RegistryDatagen annotation) -> {
 				if (isStatic && value != null) {
-					if (isDatagenHolder(f, registryType)) {
+					if (RegistryType.isDatagenHolder(f, registryType)) {
 						DatagenHolder datagenHolder = (DatagenHolder) value;
 						raw_context.register(datagenHolder.resourceKey, datagenHolder.value(context));
-					} else if (isHolder(f, registryType)) {
+					} else if (RegistryType.isHolder(f, registryType)) {
 						Holder holder = (Holder) value;
 						raw_context.register(holder.getKey(), holder.value());
 					}
@@ -180,15 +238,13 @@ public @interface RegistryDatagen {
 		private static final RegistrySetBuilder allRegistrySetBuilder() {
 			RegistrySetBuilder registrySetBuilder = new RegistrySetBuilder();
 			// 遍历net.minecraft.core.registries.Registries的所有静态字段并添加对应的数据生成器
-			KlassWalker.walkFields(Registries.class, (Field f, boolean isStatic, Object registryKey) -> {
-				if (isStatic && Reflection.is(f, ResourceKey.class) && registryKey != null) {
-					if (registryFieldFilter.contains(f.getName())) {
-						RegistrySetBuilder.RegistryBootstrap bootstrap = (BootstrapContext context) -> {
-							for (Class<?> registryClass : registryClasses)
-								registerFields(context, registryClass, GenericTypes.classes(f, 0)[0]);
-						};
-						registrySetBuilder.add((ResourceKey) registryKey, bootstrap);
-					}
+			RegistryWalker.walkRegistries((Field f, ResourceKey registryKey, Class<?> registryType) -> {
+				if (registryFieldFilter.contains(f.getName())) {
+					RegistrySetBuilder.RegistryBootstrap bootstrap = (BootstrapContext context) -> {
+						for (Class<?> registryClass : registryClasses)
+							registerFields(context, registryClass, RegistryWalker.getRegistryType(f));
+					};
+					registrySetBuilder.add((ResourceKey) registryKey, bootstrap);
 				}
 			});
 			return registrySetBuilder;

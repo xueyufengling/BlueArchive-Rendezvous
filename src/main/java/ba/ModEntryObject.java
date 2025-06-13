@@ -1,8 +1,5 @@
 package ba;
 
-import java.util.Map;
-import java.util.function.Supplier;
-
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
@@ -13,7 +10,6 @@ import fw.core.Core;
 import fw.core.ServerEntry;
 import fw.core.registry.MappedRegistries;
 import fw.core.registry.MutableMappedRegistry;
-import fw.core.registry.RegistryFactory;
 import fw.datagen.annotation.LangDatagen;
 import fw.datagen.annotation.Translation;
 import lyra.alpha.reference.FieldReference;
@@ -27,11 +23,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.dimension.LevelStem;
-import net.minecraft.world.level.levelgen.DensityFunction;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.javafmlmod.FMLModContainer;
-import net.neoforged.neoforge.registries.DeferredHolder;
 
 @Mod(value = ModEntryObject.ModId)
 public class ModEntryObject {
@@ -44,6 +38,7 @@ public class ModEntryObject {
 	public static boolean unregisterEnd = true;
 
 	static {
+		System.err.println("<cinit>");
 		LangDatagen.LangProvider.genLangs(Translation.EN_US, Translation.ZH_CN);
 	}
 
@@ -52,25 +47,21 @@ public class ModEntryObject {
 	}
 
 	public ModEntryObject(FMLModContainer container, IEventBus modBus) {
+		System.err.println("<mod>");
 		Core.init(container, modBus);
 		// 打印调试信息
 		Logger.info("JVM is " + Vm.NATIVE_JVM_BIT_VERSION + "-bit with flag UseCompressedOops=" + Vm.UseCompressedOops);
 		Logger.info("KlassWord offset is " + markWord.KLASS_WORD_OFFSET + ", lenght is " + markWord.KLASS_WORD_LENGTH);
 		Logger.info("Running on PID " + Vm.getProcessId());
-		//Logger.info("Mod located at " + KlassPath.getKlassPath());
+		Logger.info("Mod located at " + KlassPath.getKlassPath());
 		registerEntries();
-
-		System.err.println(Kivotos.DIMENSION_TYPE.getClass().getCanonicalName());
-		Map<DeferredHolder<DensityFunction, ? extends DensityFunction>, Supplier<? extends DensityFunction>> entries = RegistryFactory.deferredRegisterEntries(RegistryFactory.DENSITY_FUNCTION);
-		for (Supplier<? extends DensityFunction> e : entries.values())
-			System.err.println(e.get());
 
 		ServerEntry.setServerStartCallback(ModEntryObject::rmVanillaFeatures);
 	}
 
 	public static void rmVanillaFeatures(MinecraftServer server) {
-		System.err.println("into server " + Kivotos.DIMENSION_TYPE);
 		System.err.println("into server " + KivotosDensityFunctions.KIVOTOS_BASE_3D_NOISE);
+
 		MutableMappedRegistry<DimensionType> mutableDimensionTypeRegistry = MutableMappedRegistry.from(MappedRegistries.DIMENSION_TYPE);
 		MutableMappedRegistry<Level> mutableDimensionRegistry = MutableMappedRegistry.from(MappedRegistries.DIMENSION);
 		MutableMappedRegistry<LevelStem> mutableLevelStemRegistry = MutableMappedRegistry.from(MappedRegistries.LEVEL_STEM);

@@ -4,8 +4,6 @@ import java.util.ArrayList;
 
 import fw.core.registry.MappedRegistries;
 import lyra.alpha.reference.Recoverable;
-import lyra.lang.annotation.Annotations;
-import lyra.lang.annotation.CallerSensitive;
 import lyra.object.ObjectManipulator;
 import lyra.object.Placeholders;
 import net.minecraft.server.MinecraftServer;

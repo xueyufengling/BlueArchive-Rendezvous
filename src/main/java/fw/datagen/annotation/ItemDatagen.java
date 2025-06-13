@@ -53,25 +53,29 @@ public @interface ItemDatagen {
 			super(output, Core.ModId, helper);
 		}
 
-		@Override
 		@SuppressWarnings("rawtypes")
+		protected void registerModels(Class<?> itemClass) {
+			KlassWalker.walkFields(itemClass, ItemDatagen.class, (Field f, boolean isStatic, Object value, ItemDatagen annotation) -> {
+				if (isStatic && Reflection.is(f, DeferredItem.class) && value != null) {
+					String tex_name = annotation.tex_name();
+					if (tex_name.equals(registeredName))
+						tex_name = ((DeferredItem) value).getId().getPath();
+					switch (annotation.model_type()) {
+					case "generated":
+						asGeneratedItem(tex_name, annotation.tex_path());
+						break;
+					case "block":
+						asBlockItem(tex_name, annotation.tex_path());
+						break;
+					}
+				}
+			});
+		}
+
+		@Override
 		protected void registerModels() {
 			for (Class<?> itemClass : itemsClasses)
-				KlassWalker.walkFields(itemClass, ItemDatagen.class, (Field f, boolean isStatic, Object value, ItemDatagen annotation) -> {
-					if (isStatic && Reflection.is(f, DeferredItem.class) && value != null) {
-						String tex_name = annotation.tex_name();
-						if (tex_name.equals(registeredName))
-							tex_name = ((DeferredItem) value).getId().getPath();
-						switch (annotation.model_type()) {
-						case "generated":
-							asGeneratedItem(tex_name, annotation.tex_path());
-							break;
-						case "block":
-							asBlockItem(tex_name, annotation.tex_path());
-							break;
-						}
-					}
-				});
+				registerModels(itemClass);
 		}
 
 		private ItemModelBuilder asGeneratedItem(String textureName, String path) {

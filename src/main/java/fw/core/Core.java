@@ -1,6 +1,7 @@
 package fw.core;
 
 import fw.Config;
+import fw.codec.annotation.CodecAutogen;
 import fw.core.registry.RegistryFactory;
 import fw.resources.ResourceLocationBuilder;
 import lyra.klass.JarKlassLoader;
