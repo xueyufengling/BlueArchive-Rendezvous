@@ -104,7 +104,7 @@ public @interface CodecAutogen {
 		 * @return
 		 */
 		@SuppressWarnings({ "rawtypes", "unchecked" })
-		public static final <T> Object generate(Class<T> targetClass, MethodHandle buildMethod) {
+		public static final Object generate(Class<?> targetClass, MethodHandle buildMethod) {
 			ArrayList<App> entries = new ArrayList<>();
 			ArrayList<Class<?>> arg_types = new ArrayList<>();
 			KlassWalker.walkFields(targetClass, CodecEntry.class, (Field f, boolean isStatic, Object value, CodecEntry annotation) -> {
@@ -575,6 +575,30 @@ public @interface CodecAutogen {
 				System.err.println("Invalid Codec entries count: " + entries.size() + ", should be in (0, 16]");
 			}
 			return CODEC;
+		}
+
+		/**
+		 * 生成一个MapCodec
+		 * 
+		 * @param <T>
+		 * @param targetClass
+		 * @return
+		 */
+		@SuppressWarnings("unchecked")
+		public static final <T> MapCodec<T> generateMapCodec(Class<T> targetClass) {
+			return (MapCodec<T>) generate(targetClass, mapCodec);
+		}
+
+		/**
+		 * 生成一个Codec
+		 * 
+		 * @param <T>
+		 * @param targetClass
+		 * @return
+		 */
+		@SuppressWarnings("unchecked")
+		public static final <T> Codec<T> generateCodec(Class<T> targetClass) {
+			return (Codec<T>) generate(targetClass, create);
 		}
 
 		/**
