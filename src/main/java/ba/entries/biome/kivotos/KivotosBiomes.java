@@ -1,43 +1,43 @@
 package ba.entries.biome.kivotos;
 
-import java.util.stream.Stream;
+import java.util.List;
 
 import com.mojang.serialization.MapCodec;
 
 import fw.codec.annotation.CodecAutogen;
+import fw.terrain.ExtBiomeSource;
 import net.minecraft.core.Holder;
+import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.biome.Climate.Sampler;
 
-public class KivotosBiomes extends BiomeSource {
+public class KivotosBiomes extends ExtBiomeSource {
 
 	static {
 		CodecAutogen.CodecGenerator.forCodec(KivotosBiomes.class);
 	}
 
-	@CodecAutogen
+	@CodecAutogen(null_if_empty = true)
 	public static final MapCodec<? extends BiomeSource> CODEC = null;
 
-	public KivotosBiomes() {
+	protected static final List<String> biomes = List.of("minecraft:forest");
 
+	/**
+	 * 仅数据生成阶段使用
+	 * 
+	 * @param context
+	 */
+	public KivotosBiomes(BootstrapContext<?> context) {
+		super(context);
 	}
 
-	@Override
-	protected MapCodec<? extends BiomeSource> codec() {
-		return CODEC;
-	}
-
-	@Override
-	protected Stream<Holder<Biome>> collectPossibleBiomes() {
-		// TODO Auto-generated method stub
-		return null;
+	public KivotosBiomes(List<Holder<Biome>> possibleBiomesList) {
+		super(possibleBiomesList);
 	}
 
 	@Override
 	public Holder<Biome> getNoiseBiome(int x, int y, int z, Sampler sampler) {
-		// TODO Auto-generated method stub
-		return null;
+		return biome("minecraft:forest");
 	}
-
 }

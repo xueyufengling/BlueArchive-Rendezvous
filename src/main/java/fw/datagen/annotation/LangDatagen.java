@@ -37,7 +37,7 @@ public @interface LangDatagen {
 		@Override
 		protected void addTranslations() {
 			for (Class<?> langClass : langClasses) {
-				KlassWalker.walkFields(langClass, LangDatagen.class, (Field f, boolean isStatic, Object value, LangDatagen annotation) -> {
+				KlassWalker.walkAnnotatedFields(langClass, LangDatagen.class, (Field f, boolean isStatic, Object value, LangDatagen annotation) -> {
 					Translation[] translations = annotation.translations();
 					for (Translation translation : translations) {
 						if (locale.equals(translation.locale())) {// 当前Translation的语言是LangProvider的语言
@@ -53,6 +53,7 @@ public @interface LangDatagen {
 							}
 						}
 					}
+					return true;
 				});
 			}
 			HashMap<String, String> map = keyvalsMap.get(locale);

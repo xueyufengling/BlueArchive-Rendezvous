@@ -37,7 +37,6 @@ public class ModEntryObject {
 	public static boolean unregisterEnd = true;
 
 	static {
-		System.err.println("<cinit>");
 		LangDatagen.LangProvider.genLangs(Translation.EN_US, Translation.ZH_CN);
 	}
 
@@ -54,14 +53,13 @@ public class ModEntryObject {
 		Logger.info("Running on PID " + Vm.getProcessId());
 		Logger.info("Mod located at " + KlassPath.getKlassPath());
 		registerEntries();
-		//String a=Kivotos.ID;
+		// String a=Kivotos.ID;
 
 		ServerEntry.setServerStartCallback(ModEntryObject::rmVanillaFeatures);
 	}
 
 	public static void rmVanillaFeatures(MinecraftServer server) {
 		// System.err.println("into server " + KivotosDf.CODEC.getClass());
-
 		MutableMappedRegistry<DimensionType> mutableDimensionTypeRegistry = MutableMappedRegistry.from(MappedRegistries.DIMENSION_TYPE);
 		MutableMappedRegistry<Level> mutableDimensionRegistry = MutableMappedRegistry.from(MappedRegistries.DIMENSION);
 		MutableMappedRegistry<LevelStem> mutableLevelStemRegistry = MutableMappedRegistry.from(MappedRegistries.LEVEL_STEM);

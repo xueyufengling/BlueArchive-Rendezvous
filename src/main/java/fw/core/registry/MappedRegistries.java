@@ -13,6 +13,7 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.dimension.LevelStem;
 
@@ -34,6 +35,7 @@ public class MappedRegistries {
 	public static final MappedRegistry<DimensionType> DIMENSION_TYPE = null;
 	public static final MappedRegistry<Level> DIMENSION = null;
 	public static final MappedRegistry<LevelStem> LEVEL_STEM = null;
+	public static final MappedRegistry<Biome> BIOME = null;
 
 	/**
 	 * 根据该类声明的静态MappedRegistry字段获取实际的注册表并赋值给这些静态字段
@@ -41,26 +43,34 @@ public class MappedRegistries {
 	 * @param registryAccess
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public static final void fetchRegistries(RegistryAccess.Frozen registryAccess) {
-		KlassWalker.walkFields(MappedRegistries.class, (Field f, boolean isStatic, Object value) -> {
+	public static final void fetchRegistries(Class<?> target, RegistryAccess.Frozen registryAccess) {
+		KlassWalker.walkTypeFields(target, MappedRegistry.class, (Field f, boolean isStatic, MappedRegistry value) -> {
 			// 判断目标是否是静态字段，以及目标字段是否可以赋值给MappedRegistry（即目标字段是否是MappedRegistry类或其子类）
-			if (isStatic && Reflection.is(f, MappedRegistry.class)) {
+			if (isStatic) {
 				ObjectManipulator.setObject(MappedRegistries.class, f.getName(), getUnfrozenRegistry(registryAccess, (ResourceKey) ObjectManipulator.access(Registries.class, f.getName())));
 			}
+			return true;
 		});
 	}
 
 	public static final void fetchRegistries() {
-		fetchRegistries(serverRegistryAccess);
+		System.err.println("fetchRegistries " + serverRegistryAccess);
+		fetchRegistries(MappedRegistries.class, serverRegistryAccess);
+	}
+
+	@SuppressWarnings("rawtypes")
+	public static final void freezeRegistries(Class<?> target) {
+		KlassWalker.walkTypeFields(target, MappedRegistry.class, (Field f, boolean isStatic, MappedRegistry value) -> {
+			// 判断目标是否是静态字段，以及目标字段是否可以赋值给MappedRegistry（即目标字段是否是MappedRegistry类或其子类）
+			if (isStatic) {
+				freezeRegistry((Registry<?>) value);
+			}
+			return true;
+		});
 	}
 
 	public static final void freezeRegistries() {
-		KlassWalker.walkFields(MappedRegistries.class, (Field f, boolean isStatic, Object value) -> {
-			// 判断目标是否是静态字段，以及目标字段是否可以赋值给MappedRegistry（即目标字段是否是MappedRegistry类或其子类）
-			if (isStatic && Reflection.is(f, MappedRegistry.class)) {
-				freezeRegistry((Registry<?>) value);
-			}
-		});
+		freezeRegistries(MappedRegistries.class);
 	}
 
 	/**

@@ -7,8 +7,8 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.FIELD })
-public @interface StringLength {
+public @interface ListSize {
 	int min() default 0;
 
 	int max() default Integer.MAX_VALUE;
-};
+}

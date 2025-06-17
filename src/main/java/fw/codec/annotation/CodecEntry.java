@@ -33,6 +33,13 @@ public @interface CodecEntry {
 	String path() default "";
 
 	/**
+	 * 是否是可选字段
+	 * 
+	 * @return
+	 */
+	boolean is_optional() default false;
+
+	/**
 	 * 附带参数
 	 * 
 	 * @return
@@ -51,4 +58,10 @@ public @interface CodecEntry {
 	 */
 	StringLength[] string_length() default {};
 
+	/**
+	 * List尺寸
+	 * 
+	 * @return
+	 */
+	ListSize[] list_size() default {};
 }

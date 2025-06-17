@@ -26,10 +26,11 @@ public class RegistryWalker {
 
 	@SuppressWarnings("rawtypes")
 	public static final void walkRegistries(RegistryOperation op) {
-		KlassWalker.walkFields(Registries.class, (Field f, boolean isStatic, Object registryKey) -> {
-			if (isStatic && Reflection.is(f, ResourceKey.class) && registryKey != null) {
+		KlassWalker.walkTypeFields(Registries.class, ResourceKey.class, (Field f, boolean isStatic, ResourceKey registryKey) -> {
+			if (isStatic && registryKey != null) {
 				op.operate(f, (ResourceKey) registryKey, getRegistryType(f));
 			}
+			return true;
 		});
 	}
 
@@ -78,15 +79,5 @@ public class RegistryWalker {
 	 */
 	public static Class<?> getMapCodecRegistryType(Field registryKeyField) {
 		return GenericTypes.classes(registryKeyField, 0, 0)[0].type();
-	}
-
-	/**
-	 * 获取最外层的第一个泛型参数
-	 * 
-	 * @param registryKeyField
-	 * @return
-	 */
-	public static Class<?> getGenericType(Field f) {
-		return GenericTypes.classes(f)[0].type();
 	}
 }

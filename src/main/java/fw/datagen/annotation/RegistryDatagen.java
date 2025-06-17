@@ -84,7 +84,7 @@ public @interface RegistryDatagen {
 		 */
 		@SuppressWarnings({ "rawtypes", "unchecked" })
 		public static final void registerDatagenHoldersToRegistry(Class<?> registryClass) {
-			KlassWalker.walkFields(registryClass, RegistryDatagen.class, (Field f, boolean isStatic, Object value, RegistryDatagen annotation) -> {
+			KlassWalker.walkAnnotatedFields(registryClass, RegistryDatagen.class, (Field f, boolean isStatic, Object value, RegistryDatagen annotation) -> {
 				if (isStatic && value != null) {
 					if (annotation.reg_runtime() && RegistryType.isDatagenHolder(f)) {
 						DatagenHolder datagenHolder = (DatagenHolder) value;
@@ -92,6 +92,7 @@ public @interface RegistryDatagen {
 						Core.logInfo("Registered " + datagenHolder.resourceKey + " with value=" + datagenHolder.value() + " to registry " + datagenHolder.registryKey + " in runtime.");
 					}
 				}
+				return true;
 			});
 		}
 
@@ -222,7 +223,7 @@ public @interface RegistryDatagen {
 		@SuppressWarnings({ "rawtypes", "unchecked" })
 		private static final void registerFields(BootstrapContext<?> context, Class<?> registryClass, Class<?> registryType) {
 			BootstrapContext raw_context = (BootstrapContext) context;
-			KlassWalker.walkFields(registryClass, RegistryDatagen.class, (Field f, boolean isStatic, Object value, RegistryDatagen annotation) -> {
+			KlassWalker.walkAnnotatedFields(registryClass, RegistryDatagen.class, (Field f, boolean isStatic, Object value, RegistryDatagen annotation) -> {
 				if (isStatic && value != null) {
 					if (RegistryType.isDatagenHolder(f, registryType)) {
 						DatagenHolder datagenHolder = (DatagenHolder) value;
@@ -232,6 +233,7 @@ public @interface RegistryDatagen {
 						raw_context.register(holder.getKey(), holder.value());
 					}
 				}
+				return true;
 			});
 		}
 

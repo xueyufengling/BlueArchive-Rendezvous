@@ -55,7 +55,7 @@ public @interface ItemDatagen {
 
 		@SuppressWarnings("rawtypes")
 		protected void registerModels(Class<?> itemClass) {
-			KlassWalker.walkFields(itemClass, ItemDatagen.class, (Field f, boolean isStatic, Object value, ItemDatagen annotation) -> {
+			KlassWalker.walkAnnotatedFields(itemClass, ItemDatagen.class, (Field f, boolean isStatic, Object value, ItemDatagen annotation) -> {
 				if (isStatic && Reflection.is(f, DeferredItem.class) && value != null) {
 					String tex_name = annotation.tex_name();
 					if (tex_name.equals(registeredName))
@@ -69,6 +69,7 @@ public @interface ItemDatagen {
 						break;
 					}
 				}
+				return true;
 			});
 		}
 

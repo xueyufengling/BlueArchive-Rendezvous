@@ -11,7 +11,7 @@ import net.minecraft.server.network.ServerConnectionListener;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.event.server.ServerStartingEvent;
+import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 
 @EventBusSubscriber(modid = Core.ModId)
@@ -27,6 +27,11 @@ public class ServerEntry {
 	private static Operation serverStartCallback;
 	private static Operation serverStopCallback;
 
+	/**
+	 * 设置服务器构建好启动前的回调
+	 * 
+	 * @param op
+	 */
 	public static final void setServerStartCallback(Operation op) {
 		serverStartCallback = op;
 	}
@@ -55,7 +60,7 @@ public class ServerEntry {
 	}
 
 	@SubscribeEvent(priority = EventPriority.HIGHEST) // 最高优先级以获取注册表
-	public static void onServerStartup(ServerStartingEvent event) {
+	public static void onServerAboutToStart(ServerAboutToStartEvent event) {
 		setServer(event.getServer());
 	}
 

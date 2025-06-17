@@ -2,7 +2,6 @@ package fw.datagen;
 
 import fw.core.Core;
 import fw.core.registry.MappedRegistries;
-import fw.core.registry.RegistryFactory;
 import fw.resources.ResourceKeyBuilder;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;

@@ -15,6 +15,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.levelgen.DensityFunction;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.IEventBus;
@@ -36,6 +37,8 @@ public class RegistryFactory {
 	public static final DeferredRegister<CreativeModeTab> CREATIVE_TABS = deferredRegister(Registries.CREATIVE_MODE_TAB);
 
 	public static final DeferredRegister<MapCodec<? extends DensityFunction>> DENSITY_FUNCTION_TYPE = deferredRegister(Registries.DENSITY_FUNCTION_TYPE);
+
+	public static final DeferredRegister<MapCodec<? extends BiomeSource>> BIOME_SOURCE = deferredRegister(Registries.BIOME_SOURCE);
 
 	public static <T> DeferredRegister<T> deferredRegister(Registry<T> registry, String modId) {
 		return deferredRegister(registry.key(), modId);
@@ -88,6 +91,7 @@ public class RegistryFactory {
 			if (value != null && Reflection.is(f, DeferredRegister.class)) {
 				register((DeferredRegister) value, modBus);
 			}
+			return true;
 		});
 	}
 

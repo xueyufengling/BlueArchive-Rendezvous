@@ -7,6 +7,7 @@ import ba.entries.biome.kivotos.KivotosBiomes;
 import fw.datagen.DatagenHolder;
 import fw.datagen.annotation.RegistryDatagen;
 import fw.terrain.Df;
+import fw.terrain.ExtBiome;
 import fw.terrain.ExtDimension;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
@@ -15,9 +16,7 @@ import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.data.worldgen.SurfaceRuleData;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.valueproviders.UniformInt;
-import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.biome.FixedBiomeSource;
-import net.minecraft.world.level.biome.MultiNoiseBiomeSource;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
 import net.minecraft.world.level.dimension.DimensionType;
@@ -144,7 +143,8 @@ public class Kivotos {
 		Holder<NoiseGeneratorSettings> noise = noiseSettings.getOrThrow(NOISE_SETTINGS.resourceKey);
 
 		return new LevelStem(dimType, new NoiseBasedChunkGenerator(
-				null,
+				new KivotosBiomes(context),
+				// new FixedBiomeSource(ExtBiome.datagenHolder(context, "minecraft:forest")),
 				noise));
 	});
 }

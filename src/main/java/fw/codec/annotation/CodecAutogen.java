@@ -6,8 +6,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.invoke.MethodHandle;
 import java.lang.reflect.Field;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.OptionalLong;
 import java.util.function.Function;
 
@@ -16,15 +18,20 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
+import fw.codec.CodecFactory;
 import fw.core.Core;
+import fw.core.registry.Holders;
 import fw.core.registry.RegistryFactory;
 import fw.core.registry.RegistryWalker;
+import lyra.klass.GenericTypes;
 import lyra.klass.KlassWalker;
-import lyra.klass.special.TypeWrapper;
+import lyra.lang.Arrays;
 import lyra.lang.Handles;
 import lyra.lang.Reflection;
 import lyra.lang.internal.HandleBase;
 import lyra.object.ObjectManipulator;
+import lyra.object.Placeholders.TypeWrapper;
+import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.KeyDispatchDataCodec;
 import net.neoforged.bus.api.EventPriority;
@@ -50,6 +57,32 @@ public @interface CodecAutogen {
 	 */
 	String name() default classSimpleName;
 
+	/**
+	 * 当构建的CODEC没有任何field时，即没有注解CodecEntry的字段，是否立即返回null。<br>
+	 * 设置为true则立即返回null，false则返回一个没有field的空CODEC。<br>
+	 * 如果本该生成CODEC的字段构建失败为null，则不论数据生成还是运行时均会报注册null值的错误，因此通常情况下不建议将该值设置为true。<br>
+	 * 
+	 * @return
+	 */
+	boolean null_if_empty() default false;
+
+	/**
+	 * 是否也生成基类的带有CodecEntry注解的字段的CODEC条目
+	 * 
+	 * @return
+	 */
+	boolean include_base() default true;
+
+	/**
+	 * 根据额外参数确定具体某个类型的CODEC
+	 * 
+	 * @param <T>
+	 */
+	@FunctionalInterface
+	public interface CodecResolver<T> {
+		public Object resolve(Type type, T param);
+	}
+
 	@EventBusSubscriber(modid = Core.ModId, bus = Bus.MOD)
 	public static class CodecGenerator {
 		/**
@@ -58,9 +91,74 @@ public @interface CodecAutogen {
 		public static final String DEFAULT_CODEC_FIELD = "CODEC";
 
 		/**
-		 * 手动指定某个类的CODEC字段名称，例如默认名称找不到时就手动指定正确的名称。
+		 * 本类在构建CODEC时，将依据该Map查询哪个类使用哪个CODEC。
 		 */
-		public static final HashMap<Class<?>, String> CODEC_FIELD_NAMES = new HashMap<>();
+		@SuppressWarnings("rawtypes")
+		public static final HashMap<Class<?>, CodecResolver> CODECS = new HashMap<>();
+
+		static {
+			setCodec(byte.class, Codec.BYTE);
+			setCodec(Byte.class, Codec.BYTE);
+			setCodec(boolean.class, Codec.BOOL);
+			setCodec(Boolean.class, Codec.BOOL);
+			setCodec(short.class, Codec.SHORT);
+			setCodec(Short.class, Codec.SHORT);
+			CodecResolver<CodecEntry> INT = (Type type, CodecEntry params) -> {
+				IntRange ir = params.int_range().length == 0 ? null : params.int_range()[0];
+				if (ir == null)
+					return Codec.INT;
+				else
+					return Codec.intRange(ir.min(), ir.max());
+			};
+			setCodec(int.class, INT);
+			setCodec(Integer.class, INT);
+			setCodec(long.class, Codec.LONG);
+			setCodec(Long.class, Codec.LONG);
+			setCodec(OptionalLong.class, Codec.LONG);
+			CodecResolver<CodecEntry> FLOAT = (Type type, CodecEntry params) -> {
+				FloatRange fr = params.float_range().length == 0 ? null : params.float_range()[0];
+				if (fr == null)
+					return Codec.FLOAT;
+				else
+					return Codec.floatRange(fr.min(), fr.max());
+			};
+			setCodec(float.class, FLOAT);
+			setCodec(Float.class, FLOAT);
+			CodecResolver<CodecEntry> DOUBLE = (Type type, CodecEntry params) -> {
+				DoubleRange dr = params.double_range().length == 0 ? null : params.double_range()[0];
+				if (dr == null)
+					return Codec.DOUBLE;
+				else
+					return Codec.doubleRange(dr.min(), dr.max());
+			};
+			setCodec(double.class, DOUBLE);
+			setCodec(Double.class, DOUBLE);
+			CodecResolver<CodecEntry> STRING = (Type type, CodecEntry params) -> {
+				StringLength sl = params.string_length().length == 0 ? null : params.string_length()[0];
+				if (sl == null)
+					return Codec.STRING;
+				else
+					return Codec.string(sl.min(), sl.max());
+			};
+			setCodec(String.class, STRING);
+			CodecResolver<Object> HOLDER = (Type type, Object params) -> {
+				Class<?> holderType = Holders.getHolderType(type);
+				return getCodec(holderType, GenericTypes.type(type, 0), params);
+			};
+			setCodec(Holder.class, HOLDER);
+			CodecResolver<CodecEntry> LIST = (Type type, CodecEntry params) -> {
+				Class<?> listType = Arrays.getListType(type);
+				Codec<?> codec = Codec(getCodec(listType, GenericTypes.type(type, 0), params));
+				if (codec == null)
+					throw new IllegalArgumentException("No CODEC found for type " + listType + " in List entry.");
+				ListSize ls = params.list_size().length == 0 ? null : params.list_size()[0];
+				if (ls == null)
+					return codec.listOf();
+				else
+					return codec.listOf(ls.min(), ls.max());
+			};
+			setCodec(List.class, LIST);
+		}
 
 		/**
 		 * 目标CODEC所在类的列表
@@ -73,7 +171,52 @@ public @interface CodecAutogen {
 		private static final HashMap<Class<?>, MethodHandle> codecCtors = new HashMap<>();
 
 		/**
-		 * 获取CODEC的默认注册名称，将单词以下划线分隔并转换为全小写。
+		 * 根据字段名称寻找指定的CODEC并记录在CODECS中
+		 * 
+		 * @param targetClass
+		 * @param codecFieldName
+		 * @return
+		 */
+		public static final void setCodecByFieldName(Class<?> targetClass, String codecFieldName) {
+			CODECS.put(targetClass, (Type type, Object param) -> ObjectManipulator.access(targetClass, codecFieldName == null ? DEFAULT_CODEC_FIELD : codecFieldName));
+		}
+
+		/**
+		 * 直接设置某个类的CODEC
+		 * 
+		 * @param targetClass
+		 * @param codec
+		 */
+		public static final void setCodec(Class<?> targetClass, Object codec) {
+			CODECS.put(targetClass, (Type type, Object param) -> codec);
+		}
+
+		@SuppressWarnings("rawtypes")
+		public static final void setCodec(Class<?> targetClass, CodecResolver resolver) {
+			CODECS.put(targetClass, resolver);
+		}
+
+		/**
+		 * 获取某个类的CODEC，如果不存在则获取该类中默认字段名称的CODEC
+		 * 
+		 * @param targetClass
+		 * @return
+		 */
+		public static final Object getCodec(Class<?> targetClass) {
+			return getCodec(targetClass, null, null);
+		}
+
+		@SuppressWarnings("unchecked")
+		public static final Object getCodec(Class<?> targetClass, Type type, Object param) {
+			return CODECS.computeIfAbsent(targetClass, (Class<?> t) -> (Type c, Object p) -> ObjectManipulator.access(targetClass, DEFAULT_CODEC_FIELD)).resolve(type, param);
+		}
+
+		public static final Object getCodec(Class<?> targetClass, Object param) {
+			return getCodec(targetClass, null, param);
+		}
+
+		/**
+		 * 获取CODEC的默认注册名称，将单词以下划线分隔并转换为全小写。<br>
 		 * 
 		 * @param simpleName
 		 * @return
@@ -97,6 +240,107 @@ public @interface CodecAutogen {
 		}
 
 		/**
+		 * 终止时获取期望的构造函数形式
+		 * 
+		 * @param targetClass
+		 * @param __types
+		 * @return
+		 */
+		private static String expectedConstructor(Class<?> targetClass, Class<?>[] __types) {
+			StringBuilder result = new StringBuilder();
+			result.append(targetClass.getName()).append("(");
+			for (int i = 0; i < __types.length; ++i) {
+				result.append(__types[i].getName());
+				if (i != __types.length)
+					result.append(", ");
+			}
+			result.append(")");
+			return result.toString();
+		}
+
+		/**
+		 * 访问目标类的CODEC字段
+		 * 
+		 * @param <T>
+		 * @param targetClass
+		 * @return
+		 */
+		public static final <T> Codec<T> accessCodec(Class<T> targetClass) {
+			return Codec(getCodec(targetClass));
+		}
+
+		@SuppressWarnings("unchecked")
+		public static final <T> Codec<T> Codec(Object class_codec) {
+			if (class_codec instanceof Codec c)
+				return c;
+			else if (class_codec instanceof MapCodec mc)
+				return mc.codec();
+			return null;
+		}
+
+		/**
+		 * 返回拓展类型的Codec，包括List、Optional和自定义类的自定义CODEC。
+		 * 
+		 * @param targetType
+		 * @param params
+		 * @return
+		 */
+		public static final MapCodec<?> resolveExtTypeCodec(Field f, CodecEntry params) {
+			Class<?> field_type = f.getType();
+			boolean is_optional = params.is_optional() || field_type == OptionalLong.class;// 是否已经绑定了字段名称
+			String key = params.key();
+			if (key.equals(CodecEntry.fieldName))
+				key = f.getName();
+			Codec<?> field_codec = Codec(getCodec(field_type, f.getGenericType(), params));
+			if (field_codec == null)
+				throw new IllegalArgumentException("No CODEC found for type " + field_type + " in field " + f);
+			String[] namespaces = params.path() == null ? new String[0] : params.path().split(CodecEntry.pathSeparator);
+			for (int depth = 0; depth < namespaces.length; ++depth) {// 构建key的路径path，不包括key本身
+				String namespace = namespaces[depth];
+				if (namespace.trim().equals(""))
+					continue;// 略过空路径
+				else
+					field_codec = field_codec.fieldOf(namespace).codec();// 根据路径构造子键
+			}
+			MapCodec<?> final_codec = null;
+			if (is_optional)
+				final_codec = field_codec.optionalFieldOf(key);
+			else
+				final_codec = field_codec.fieldOf(key);
+			return final_codec;
+		}
+
+		/**
+		 * 收集目标类中的注解有CodecEntry的字段
+		 * 
+		 * @param targetClass
+		 * @param entries
+		 * @param arg_types
+		 * @param include_base 是否包含其超类的字段
+		 */
+		@SuppressWarnings({ "rawtypes", "unchecked" })
+		private static final void collectCodecEntries(Class<?> targetClass, ArrayList<App> entries, ArrayList<Class<?>> arg_types, boolean include_base) {
+			if (include_base) {
+				Class<?> superCls = targetClass.getSuperclass();
+				if (superCls != Object.class)
+					collectCodecEntries(superCls, entries, arg_types, include_base);
+			}
+			KlassWalker.walkAnnotatedFields(targetClass, CodecEntry.class, (Field f, boolean isStatic, Object value, CodecEntry annotation) -> {
+				if (!isStatic) {// 只有非静态成员变量需要序列化
+					System.err.println(f);
+					Function universalFieldGetter = (Object targetObj) -> {
+						return ObjectManipulator.access(targetObj, f);
+					};// 字段Getter
+					Class<?> field_type = f.getType();
+					arg_types.add(field_type);// 储存该字段的类型，该类型必须和构造函数的参数类型和顺序严格匹配
+					MapCodec final_codec = resolveExtTypeCodec(f, annotation);
+					entries.add(final_codec.forGetter(universalFieldGetter));
+				}
+				return true;
+			});
+		}
+
+		/**
 		 * 扫描目标类的全部{@code @CodecEntry}注解字段并构造CODEC
 		 * 
 		 * @param <T>
@@ -105,80 +349,27 @@ public @interface CodecAutogen {
 		 * @return
 		 */
 		@SuppressWarnings({ "rawtypes", "unchecked" })
-		public static final Object generate(Class<?> targetClass, MethodHandle buildMethod) {
+		public static final Object generate(Class<?> targetClass, MethodHandle buildMethod, boolean null_if_empty, boolean include_base) {
 			ArrayList<App> entries = new ArrayList<>();
 			ArrayList<Class<?>> arg_types = new ArrayList<>();
-			KlassWalker.walkFields(targetClass, CodecEntry.class, (Field f, boolean isStatic, Object value, CodecEntry annotation) -> {
-				if (!isStatic) {// 只有非静态成员变量需要序列化
-					String key = annotation.key();
-					if (key.equals(CodecEntry.fieldName))
-						key = f.getName();
-					Function universalFieldGetter = (Object targetObj) -> {
-						return ObjectManipulator.access(targetObj, f);
-					};// 字段Getter
-					Class<?> field_type = f.getType();
-					Codec field_codec = null;
-					boolean is_optional = false;// 是否已经绑定了字段名称
-					if (field_type == byte.class || field_type == Byte.class) {
-						field_codec = Codec.BYTE;
-					} else if (field_type == boolean.class || field_type == Boolean.class) {
-						field_codec = Codec.BOOL;
-					} else if (field_type == short.class || field_type == Short.class) {
-						field_codec = Codec.SHORT;
-					} else if (field_type == int.class || field_type == Integer.class) {
-						field_codec = Codec.INT;
-						IntRange ir = annotation.int_range().length == 0 ? null : annotation.int_range()[0];
-						if (ir != null)
-							field_codec = Codec.intRange(ir.min(), ir.max());
-					} else if (field_type == long.class || field_type == Long.class) {
-						field_codec = Codec.LONG;
-					} else if (field_type == OptionalLong.class) {
-						field_codec = Codec.LONG;
-						is_optional = true;
-					} else if (field_type == float.class || field_type == Float.class) {
-						field_codec = Codec.FLOAT;
-						FloatRange fr = annotation.float_range().length == 0 ? null : annotation.float_range()[0];
-						if (fr != null)
-							field_codec = Codec.floatRange(fr.min(), fr.max());
-					} else if (field_type == double.class || field_type == Double.class) {
-						field_codec = Codec.DOUBLE;
-						DoubleRange dr = annotation.double_range().length == 0 ? null : annotation.double_range()[0];
-						if (dr != null)
-							field_codec = Codec.doubleRange(dr.min(), dr.max());
-					} else if (field_type == String.class) {
-						field_codec = Codec.STRING;
-						StringLength sl = annotation.string_length().length == 0 ? null : annotation.string_length()[0];
-						if (sl != null)
-							field_codec = Codec.string(sl.min(), sl.max());
-					} else {// 如果不是内置的类型，则查找对应类的CODEC_FIELD字段作为CODEC。
-						Object class_codec = ObjectManipulator.access(field_type, CODEC_FIELD_NAMES.computeIfAbsent(targetClass, (Class<?> t) -> DEFAULT_CODEC_FIELD));
-						if (class_codec instanceof Codec c)
-							field_codec = c;
-						else if (class_codec instanceof MapCodec mc)
-							field_codec = mc.codec();
-					}
-					arg_types.add(field_type);// 储存该字段的类型，该类型必须和构造函数的参数类型和顺序严格匹配
-					String[] namespaces = annotation.path() == null ? new String[0] : annotation.path().split(CodecEntry.pathSeparator);
-					for (int depth = 0; depth < namespaces.length; ++depth) {// 构建key的路径path，不包括key本身
-						String namespace = namespaces[depth];
-						if (namespace.equals(""))
-							continue;// 略过空路径
-						else
-							field_codec = field_codec.fieldOf(namespace).codec();// 根据路径构造子键
-					}
-					MapCodec final_codec = null;
-					if (is_optional)
-						final_codec = field_codec.optionalFieldOf(key);
-					else
-						final_codec = field_codec.fieldOf(key);
-					entries.add(final_codec.forGetter(universalFieldGetter));
+			collectCodecEntries(targetClass, entries, arg_types, include_base);
+			if (arg_types.isEmpty()) {
+				if (null_if_empty)// null_if_empty为true，则直接返回null
+					return null;
+				else {
+					Class<?> ret = buildMethod.type().returnType();
+					if (ret == Codec.class)
+						return CodecFactory.emptyCodec(targetClass);
+					else if (ret == MapCodec.class)
+						return CodecFactory.emptyMapCodec(targetClass);
 				}
-			});
+			}
 			Class<?>[] __types = new Class<?>[arg_types.size()];
 			arg_types.toArray(__types);
 			final MethodHandle ctor = codecCtors.computeIfAbsent(targetClass, (Class<?> t) -> HandleBase.findConstructor(targetClass, __types));// 寻找目标类的构造函数，如果没有在forCodec()时手动指定构造函数参数类型，则依据收集到的字段声明类型严格匹配寻找构造函数
 			if (ctor == null)
-				System.err.println("Cannot find constructor when generating CODEC for " + targetClass + ", check the fields annotated with CodecEntry's order and type, make sure that both order and type are completely the same.");
+				throw new IllegalArgumentException("Cannot find constructor when generating CODEC for " + targetClass + ", check the fields annotated with CodecEntry's order and type, make sure that both order and type are completely the same.\n" +
+						"Expected constructor form: " + expectedConstructor(targetClass, __types) + ";");
 			Object CODEC = null;
 			switch (entries.size()) {
 			case 1:
@@ -573,7 +764,7 @@ public @interface CodecAutogen {
 				}
 				break;
 			default:
-				System.err.println("Invalid Codec entries count: " + entries.size() + ", should be in (0, 16]");
+				throw new IllegalArgumentException("Invalid Codec entries count: " + entries.size() + ", should be in (0, 16]");
 			}
 			return CODEC;
 		}
@@ -586,8 +777,8 @@ public @interface CodecAutogen {
 		 * @return
 		 */
 		@SuppressWarnings("unchecked")
-		public static final <T> MapCodec<T> generateMapCodec(Class<T> targetClass) {
-			return (MapCodec<T>) generate(targetClass, mapCodec);
+		public static final <T> MapCodec<T> generateMapCodec(Class<T> targetClass, boolean null_if_empty, boolean include_base) {
+			return (MapCodec<T>) generate(targetClass, mapCodec, null_if_empty, include_base);
 		}
 
 		/**
@@ -598,12 +789,13 @@ public @interface CodecAutogen {
 		 * @return
 		 */
 		@SuppressWarnings("unchecked")
-		public static final <T> Codec<T> generateCodec(Class<T> targetClass) {
-			return (Codec<T>) generate(targetClass, create);
+		public static final <T> Codec<T> generateCodec(Class<T> targetClass, boolean null_if_empty, boolean include_base) {
+			return (Codec<T>) generate(targetClass, create, null_if_empty, include_base);
 		}
 
-		public static final <T> KeyDispatchDataCodec<T> generateKeyDispatchDataCodec(Class<T> targetClass) {
-			return KeyDispatchDataCodec.of(generateMapCodec(targetClass));
+		public static final <T> KeyDispatchDataCodec<T> generateKeyDispatchDataCodec(Class<T> targetClass, boolean null_if_empty, boolean include_base) {
+			MapCodec<T> CODEC = generateMapCodec(targetClass, null_if_empty, include_base);
+			return CODEC == null ? null : KeyDispatchDataCodec.of(CODEC);
 		}
 
 		/**
@@ -616,8 +808,10 @@ public @interface CodecAutogen {
 		 * @return
 		 */
 		@SuppressWarnings({ "rawtypes", "unchecked" })
-		public static final DeferredHolder generateAndRegisterHolder(String codecName, Class<?> target, MethodHandle buildMethod, Class<?> registryType) {
-			Object CODEC = generate(target, buildMethod);
+		public static final DeferredHolder generateAndRegisterHolder(String codecName, Class<?> target, MethodHandle buildMethod, Class<?> registryType, boolean null_if_empty, boolean include_base) {
+			Object CODEC = generate(target, buildMethod, null_if_empty, include_base);
+			if (CODEC == null)
+				return null;
 			TypeWrapper<DeferredHolder> holderWrapper = TypeWrapper.wrap();
 			RegistryWalker.walkMapCodecRegistries((Field f, ResourceKey registryKey, Class<?> codecType) -> {
 				if (Reflection.is(registryType, codecType)) {// 当注册表MapCodec的泛型参数和传入的registryType匹配时注册
@@ -637,8 +831,10 @@ public @interface CodecAutogen {
 		 * @return
 		 */
 		@SuppressWarnings({ "rawtypes", "unchecked" })
-		private static final Object generateAndRegister(String codecName, Class<?> target, MethodHandle buildMethod, Class<?> registryType) {
-			Object CODEC = generate(target, buildMethod);
+		private static final Object generateAndRegister(String codecName, Class<?> target, MethodHandle buildMethod, Class<?> registryType, boolean null_if_empty, boolean include_base) {
+			Object CODEC = generate(target, buildMethod, null_if_empty, include_base);
+			if (CODEC == null)
+				return null;
 			RegistryWalker.walkMapCodecRegistries((Field f, ResourceKey registryKey, Class<?> codecType) -> {
 				if (Reflection.is(registryType, codecType)) {// 当注册表MapCodec的泛型参数和传入的registryType匹配时注册
 					RegistryFactory.deferredRegister(registryKey).register(codecName, () -> CODEC);
@@ -654,7 +850,7 @@ public @interface CodecAutogen {
 		 */
 		@SuppressWarnings({ "rawtypes", "unchecked" })
 		private static final void generateAndRegisterCodecs(Class<?> codecClass) {
-			KlassWalker.walkFields(codecClass, CodecAutogen.class, (Field f, boolean isStatic, Object value, CodecAutogen annotation) -> {
+			KlassWalker.walkAnnotatedFields(codecClass, CodecAutogen.class, (Field f, boolean isStatic, Object value, CodecAutogen annotation) -> {
 				if (isStatic) {
 					MethodHandle internalBuildMethod = null;
 					boolean isKeyDispatchDataCodec = false;
@@ -666,16 +862,17 @@ public @interface CodecAutogen {
 						internalBuildMethod = mapCodec;
 						isKeyDispatchDataCodec = true;
 					} else// 如果字段不是有效的CODEC类型，则直接略过
-						return;
+						return true;
 					String registerName = annotation.name();
 					if (classSimpleName.equals(registerName))
 						registerName = defaultCodecRegisterName(codecClass);
-					Object CODEC = generateAndRegister(registerName, codecClass, internalBuildMethod, RegistryWalker.getGenericType(f));
+					Object CODEC = generateAndRegister(registerName, codecClass, internalBuildMethod, GenericTypes.getFirstGenericType(f), annotation.null_if_empty(), annotation.include_base());
 					if (isKeyDispatchDataCodec)
 						CODEC = KeyDispatchDataCodec.of((MapCodec) CODEC);
 					ObjectManipulator.setObject(codecClass, f, CODEC);
 					Core.logInfo("Generated CODEC for " + codecClass + " in field " + f);
 				}
+				return true;
 			});
 		}
 
