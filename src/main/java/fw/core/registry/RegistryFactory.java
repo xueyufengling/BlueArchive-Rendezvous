@@ -116,8 +116,14 @@ public class RegistryFactory {
 	 */
 	@EventBusSubscriber(modid = Core.ModId, bus = Bus.MOD)
 	public static class AutoRegister {
-		@SubscribeEvent(priority = EventPriority.HIGH)
+		/**
+		 * 优先级必须最低，在此阶段会有其他自动生成的注册项将要注册，需要等待那些注册项全部注册后再统一注册到EventBus
+		 * 
+		 * @param event
+		 */
+		@SubscribeEvent(priority = EventPriority.LOWEST)
 		public static final void autoRegisterRegistries(FMLConstructModEvent event) {
+			Core.logInfo("RegistryFactory start to auto register.");
 			registerAll();
 		}
 	}

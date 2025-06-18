@@ -21,7 +21,7 @@ public class KivotosBiomes extends ExtBiomeSource {
 	@CodecAutogen(null_if_empty = true)
 	public static final MapCodec<? extends BiomeSource> CODEC = null;
 
-	protected static final List<String> biomes = List.of("minecraft:forest");
+	protected static final List<String> biomes = List.of("minecraft:forest", "minecraft:jungle", "minecraft:desert");
 
 	/**
 	 * 仅数据生成阶段使用

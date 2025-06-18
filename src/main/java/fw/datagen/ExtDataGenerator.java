@@ -19,6 +19,7 @@ public class ExtDataGenerator {
 	@SubscribeEvent
 	@SuppressWarnings("unchecked")
 	public static void gatherData(GatherDataEvent event) {
+		Core.logInfo("ExtDataGenerator started datagen.");
 		DataGenerator generator = event.getGenerator();
 		PackOutput output = generator.getPackOutput();
 		ExistingFileHelper helper = event.getExistingFileHelper();

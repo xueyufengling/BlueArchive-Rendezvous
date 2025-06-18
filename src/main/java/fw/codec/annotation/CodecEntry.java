@@ -5,6 +5,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+import fw.codec.CodecResolver;
+
 /**
  * 用于标记需要序列化的字段，字段的声明顺序、类型需要和构造函数的参数顺序、类型严格保持一致。
  */
@@ -37,7 +39,7 @@ public @interface CodecEntry {
 	 * 
 	 * @return
 	 */
-	boolean is_optional() default false;
+	CodecResolver.Entry.Type type() default CodecResolver.Entry.Type.DEFAULT;
 
 	/**
 	 * 附带参数

@@ -1,5 +1,5 @@
-// 1.21.1	2025-06-17T18:11:03.9836743	Registries
-e36195302480f065f7fbdd1c48ba2bc3f6ff1d12 data/ba/dimension/kivotos.json
-5110fd7bd87acbb2407297b113c22ac2bbf0366c data/ba/dimension_type/kivotos.json
+// 1.21.1	2025-06-18T16:33:30.3163335	Registries
+725c7ce1771fa145a5a5b9ad4bd56c0cc37fffe0 data/ba/dimension/kivotos.json
+8b2ce527f541fa71dfea5f28cb7a672015ad7d87 data/ba/dimension_type/kivotos.json
 40ed6613c0c4402694c2364ee88d3b9ff203550e data/ba/worldgen/density_function/kivotos/base_3d_noise.json
-239290e88b098af0b109193ec877a7b2dc3ffa16 data/ba/worldgen/noise_settings/kivotos.json
+fd3597bc284b787cf29d659bcf68dd826a6b306d data/ba/worldgen/noise_settings/kivotos.json

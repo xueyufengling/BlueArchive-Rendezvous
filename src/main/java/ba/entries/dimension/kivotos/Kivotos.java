@@ -6,9 +6,8 @@ import java.util.OptionalLong;
 import ba.entries.biome.kivotos.KivotosBiomes;
 import fw.datagen.DatagenHolder;
 import fw.datagen.annotation.RegistryDatagen;
+import fw.dimension.ExtDimension;
 import fw.terrain.Df;
-import fw.terrain.ExtBiome;
-import fw.terrain.ExtDimension;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.registries.Registries;
@@ -16,7 +15,6 @@ import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.data.worldgen.SurfaceRuleData;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.valueproviders.UniformInt;
-import net.minecraft.world.level.biome.FixedBiomeSource;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
 import net.minecraft.world.level.dimension.DimensionType;
@@ -37,7 +35,8 @@ public class Kivotos {
 	public static final String ID = "kivotos";
 
 	public static final int MIN_Y = -256;
-	public static final int MAX_Y = 384;
+	public static final int MAX_Y = 0;
+	public static final int HEIGHT = MAX_Y - MIN_Y;
 	public static final int SEALEVEL = 0;
 
 	/**
@@ -54,8 +53,8 @@ public class Kivotos {
 			true,
 			true,
 			MIN_Y,
-			MAX_Y,
-			MAX_Y,
+			HEIGHT,
+			HEIGHT,
 			BlockTags.INFINIBURN_OVERWORLD,
 			BuiltinDimensionTypes.OVERWORLD_EFFECTS,
 			0.0F,
@@ -70,56 +69,41 @@ public class Kivotos {
 
 		NoiseSettings noise = NoiseSettings.create(
 				MIN_Y,
-				MAX_Y,
+				HEIGHT,
 				2,
 				2);
 
 		DensityFunction base3dNoise = df.func(KivotosDensityFunctions.KIVOTOS_BASE_3D_NOISE.resourceKey);
 
-		DensityFunction continents = DensityFunctions.add(
-				base3dNoise, // 全局海平面调整
-				df.func("minecraft:overworld/continents"));
-
-		// DensityFunction continents = df.func("minecraft:overworld/continents");
+		DensityFunction continents = new KivotosDf(0L);
 
 		// 4. 细节噪声 (侵蚀效果)
 		DensityFunction detailNoise = DensityFunctions.mul(
 				DensityFunctions.constant(0.8),
-				df.func("minecraft:overworld/jaggedness"));
+				base3dNoise);
 
 		DensityFunction finalDensity = DensityFunctions.add(
 				continents,
 				detailNoise);
 
-		DensityFunction river = DensityFunctions.add(
-				DensityFunctions.constant(-0.7),
-				df.func("minecraft:overworld/erosion"));
-
 		return new NoiseGeneratorSettings(
 				noise,
 				Blocks.STONE.defaultBlockState(), // 世界生成时填充的默认方块
-				Blocks.WATER.defaultBlockState(), // 海平面处的默认流体
+				Blocks.AIR.defaultBlockState(),
+				// Blocks.WATER.defaultBlockState(), // 海平面处的默认流体
 				new NoiseRouter(
 						DensityFunctions.zero(), // barrier
-						river, // fluid_level_floodedness
-						DensityFunctions.noise(df.param(Noises.AQUIFER_FLUID_LEVEL_SPREAD), 0.7), // fluid_level_spread
+						DensityFunctions.zero(), // fluid_level_floodedness
+						DensityFunctions.zero(), // fluid_level_spread
 						DensityFunctions.zero(), // lava
-						DensityFunctions.shiftedNoise2d(
-								df.func("minecraft:shift_x"),
-								df.func("minecraft:shift_z"),
-								0.25,
-								df.param(Noises.TEMPERATURE_LARGE)), // temperature
-						DensityFunctions.shiftedNoise2d(
-								df.func("minecraft:shift_x"),
-								df.func("minecraft:shift_z"),
-								0.25,
-								df.param(Noises.VEGETATION_LARGE)), // vegetation
+						DensityFunctions.zero(), // temperature
+						DensityFunctions.zero(), // vegetation
 						continents, // continents
-						df.func("minecraft:overworld/erosion"), // erosion
+						DensityFunctions.zero(), // erosion
 						DensityFunctions.add(
 								DensityFunctions.yClampedGradient(MIN_Y, MAX_Y, 1.5, -1.5),
 								finalDensity), // depth
-						df.func("minecraft:overworld/ridges"), // ridges
+						DensityFunctions.zero(), // ridges
 						finalDensity, // initial_density_without_jaggedness
 						finalDensity, // final_density
 						DensityFunctions.zero(), // vein_toggle

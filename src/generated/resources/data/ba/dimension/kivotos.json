@@ -5,7 +5,9 @@
     "biome_source": {
       "type": "ba:kivotos_biomes",
       "possibleBiomesList": [
-        "minecraft:forest"
+        "minecraft:forest",
+        "minecraft:jungle",
+        "minecraft:desert"
       ]
     },
     "settings": "ba:kivotos"

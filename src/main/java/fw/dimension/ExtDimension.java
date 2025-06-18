@@ -1,11 +1,14 @@
-package fw.terrain;
+package fw.dimension;
 
 import com.mojang.serialization.MapCodec;
 
 import fw.core.registry.RegistryFactory;
 import fw.datagen.DatagenHolder;
+import fw.resources.ResourceKeyBuilder;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.KeyDispatchDataCodec;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.levelgen.DensityFunction;
@@ -29,6 +32,27 @@ public class ExtDimension {
 		public static final DatagenHolder<LevelStem> register(String name, DatagenHolder.ValueSource<LevelStem> levelStem) {
 			return DatagenHolder.of(Registries.LEVEL_STEM, name, levelStem);
 		}
+
+		/**
+		 * 从LevelStem中获取Level的ResourceKey。<br>
+		 * Level的ResourceKey是在MinecraftServer.createLevels()中根据LevelStem生成而来的。<br>
+		 * 
+		 * @param levelStemHolder
+		 * @return
+		 */
+		public static final ResourceKey<Level> levelKey(DatagenHolder<LevelStem> levelStemHolder) {
+			return levelStemHolder.resourceKey(Registries.DIMENSION);
+		}
+
+		/**
+		 * 从LevelStem的ResourceKey中获取Level的ResourceKey
+		 * 
+		 * @param levelStem
+		 * @return
+		 */
+		public static final ResourceKey<Level> levelKey(ResourceKey<LevelStem> levelStem) {
+			return ResourceKeyBuilder.build(Registries.DIMENSION, levelStem.location());
+		}
 	}
 
 	/**
@@ -41,7 +65,8 @@ public class ExtDimension {
 	}
 
 	/**
-	 * 密度函数
+	 * 密度函数DensityFunction注册相关。<br>
+	 * DimensionFunctionType在使用CodecAutogen注解自动生成CODEC时已经自动注册，如果没有使用该注解生成，需要手动使用registerType()将CODEC注册。<br>
 	 */
 	public static class Df {
 		/**

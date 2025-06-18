@@ -4,7 +4,6 @@ import java.lang.reflect.Field;
 import java.util.IdentityHashMap;
 
 import lyra.klass.KlassWalker;
-import lyra.lang.Reflection;
 import lyra.object.ObjectManipulator;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.MappedRegistry;
@@ -54,7 +53,6 @@ public class MappedRegistries {
 	}
 
 	public static final void fetchRegistries() {
-		System.err.println("fetchRegistries " + serverRegistryAccess);
 		fetchRegistries(MappedRegistries.class, serverRegistryAccess);
 	}
 

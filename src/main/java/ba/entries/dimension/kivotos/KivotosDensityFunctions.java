@@ -2,7 +2,7 @@ package ba.entries.dimension.kivotos;
 
 import fw.datagen.DatagenHolder;
 import fw.datagen.annotation.RegistryDatagen;
-import fw.terrain.ExtDimension;
+import fw.dimension.ExtDimension;
 import net.minecraft.world.level.levelgen.DensityFunction;
 import net.minecraft.world.level.levelgen.synth.BlendedNoise;
 
@@ -20,6 +20,4 @@ public final class KivotosDensityFunctions {
 			8.0// smear_scale_multiplier
 	));
 
-	// @RegistryDatagen
-	// public static final DatagenHolder<DensityFunction> KIVOTOS_CONTINENTS = ExtDimension.Df.register(Kivotos.ID + "/continents", new KivotosDensityFunction(0));
 }
