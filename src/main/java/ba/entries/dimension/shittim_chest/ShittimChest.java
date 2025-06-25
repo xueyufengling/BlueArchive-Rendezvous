@@ -1,9 +1,11 @@
-package ba.entries.dimension.kivotos;
+package ba.entries.dimension.shittim_chest;
 
 import java.util.List;
 import java.util.OptionalLong;
 
-import ba.entries.biome.kivotos.KivotosBiomes;
+import ba.entries.biome.shittim_chest.ShittimChestBiomes;
+import ba.entries.dimension.kivotos.KivotosDensityFunctions;
+import ba.entries.dimension.kivotos.KivotosDf;
 import fw.datagen.DatagenHolder;
 import fw.datagen.annotation.RegistryDatagen;
 import fw.dimension.ExtDimension;
@@ -26,17 +28,17 @@ import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 import net.minecraft.world.level.levelgen.NoiseRouter;
 import net.minecraft.world.level.levelgen.NoiseSettings;
 
-public class Kivotos {
+public class ShittimChest {
 	static {
-		RegistryDatagen.RegistriesProvider.forDatagen(Kivotos.class);
+		RegistryDatagen.RegistriesProvider.forDatagen(ShittimChest.class);
 	}
 
-	public static final String ID = "kivotos";
+	public static final String ID = "shittim_chest";
 
-	public static final int MIN_Y = -256;
-	public static final int MAX_Y = 0;
+	public static final int MIN_Y = -64;
+	public static final int MAX_Y = 368;
 	public static final int HEIGHT = MAX_Y - MIN_Y;
-	public static final int SEALEVEL = 0;
+	public static final int SEALEVEL = 64;
 
 	/**
 	 * 维度属性定义
@@ -57,7 +59,7 @@ public class Kivotos {
 			BlockTags.INFINIBURN_OVERWORLD,
 			BuiltinDimensionTypes.OVERWORLD_EFFECTS,
 			0.0F,
-			new DimensionType.MonsterSettings(true, false, UniformInt.of(0, 15), 0)));
+			new DimensionType.MonsterSettings(true, false, UniformInt.of(0, 0), 0)));
 
 	/**
 	 * 噪声地形生成器
@@ -72,18 +74,7 @@ public class Kivotos {
 				2,
 				2);
 
-		DensityFunction base3dNoise = df.func(KivotosDensityFunctions.KIVOTOS_BASE_3D_NOISE.resourceKey);
-
-		DensityFunction continents = new KivotosDf(0L);
-
-		// 4. 细节噪声 (侵蚀效果)
-		DensityFunction detailNoise = DensityFunctions.mul(
-				DensityFunctions.constant(0.8),
-				base3dNoise);
-
-		DensityFunction finalDensity = DensityFunctions.add(
-				continents,
-				detailNoise);
+		DensityFunction finalDensity = DensityFunctions.zero();
 
 		return new NoiseGeneratorSettings(
 				noise,
@@ -97,18 +88,16 @@ public class Kivotos {
 						DensityFunctions.zero(), // lava
 						DensityFunctions.zero(), // temperature
 						DensityFunctions.zero(), // vegetation
-						continents, // continents
+						DensityFunctions.zero(), // continents
 						DensityFunctions.zero(), // erosion
-						DensityFunctions.add(
-								DensityFunctions.yClampedGradient(MIN_Y, MAX_Y, 1.5, -1.5),
-								finalDensity), // depth
+						DensityFunctions.zero(), // depth
 						DensityFunctions.zero(), // ridges
 						finalDensity, // initial_density_without_jaggedness
 						finalDensity, // final_density
 						DensityFunctions.zero(), // vein_toggle
 						DensityFunctions.zero(), // vein_ridged
 						DensityFunctions.zero()), // vein_gap
-				SurfaceRuleData.overworld(),
+				SurfaceRuleData.air(),
 				List.of(),
 				SEALEVEL,
 				false,
@@ -126,8 +115,7 @@ public class Kivotos {
 		Holder<NoiseGeneratorSettings> noise = noiseSettings.getOrThrow(NOISE_SETTINGS.resourceKey);
 
 		return new LevelStem(dimType, new NoiseBasedChunkGenerator(
-				new KivotosBiomes(context),
-				// new FixedBiomeSource(ExtBiome.datagenHolder(context, "minecraft:forest")),
+				new ShittimChestBiomes(context),
 				noise));
 	});
 }

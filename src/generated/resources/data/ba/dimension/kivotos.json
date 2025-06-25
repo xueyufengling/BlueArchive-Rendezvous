@@ -4,7 +4,7 @@
     "type": "minecraft:noise",
     "biome_source": {
       "type": "ba:kivotos_biomes",
-      "possibleBiomesList": [
+      "possible_biomes_list": [
         "minecraft:forest",
         "minecraft:jungle",
         "minecraft:desert"

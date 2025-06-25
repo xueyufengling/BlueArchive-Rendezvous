@@ -15,7 +15,9 @@ import net.neoforged.fml.common.EventBusSubscriber.Bus;
 import net.neoforged.fml.event.lifecycle.FMLConstructModEvent;
 
 /**
- * 初始化注解
+ * 初始化函数注解、<br>
+ * 在加载完依赖库、获取事件总线ModBus后调用。<br>
+ * 所有mod初始化操作必须在具有该注解的方法中进行，不得在mod入口类构造函数中进行初始化操作。<br>
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.METHOD })

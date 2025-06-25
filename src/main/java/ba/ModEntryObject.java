@@ -40,7 +40,6 @@ public class ModEntryObject {
 
 	@CoreInit
 	public static final void init() {
-		System.err.println("@CoreInit");
 		// 打印调试信息
 		Logger.info("JVM is " + Vm.NATIVE_JVM_BIT_VERSION + "-bit with flag UseCompressedOops=" + Vm.UseCompressedOops);
 		Logger.info("KlassWord offset is " + markWord.KLASS_WORD_OFFSET + ", lenght is " + markWord.KLASS_WORD_LENGTH);
@@ -50,6 +49,7 @@ public class ModEntryObject {
 
 		Dimensions.removeTheNether(true);
 		Dimensions.removeTheEnd(true);
+		// Dimensions.redirectOverworldMod(Kivotos.ID);
 		Dimensions.redirectOverworld(Kivotos.DIMENSION_TYPE, Kivotos.LEVEL_STEM);
 	}
 }

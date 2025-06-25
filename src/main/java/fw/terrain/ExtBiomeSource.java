@@ -26,7 +26,7 @@ public abstract class ExtBiomeSource extends BiomeSource {
 	protected MapCodec<? extends BiomeSource> derivedCodec = null;
 
 	@CodecEntry
-	protected List<Holder<Biome>> possibleBiomesList;
+	protected List<Holder<Biome>> possible_biomes_list;
 
 	/**
 	 * 仅数据生成时序列化使用
@@ -48,7 +48,7 @@ public abstract class ExtBiomeSource extends BiomeSource {
 	 * @param possibleBiomesList
 	 */
 	public ExtBiomeSource(List<Holder<Biome>> possibleBiomesList) {
-		this.possibleBiomesList = possibleBiomesList;
+		this.possible_biomes_list = possibleBiomesList;
 	}
 
 	/**
@@ -80,7 +80,7 @@ public abstract class ExtBiomeSource extends BiomeSource {
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private void resolvePossibleBiomes(BootstrapContext<?> bootstrapContext, List<String> possibleBiomeKeys) {
-		if (possibleBiomesList == null) {
+		if (possible_biomes_list == null) {
 			Placeholders.TypeWrapper<List<String>> wrapper = Placeholders.TypeWrapper.wrap(possibleBiomeKeys);
 			if (possibleBiomeKeys == null) {// 扫描生物群系的注册key
 				KlassWalker.walkTypeFields(this.getClass(), List.class, (Field f, boolean isStatic, List biomes) -> {
@@ -91,12 +91,12 @@ public abstract class ExtBiomeSource extends BiomeSource {
 					return true;
 				});
 			}
-			possibleBiomesList = new ArrayList<>();
+			possible_biomes_list = new ArrayList<>();
 			if (bootstrapContext == null)
 				throw new RuntimeException("Resolve possible biomes failed indicates that BootstrapContext is null.");
 			else {
 				for (String key : wrapper.value) {
-					possibleBiomesList.add(ExtBiome.datagenHolder(bootstrapContext, key));
+					possible_biomes_list.add(ExtBiome.datagenHolder(bootstrapContext, key));
 				}
 			}
 		}
@@ -108,7 +108,7 @@ public abstract class ExtBiomeSource extends BiomeSource {
 	 */
 	@Override
 	protected Stream<Holder<Biome>> collectPossibleBiomes() {
-		return this.possibleBiomesList.parallelStream();
+		return this.possible_biomes_list.parallelStream();
 	}
 
 	/**

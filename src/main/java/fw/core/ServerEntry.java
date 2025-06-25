@@ -106,9 +106,11 @@ public class ServerEntry {
 		if (!beforeServerStartCallbacks.isEmpty())
 			for (Operation beforeServerStartCallback : beforeServerStartCallbacks)
 				beforeServerStartCallback.operate(server);
+		System.err.print("before set " + Level.OVERWORLD);
 		for (Recoverable<?> ref : recoverableRedirectors)
 			ref.redirect();
 		MappedRegistries.freezeRegistries();
+		System.err.print("after set " + Level.OVERWORLD);
 	}
 
 	public static final MinecraftServer getServer() {
@@ -132,6 +134,7 @@ public class ServerEntry {
 		if (!afterServerStartedCallbacks.isEmpty())
 			for (Operation afterServerStartedCallback : afterServerStartedCallbacks)
 				afterServerStartedCallback.operate(server);
+		System.err.print("onServerStarted " + Level.OVERWORLD);
 	}
 
 	@SubscribeEvent(priority = EventPriority.LOWEST)
@@ -143,11 +146,13 @@ public class ServerEntry {
 
 	@SubscribeEvent(priority = EventPriority.LOWEST)
 	public static void onServerStopped(ServerStoppedEvent event) {
+		System.err.print("before Stop " + Level.OVERWORLD);
 		if (!afterServerStopCallbacks.isEmpty())
 			for (Operation afterServerStopCallback : afterServerStopCallbacks)
 				afterServerStopCallback.operate(server);
 		for (Recoverable<?> ref : recoverableRedirectors)
 			ref.recovery();
+		System.err.print("after Stop " + Level.OVERWORLD);
 	}
 
 	private static final ArrayList<Recoverable<?>> recoverableRedirectors = new ArrayList<>();

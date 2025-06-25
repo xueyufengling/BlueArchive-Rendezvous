@@ -75,6 +75,10 @@ public class Core {
 		return ResourceLocationBuilder.build(Core.ModId, loc);
 	}
 
+	public static String namespacedId(String id) {
+		return ModId + ResourceLocation.NAMESPACE_SEPARATOR + id;
+	}
+
 	public static final void logInfo(String msg) {
 		if (Config.logInfo)
 			Logger.info(msg);

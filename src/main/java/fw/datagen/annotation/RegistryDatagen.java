@@ -36,7 +36,8 @@ import net.neoforged.neoforge.common.data.DatapackBuiltinEntriesProvider;
 public @interface RegistryDatagen {
 
 	/**
-	 * 是否在运行时注册到DefferedRegister，默认为false
+	 * 是否在运行时注册到DefferedRegister，默认为false。<br>
+	 * 实际上运行时会从生成的数据包中加载这些注册表条目。<br>
 	 * 
 	 * @return
 	 */
@@ -210,7 +211,8 @@ public @interface RegistryDatagen {
 				"DIMENSION_TYPE",
 				"LEVEL_STEM",
 				"DENSITY_FUNCTION",
-				"NOISE_SETTINGS");
+				"NOISE_SETTINGS",
+				"BIOME");
 
 		/**
 		 * 注册某个类中的全部静态字段
