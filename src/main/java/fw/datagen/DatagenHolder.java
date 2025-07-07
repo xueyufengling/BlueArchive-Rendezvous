@@ -1,7 +1,7 @@
 package fw.datagen;
 
 import fw.core.Core;
-import fw.core.registry.MappedRegistries;
+import fw.core.registry.MappedRegistryAccess;
 import fw.resources.ResourceKeyBuilder;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
@@ -48,7 +48,7 @@ public class DatagenHolder<T> {
 	 * @return
 	 */
 	public final Registry<T> registry() {
-		return MappedRegistries.getRegistry(registryKey);
+		return MappedRegistryAccess.getRegistry(registryKey);
 	}
 
 	public final <C> ResourceKey<C> resourceKey(ResourceKey<? extends Registry<C>> registryKey) {

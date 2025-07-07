@@ -4,8 +4,6 @@ import java.util.List;
 import java.util.OptionalLong;
 
 import ba.entries.biome.shittim_chest.ShittimChestBiomes;
-import ba.entries.dimension.kivotos.KivotosDensityFunctions;
-import ba.entries.dimension.kivotos.KivotosDf;
 import fw.datagen.DatagenHolder;
 import fw.datagen.annotation.RegistryDatagen;
 import fw.dimension.ExtDimension;
@@ -78,9 +76,8 @@ public class ShittimChest {
 
 		return new NoiseGeneratorSettings(
 				noise,
-				Blocks.STONE.defaultBlockState(), // 世界生成时填充的默认方块
-				Blocks.AIR.defaultBlockState(),
-				// Blocks.WATER.defaultBlockState(), // 海平面处的默认流体
+				Blocks.AIR.defaultBlockState(), // 世界生成时填充的默认方块
+				Blocks.WATER.defaultBlockState(), // 海平面处的默认流体
 				new NoiseRouter(
 						DensityFunctions.zero(), // barrier
 						DensityFunctions.zero(), // fluid_level_floodedness
@@ -102,7 +99,7 @@ public class ShittimChest {
 				SEALEVEL,
 				false,
 				false,
-				true,
+				false,
 				false);
 
 	});

@@ -18,7 +18,7 @@ import net.neoforged.neoforge.data.event.GatherDataEvent;
 public class ExtDataGenerator {
 	@SubscribeEvent
 	@SuppressWarnings("unchecked")
-	public static void gatherData(GatherDataEvent event) {
+	public static void onGatherData(GatherDataEvent event) {
 		Core.logInfo("ExtDataGenerator started datagen.");
 		DataGenerator generator = event.getGenerator();
 		PackOutput output = generator.getPackOutput();

@@ -3,6 +3,9 @@ package fw.core;
 import org.slf4j.Logger;
 
 import fw.Config;
+import fw.codec.annotation.CodecAutogen;
+import fw.core.registry.RegistryFactory;
+import fw.dimension.Dimensions;
 import fw.resources.ResourceLocationBuilder;
 import lyra.klass.JarKlassLoader;
 import lyra.object.ObjectManipulator;
@@ -41,15 +44,24 @@ public class Core {
 	/**
 	 * 获取mod的事件总线
 	 * 
-	 * @param event
+	 * @param c mod容器
 	 * @return
 	 */
-	public static final IEventBus getModEventBus(ModLifecycleEvent event) {
-		ModContainer c = getModContainer(event);
+	public static final IEventBus getModEventBus(ModContainer c) {
 		if (c instanceof FMLModContainer fmlc)
 			return fmlc.getEventBus();
 		else
 			throw new RuntimeException("CANNOT get mod event bus in container " + c);
+	}
+
+	/**
+	 * 获取mod的事件总线
+	 * 
+	 * @param event 事件
+	 * @return
+	 */
+	public static final IEventBus getModEventBus(ModLifecycleEvent event) {
+		return getModEventBus(getModContainer(event));
 	}
 
 	private static void loadLibrary() {
@@ -57,12 +69,28 @@ public class Core {
 		JarKlassLoader.loadKlass(Config.LyraPath, Config.AlphaLyrPath);
 	}
 
+	/**
+	 * Mod构造函数调用后，ModInit注解方法执行前调用
+	 * 
+	 * @param event
+	 */
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
-	public static final void init(FMLConstructModEvent event) {
+	private static final void preinit(FMLConstructModEvent event) {
 		if (Config.loadLibBySelf)
 			loadLibrary();
-		// 初始化赋值ModBus
-		ObjectManipulator.setObject(Core.class, "ModBus", getModEventBus(event));
+		ObjectManipulator.setObject(Core.class, "ModBus", getModEventBus(event));// 初始化赋值ModBus
+	}
+
+	/**
+	 * ModInit注解方法执行后调用
+	 * 
+	 * @param event
+	 */
+	@SubscribeEvent(priority = EventPriority.LOWEST)
+	private static final void init(FMLConstructModEvent event) {
+		CodecAutogen.CodecGenerator.autoGenerateCodecs();// 生成CODEC
+		RegistryFactory.registerAll();// 注册所有新添加的注册表及其条目
+		Dimensions.modifyVanillaDimensions();// 修改原版维度
 	}
 
 	/**
@@ -87,16 +115,5 @@ public class Core {
 	public static final void logError(String msg) {
 		if (Config.logInfo)
 			Logger.error(msg);
-	}
-
-	static Class<?> coreInitClass;
-
-	/**
-	 * 设置初始化函数所在类
-	 * 
-	 * @param coreInitCls
-	 */
-	public static final void init(Class<?> coreInitCls) {
-		coreInitClass = coreInitCls;
 	}
 }

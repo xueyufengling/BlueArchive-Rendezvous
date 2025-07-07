@@ -17,12 +17,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.levelgen.DensityFunction;
-import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.common.EventBusSubscriber.Bus;
-import net.neoforged.fml.event.lifecycle.FMLConstructModEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
@@ -108,24 +103,8 @@ public class RegistryFactory {
 	}
 
 	public static void registerAll() {
+		Core.logInfo("RegistryFactory start to auto register.");
 		registerAll(Core.ModBus);
-	}
-
-	/**
-	 * 在mod构造函数后注册所有获取的注册表
-	 */
-	@EventBusSubscriber(modid = Core.ModId, bus = Bus.MOD)
-	public static class AutoRegister {
-		/**
-		 * 优先级必须最低，在此阶段会有其他自动生成的注册项将要注册，需要等待那些注册项全部注册后再统一注册到EventBus
-		 * 
-		 * @param event
-		 */
-		@SubscribeEvent(priority = EventPriority.LOWEST)
-		public static final void autoRegisterRegistries(FMLConstructModEvent event) {
-			Core.logInfo("RegistryFactory start to auto register.");
-			registerAll();
-		}
 	}
 
 	public static <R, T extends R> DeferredHolder<R, T> register(DeferredRegister<R> registry, String registerName, T obj) {

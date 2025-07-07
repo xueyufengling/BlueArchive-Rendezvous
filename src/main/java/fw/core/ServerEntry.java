@@ -3,7 +3,7 @@ package fw.core;
 import java.util.ArrayList;
 import java.util.Map;
 
-import fw.core.registry.MappedRegistries;
+import fw.core.registry.MappedRegistryAccess;
 import lyra.alpha.reference.Recoverable;
 import lyra.object.ObjectManipulator;
 import lyra.object.Placeholders;
@@ -98,19 +98,16 @@ public class ServerEntry {
 		ServerEntry.server = server;
 		ObjectManipulator.setObject(ServerEntry.class, "levels", levels(server));
 		// 如果不使用MappedRegistries.registryAccess，那么就无法修改MappedRegistries.registryAccess的值
-		Placeholders.NotInlined(MappedRegistries.serverRegistryAccess);
-		if (!ObjectManipulator.setObject(MappedRegistries.class, "serverRegistryAccess", server.registryAccess()))
-			System.err.println("Get server registryAccess failed.");
+		Placeholders.NotInlined(MappedRegistryAccess.serverRegistryAccess);
+		if (!ObjectManipulator.setObject(MappedRegistryAccess.class, "serverRegistryAccess", server.registryAccess()))
+			Core.logError("Get server registryAccess failed.");
 		connections = server.getConnection();
-		MappedRegistries.fetchRegistries();
-		if (!beforeServerStartCallbacks.isEmpty())
-			for (Operation beforeServerStartCallback : beforeServerStartCallbacks)
-				beforeServerStartCallback.operate(server);
-		System.err.print("before set " + Level.OVERWORLD);
-		for (Recoverable<?> ref : recoverableRedirectors)
+		RegistryFieldsInitializer.Dynamic.initializeFields();// 初始化动态注册表字段
+		for (Operation beforeServerStartCallback : beforeServerStartCallbacks)
+			beforeServerStartCallback.operate(server);
+		for (Recoverable<?> ref : beforeServerStartRecoverableRedirectors)
 			ref.redirect();
-		MappedRegistries.freezeRegistries();
-		System.err.print("after set " + Level.OVERWORLD);
+		RegistryFieldsInitializer.Dynamic.freeze();
 	}
 
 	public static final MinecraftServer getServer() {
@@ -118,44 +115,42 @@ public class ServerEntry {
 	}
 
 	@SubscribeEvent(priority = EventPriority.HIGHEST) // 最高优先级以获取注册表
-	public static void onServerAboutToStart(ServerAboutToStartEvent event) {
+	private static void onServerAboutToStart(ServerAboutToStartEvent event) {
 		setServer(event.getServer());
 	}
 
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
-	public static void onServerStarting(ServerStartingEvent event) {
-		if (!afterServerLoadLevelCallbacks.isEmpty())
-			for (Operation afterServerLoadLevelCallback : afterServerLoadLevelCallbacks)
-				afterServerLoadLevelCallback.operate(server);
+	private static void onServerStarting(ServerStartingEvent event) {
+		for (Operation afterServerLoadLevelCallback : afterServerLoadLevelCallbacks)
+			afterServerLoadLevelCallback.operate(server);
+		for (Recoverable<?> ref : afterServerLoadLevelRecoverableRedirectors)
+			ref.redirect();
 	}
 
 	@SubscribeEvent(priority = EventPriority.LOWEST)
-	public static void onServerStarted(ServerStartedEvent event) {
-		if (!afterServerStartedCallbacks.isEmpty())
-			for (Operation afterServerStartedCallback : afterServerStartedCallbacks)
-				afterServerStartedCallback.operate(server);
+	private static void onServerStarted(ServerStartedEvent event) {
+		for (Operation afterServerStartedCallback : afterServerStartedCallbacks)
+			afterServerStartedCallback.operate(server);
 		System.err.print("onServerStarted " + Level.OVERWORLD);
 	}
 
 	@SubscribeEvent(priority = EventPriority.LOWEST)
-	public static void onServerStopping(ServerStoppingEvent event) {
-		if (!beforServerStopCallbacks.isEmpty())
-			for (Operation beforServerStopCallback : beforServerStopCallbacks)
-				beforServerStopCallback.operate(server);
+	private static void onServerStopping(ServerStoppingEvent event) {
+		for (Operation beforServerStopCallback : beforServerStopCallbacks)
+			beforServerStopCallback.operate(server);
+		for (Recoverable<?> ref : afterServerLoadLevelRecoverableRedirectors)
+			ref.recovery();
 	}
 
 	@SubscribeEvent(priority = EventPriority.LOWEST)
-	public static void onServerStopped(ServerStoppedEvent event) {
-		System.err.print("before Stop " + Level.OVERWORLD);
-		if (!afterServerStopCallbacks.isEmpty())
-			for (Operation afterServerStopCallback : afterServerStopCallbacks)
-				afterServerStopCallback.operate(server);
-		for (Recoverable<?> ref : recoverableRedirectors)
+	private static void onServerStopped(ServerStoppedEvent event) {
+		for (Operation afterServerStopCallback : afterServerStopCallbacks)
+			afterServerStopCallback.operate(server);
+		for (Recoverable<?> ref : beforeServerStartRecoverableRedirectors)
 			ref.recovery();
-		System.err.print("after Stop " + Level.OVERWORLD);
 	}
 
-	private static final ArrayList<Recoverable<?>> recoverableRedirectors = new ArrayList<>();
+	private static final ArrayList<Recoverable<?>> beforeServerStartRecoverableRedirectors = new ArrayList<>();
 
 	/**
 	 * 托管临时的字段重定向，服务器启动时将字段重定向为指定值，并在服务器退出时将字段恢复。<br>
@@ -163,9 +158,17 @@ public class ServerEntry {
 	 * 
 	 * @param references
 	 */
-	public static final void delegateRecoverableRedirectors(Recoverable<?>... references) {
+	public static final void delegateBeforeServerStartRecoverableRedirectors(Recoverable<?>... references) {
 		for (Recoverable<?> ref : references)
-			if (!recoverableRedirectors.contains(ref))
-				recoverableRedirectors.add(ref);
+			if (!beforeServerStartRecoverableRedirectors.contains(ref))
+				beforeServerStartRecoverableRedirectors.add(ref);
+	}
+
+	private static final ArrayList<Recoverable<?>> afterServerLoadLevelRecoverableRedirectors = new ArrayList<>();
+
+	public static final void delegateAfterServerLoadLevelRecoverableRedirectors(Recoverable<?>... references) {
+		for (Recoverable<?> ref : references)
+			if (!afterServerLoadLevelRecoverableRedirectors.contains(ref))
+				afterServerLoadLevelRecoverableRedirectors.add(ref);
 	}
 }

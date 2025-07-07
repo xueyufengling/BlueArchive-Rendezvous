@@ -1,7 +1,7 @@
 package fw.terrain;
 
 import fw.core.Core;
-import fw.core.registry.MappedRegistries;
+import fw.core.registry.DynamicRegistries;
 import fw.datagen.DatagenHolder;
 import fw.resources.ResourceKeyBuilder;
 import net.minecraft.core.Holder;
@@ -26,7 +26,7 @@ public class ExtBiome {
 	 * @return
 	 */
 	public static final Holder<Biome> getBiome(String key) {
-		return MappedRegistries.BIOME.getHolderOrThrow(ResourceKeyBuilder.build(Registries.BIOME, key));
+		return DynamicRegistries.BIOME.getHolderOrThrow(ResourceKeyBuilder.build(Registries.BIOME, key));
 	}
 
 	/**
@@ -36,7 +36,7 @@ public class ExtBiome {
 	 * @return
 	 */
 	public static final Holder<Biome> modBiome(String key) {
-		return MappedRegistries.BIOME.getHolderOrThrow(ResourceKeyBuilder.build(Registries.BIOME, Core.ModId, key));
+		return DynamicRegistries.BIOME.getHolderOrThrow(ResourceKeyBuilder.build(Registries.BIOME, Core.ModId, key));
 	}
 
 	/**

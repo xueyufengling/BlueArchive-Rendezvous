@@ -93,7 +93,7 @@ public abstract class ExtBiomeSource extends BiomeSource {
 			}
 			possible_biomes_list = new ArrayList<>();
 			if (bootstrapContext == null)
-				throw new RuntimeException("Resolve possible biomes failed indicates that BootstrapContext is null.");
+				throw new IllegalStateException("Resolve possible biomes failed indicates that BootstrapContext is null.");
 			else {
 				for (String key : wrapper.value) {
 					possible_biomes_list.add(ExtBiome.datagenHolder(bootstrapContext, key));

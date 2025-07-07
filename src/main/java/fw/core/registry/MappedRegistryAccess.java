@@ -11,15 +11,11 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.biome.Biome;
-import net.minecraft.world.level.dimension.DimensionType;
-import net.minecraft.world.level.dimension.LevelStem;
 
 /**
  * 主要用作运行时修改注册表
  */
-public class MappedRegistries {
+public class MappedRegistryAccess {
 	@FunctionalInterface
 	public interface Operation<T> {
 		public void operate(MappedRegistry<T> registry);
@@ -31,29 +27,24 @@ public class MappedRegistries {
 		return Minecraft.getInstance().getConnection().registryAccess();
 	}
 
-	public static final MappedRegistry<DimensionType> DIMENSION_TYPE = null;
-	public static final MappedRegistry<Level> DIMENSION = null;
-	public static final MappedRegistry<LevelStem> LEVEL_STEM = null;
-	public static final MappedRegistry<Biome> BIOME = null;
-
 	/**
 	 * 根据该类声明的静态MappedRegistry字段获取实际的注册表并赋值给这些静态字段
 	 * 
 	 * @param registryAccess
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public static final void fetchRegistries(Class<?> target, RegistryAccess.Frozen registryAccess) {
-		KlassWalker.walkTypeFields(target, MappedRegistry.class, (Field f, boolean isStatic, MappedRegistry value) -> {
+	public static final void initializeRegistryFields(Class<?> target, RegistryAccess.Frozen registryAccess) {
+		KlassWalker.walkTypeFields(target, MappedRegistry.class, (Field f, boolean isStatic, MappedRegistry registry) -> {
 			// 判断目标是否是静态字段，以及目标字段是否可以赋值给MappedRegistry（即目标字段是否是MappedRegistry类或其子类）
 			if (isStatic) {
-				ObjectManipulator.setObject(MappedRegistries.class, f.getName(), getUnfrozenRegistry(registryAccess, (ResourceKey) ObjectManipulator.access(Registries.class, f.getName())));
+				ObjectManipulator.setObject(target, f.getName(), getUnfrozenRegistry(registryAccess, (ResourceKey) ObjectManipulator.access(Registries.class, f.getName())));
 			}
 			return true;
 		});
 	}
 
-	public static final void fetchRegistries() {
-		fetchRegistries(MappedRegistries.class, serverRegistryAccess);
+	public static final void initializeRegistryFields(Class<?> target) {
+		initializeRegistryFields(target, serverRegistryAccess);
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -65,10 +56,6 @@ public class MappedRegistries {
 			}
 			return true;
 		});
-	}
-
-	public static final void freezeRegistries() {
-		freezeRegistries(MappedRegistries.class);
 	}
 
 	/**

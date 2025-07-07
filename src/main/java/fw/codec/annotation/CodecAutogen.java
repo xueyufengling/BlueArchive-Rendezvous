@@ -37,11 +37,6 @@ import lyra.object.Placeholders.TypeWrapper;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.KeyDispatchDataCodec;
-import net.neoforged.bus.api.EventPriority;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.common.EventBusSubscriber.Bus;
-import net.neoforged.fml.event.lifecycle.FMLConstructModEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
 
 /**
@@ -80,7 +75,6 @@ public @interface CodecAutogen {
 	 */
 	boolean include_base() default true;
 
-	@EventBusSubscriber(modid = Core.ModId, bus = Bus.MOD)
 	public static class CodecGenerator {
 		/**
 		 * CODEC字段默认的名称
@@ -853,6 +847,7 @@ public @interface CodecAutogen {
 				if (Reflection.is(registryType, codecType)) {// 当注册表MapCodec的泛型参数和传入的registryType匹配时注册
 					holderWrapper.value = RegistryFactory.deferredRegister(registryKey).register(codecName, () -> CODEC);
 				}
+				return true;
 			});
 			return holderWrapper.value;
 		}
@@ -876,6 +871,7 @@ public @interface CodecAutogen {
 					RegistryFactory.deferredRegister(registryKey).register(codecName, () -> CODEC);
 					Core.logInfo("Registered CODEC " + codecName + " in registry " + registryKey);
 				}
+				return true;
 			});
 			return CODEC;
 		}
@@ -913,8 +909,7 @@ public @interface CodecAutogen {
 			});
 		}
 
-		@SubscribeEvent(priority = EventPriority.LOW)
-		public static final void autoGenerateCodecs(FMLConstructModEvent event) {
+		public static final void autoGenerateCodecs() {
 			Core.logInfo("CodecAutogen start to generate CODEC.");
 			for (Class<?> codecClass : codecClasses)
 				generateAndRegisterCodecs(codecClass);

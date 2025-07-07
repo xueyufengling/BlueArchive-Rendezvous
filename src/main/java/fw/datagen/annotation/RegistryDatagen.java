@@ -247,10 +247,11 @@ public @interface RegistryDatagen {
 				if (registryFieldFilter.contains(f.getName())) {
 					RegistrySetBuilder.RegistryBootstrap bootstrap = (BootstrapContext context) -> {
 						for (Class<?> registryClass : registryClasses)
-							registerFields(context, registryClass, RegistryWalker.getRegistryType(f));
+							registerFields(context, registryClass, RegistryWalker.getRegistryKeyType(f));
 					};
 					registrySetBuilder.add((ResourceKey) registryKey, bootstrap);
 				}
+				return true;
 			});
 			return registrySetBuilder;
 		}
