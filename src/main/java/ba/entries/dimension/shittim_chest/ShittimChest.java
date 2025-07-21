@@ -77,7 +77,7 @@ public class ShittimChest {
 		return new NoiseGeneratorSettings(
 				noise,
 				Blocks.AIR.defaultBlockState(), // 世界生成时填充的默认方块
-				Blocks.WATER.defaultBlockState(), // 海平面处的默认流体
+				Blocks.AIR.defaultBlockState(), // 海平面处的默认流体
 				new NoiseRouter(
 						DensityFunctions.zero(), // barrier
 						DensityFunctions.zero(), // fluid_level_floodedness

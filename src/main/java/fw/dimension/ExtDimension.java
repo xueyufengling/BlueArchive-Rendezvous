@@ -51,7 +51,11 @@ public class ExtDimension {
 		 * @return
 		 */
 		public static final ResourceKey<Level> levelKey(ResourceKey<LevelStem> levelStem) {
-			return ResourceKeyBuilder.build(Registries.DIMENSION, levelStem.location());
+			return levelStem == null ? null : ResourceKeyBuilder.build(Registries.DIMENSION, levelStem.location());
+		}
+
+		public static final ResourceKey<Level> levelKey(String levelStem) {
+			return levelStem == null ? null : ResourceKeyBuilder.build(Registries.DIMENSION, levelStem);
 		}
 	}
 

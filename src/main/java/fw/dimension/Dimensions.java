@@ -2,8 +2,8 @@ package fw.dimension;
 
 import fw.core.Core;
 import fw.core.ServerEntry;
-import fw.core.registry.DynamicRegistries;
 import fw.core.registry.MutableMappedRegistry;
+import fw.core.registry.registries.DynamicRegistries;
 import fw.datagen.DatagenHolder;
 import fw.resources.ResourceKeyBuilder;
 import lyra.alpha.reference.FieldReference;
@@ -16,100 +16,84 @@ import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.dimension.LevelStem;
 
 public class Dimensions {
-	private static boolean unregisterNether = true;
-	private static boolean unregisterEnd = true;
-
 	private static MutableMappedRegistry<DimensionType> mutableDimensionTypeRegistry;
 	private static MutableMappedRegistry<Level> mutableDimensionRegistry;
 	private static MutableMappedRegistry<LevelStem> mutableLevelStemRegistry;
 
-	private static void removeTheNetherAndTheEnd() {
-		if (unregisterNether) {// 删除下界
-			mutableDimensionTypeRegistry.unregister(BuiltinDimensionTypes.NETHER);
-			mutableDimensionRegistry.unregister(Level.NETHER);
-			mutableLevelStemRegistry.unregister(LevelStem.NETHER);
-			FieldReference.of(Level.class, "NETHER").redirect();
-			ServerEntry.delegateBeforeServerStartRecoverableRedirectors(
-					FieldReference.of(BuiltinDimensionTypes.class, "NETHER"),
-					FieldReference.of(LevelStem.class, "NETHER"));
-		}
-		if (unregisterEnd) { // 删除末地
-			mutableDimensionTypeRegistry.unregister(BuiltinDimensionTypes.END);
-			mutableDimensionRegistry.unregister(Level.END);
-			mutableLevelStemRegistry.unregister(LevelStem.END);
-			FieldReference.of(Level.class, "END").redirect();
-			ServerEntry.delegateBeforeServerStartRecoverableRedirectors(
-					FieldReference.of(BuiltinDimensionTypes.class, "END"),
-					FieldReference.of(LevelStem.class, "END"));
-		}
-	}
-
-	/**
-	 * 是否移除地狱
-	 * 
-	 * @param rm
-	 */
-	public static final void removeTheNether(boolean rm) {
-		unregisterNether = rm;
-	}
-
-	/**
-	 * 是否移除末地
-	 * 
-	 * @param rm
-	 */
-	public static final void removeTheEnd(boolean rm) {
-		unregisterEnd = rm;
-	}
-
-	private static ResourceKey<DimensionType> overworldDimensionTypeKey = null;
-	private static ResourceKey<LevelStem> overworldLevelStemKey = null;
-
 	private static FieldReference overworldDimensionType;
 	private static FieldReference overworldLevel;
 	private static FieldReference overworldLevelStem;
+	private static final String vanillaOverworldKey = BuiltinDimensionTypes.OVERWORLD.location().toString();
+
+	private static FieldReference netherDimensionType;
+	private static FieldReference netherLevel;
+	private static FieldReference netherLevelStem;
+	private static final ResourceKey<DimensionType> vanillaNetherDimensionType = BuiltinDimensionTypes.NETHER;
+	private static final ResourceKey<Level> vanillaNetherLevel = Level.NETHER;
+	private static final ResourceKey<LevelStem> vanillaNetherLevelStem = LevelStem.NETHER;
+
+	private static FieldReference endDimensionType;
+	private static FieldReference endLevel;
+	private static FieldReference endLevelStem;
+	private static final ResourceKey<DimensionType> vanillaEndDimensionType = BuiltinDimensionTypes.END;
+	private static final ResourceKey<Level> vanillaEndLevel = Level.END;
+	private static final ResourceKey<LevelStem> vanillaEndLevelStem = LevelStem.END;
 
 	static {
 		overworldDimensionType = FieldReference.of(BuiltinDimensionTypes.class, "OVERWORLD");
 		overworldLevel = FieldReference.of(Level.class, "OVERWORLD");
 		overworldLevelStem = FieldReference.of(LevelStem.class, "OVERWORLD");
+		netherDimensionType = FieldReference.of(BuiltinDimensionTypes.class, "NETHER");
+		netherLevel = FieldReference.of(Level.class, "NETHER");
+		netherLevelStem = FieldReference.of(LevelStem.class, "NETHER");
+		endDimensionType = FieldReference.of(BuiltinDimensionTypes.class, "END");
+		endLevel = FieldReference.of(Level.class, "END");
+		endLevelStem = FieldReference.of(LevelStem.class, "END");
+		Core.addPostinit(Dimensions::modifyVanillaDimensions);// 修改原版维度
 	}
 
-	private static void redirectOverworldFields() {
-		if (overworldDimensionTypeKey != null) {
-			overworldDimensionType.redirectTo(overworldDimensionTypeKey).redirect();
-		}
-		if (overworldLevelStemKey != null) {
-			overworldLevel.redirectTo(ExtDimension.Stem.levelKey(overworldLevelStemKey)).redirect();
-			overworldLevelStem.redirectTo(overworldLevelStemKey).redirect();
-		}
-	}
+	private static ResourceKey<DimensionType> overworldDimensionTypeKey = null;
+	private static ResourceKey<LevelStem> overworldLevelStemKey = null;
 
 	/**
 	 * 注册表检查时机：<br>
 	 * 当没有世界时，则自动进入创建新世界界面，在创建新世界时将检查原版主世界Level.OVERWORLD等的注册表。此时该字段必须是minecraft:overworld，否则报错无法解析vanilla数据包世界预设presets;<br>
 	 * 当创建新世界开始时，先创建服务器，再从Level.OVERWORLD等指定的注册条目读取LevelStem和DimensionType，此时可在beforeServerStart时修改主世界的key，创建的新世界直接就是重定向后的世界；<br>
 	 * 当有世界时，在世界选择界面不作检查；<br>
-	 * 当进入已经已经存在的存档时，将先检查原版主世界Level.OVERWORLD等的注册表。此时该字段必须是该存档主世界的实际维度，否则报错。检查完之后才会创建服务器。<br>
+	 * 当进入已经已经存在的存档时，将先检查存档主世界Level.OVERWORLD等的注册表。此时该字段必须是该存档主世界的实际维度，否则报错。检查完之后才会创建服务器。<br>
 	 * 
 	 * @param server
 	 */
 	private static void redirectOverworld(MinecraftServer server) {
-		// 服务器关闭后需要将主世界相关注册表复原，否则会抛出错误。
-		ServerEntry.delegateAfterServerLoadLevelRecoverableRedirectors(
-				mutableDimensionTypeRegistry,
-				mutableDimensionRegistry,
-				mutableLevelStemRegistry);
-
-		redirectOverworldFields();
-		// dimensionType.recovery();
-		// level.recovery();
-		// levelStem.recovery();
-		//
-		// mutableDimensionTypeRegistry.unregister(BuiltinDimensionTypes.OVERWORLD);
-		// mutableDimensionRegistry.unregister(Level.OVERWORLD);
-		// mutableLevelStemRegistry.unregister(LevelStem.OVERWORLD);
-
+		boolean shouldRedirect = false;
+		if (overworldDimensionTypeKey != null) {
+			overworldDimensionType.redirectTo(overworldDimensionTypeKey);
+			shouldRedirect = true;
+		}
+		if (overworldLevelStemKey != null) {
+			overworldLevel.redirectTo(ExtDimension.Stem.levelKey(overworldLevelStemKey));
+			overworldLevelStem.redirectTo(overworldLevelStemKey);
+			shouldRedirect = true;
+		}
+		if (shouldRedirect) {
+			// 服务器关闭后需要将主世界相关注册表复原，否则会抛出错误。
+			ServerEntry.delegateRecoverableRedirectors(
+					ServerEntry.TriggerPoint.AFTER_SERVER_LOAD_LEVEL,
+					ServerEntry.TriggerPoint.BEFORE_SERVER_STOP, // 原版主世界必须保存
+					mutableDimensionTypeRegistry,
+					mutableDimensionRegistry,
+					mutableLevelStemRegistry,
+					overworldDimensionType,
+					overworldLevel,
+					overworldLevelStem);
+			mutableDimensionTypeRegistry.unregister(BuiltinDimensionTypes.OVERWORLD);
+			mutableDimensionRegistry.unregister(Level.OVERWORLD);
+			mutableLevelStemRegistry.unregister(LevelStem.OVERWORLD);
+			ServerEntry.disableLevels(vanillaOverworldKey);// 暂时禁用主世界
+			ServerEntry.addTempBeforeServerStopCallback((MinecraftServer s) -> {
+				ServerEntry.enableLevels(vanillaOverworldKey);// 在存档前恢复主世界
+			});
+		}
 	}
 
 	public static final void redirectOverworld(ResourceKey<DimensionType> dimensionType, ResourceKey<LevelStem> levelStem) {
@@ -139,22 +123,118 @@ public class Dimensions {
 		redirectOverworld(Core.namespacedId(modDimensionId));
 	}
 
-	public static final void unregisterVanillaDimensions(MinecraftServer server) {
-		if (mutableDimensionTypeRegistry == null)
-			mutableDimensionTypeRegistry = MutableMappedRegistry.from(DynamicRegistries.DIMENSION_TYPE);
-		if (mutableDimensionRegistry == null)
-			mutableDimensionRegistry = MutableMappedRegistry.from(DynamicRegistries.DIMENSION);
-		if (mutableLevelStemRegistry == null)
-			mutableLevelStemRegistry = MutableMappedRegistry.from(DynamicRegistries.LEVEL_STEM);
-		removeTheNetherAndTheEnd();
-		mutableDimensionTypeRegistry.asPrimary();
-		mutableDimensionRegistry.asPrimary();
-		mutableLevelStemRegistry.asPrimary();
+	private static final void collectMutableMappedRegistry(MinecraftServer server) {
+		mutableDimensionTypeRegistry = MutableMappedRegistry.from(DynamicRegistries.DIMENSION_TYPE);
+		mutableDimensionRegistry = MutableMappedRegistry.from(DynamicRegistries.DIMENSION);
+		mutableLevelStemRegistry = MutableMappedRegistry.from(DynamicRegistries.LEVEL_STEM);
+	}
+
+	private static ResourceKey<DimensionType> netherDimensionTypeKey = vanillaNetherDimensionType;
+	private static ResourceKey<LevelStem> netherLevelStemKey = vanillaNetherLevelStem;
+
+	/**
+	 * 下界同其他非主世界维度一样，可以安全地注销注册而无需恢复条目
+	 * 
+	 * @param server
+	 */
+	@SuppressWarnings("unchecked")
+	private static void redirectTheNether(MinecraftServer server) {
+		boolean shouldRedirect = false;
+		if (!vanillaNetherDimensionType.equals(netherDimensionTypeKey)) {
+			netherDimensionType.redirectTo(netherDimensionTypeKey);
+			shouldRedirect = true;
+		}
+		if (!vanillaNetherLevelStem.equals(netherLevelStemKey)) {
+			netherLevel.redirectTo(ExtDimension.Stem.levelKey(netherLevelStemKey));
+			netherLevelStem.redirectTo(netherLevelStemKey);
+			shouldRedirect = true;
+		}
+		if (shouldRedirect) {
+			netherDimensionType.redirectTo(netherDimensionTypeKey);
+			netherLevel.redirectTo(ExtDimension.Stem.levelKey(netherLevelStemKey));
+			netherLevelStem.redirectTo(netherLevelStemKey);
+			// 删除下界
+			mutableDimensionTypeRegistry.unregister(vanillaNetherDimensionType);
+			mutableDimensionRegistry.unregister(vanillaNetherLevel);
+			mutableLevelStemRegistry.unregister(vanillaNetherLevelStem);
+			ServerEntry.delegateRecoverableRedirectors(
+					ServerEntry.TriggerPoint.BEFORE_SERVER_START,
+					ServerEntry.TriggerPoint.AFTER_SERVER_STOP,
+					netherDimensionType,
+					netherLevel,
+					netherLevelStem);
+			ServerEntry.disableLevels(vanillaNetherLevel);// 暂时禁用地狱
+			ServerEntry.addTempAfterServerStopCallback((MinecraftServer s) -> {
+				ServerEntry.enableLevels(vanillaNetherLevel);// 在存档后恢复地狱
+			});
+		}
+	}
+
+	private static ResourceKey<DimensionType> endDimensionTypeKey = vanillaEndDimensionType;
+	private static ResourceKey<LevelStem> endLevelStemKey = vanillaEndLevelStem;
+
+	/**
+	 * 末地同其他非主世界维度一样，可以安全地注销注册而无需恢复条目
+	 * 
+	 * @param server
+	 */
+	@SuppressWarnings("unchecked")
+	private static void redirectTheEnd(MinecraftServer server) {
+		boolean shouldRedirect = false;
+		if (!vanillaEndDimensionType.equals(endDimensionTypeKey)) {
+			endDimensionType.redirectTo(endDimensionTypeKey);
+			shouldRedirect = true;
+		}
+		if (!vanillaEndLevelStem.equals(endLevelStemKey)) {
+			endLevel.redirectTo(ExtDimension.Stem.levelKey(endLevelStemKey));
+			endLevelStem.redirectTo(endLevelStemKey);
+			shouldRedirect = true;
+		}
+		if (shouldRedirect) { // 删除末地
+			mutableDimensionTypeRegistry.unregister(vanillaEndDimensionType);
+			mutableDimensionRegistry.unregister(vanillaEndLevel);
+			mutableLevelStemRegistry.unregister(vanillaEndLevelStem);
+			ServerEntry.delegateRecoverableRedirectors(
+					ServerEntry.TriggerPoint.BEFORE_SERVER_START,
+					ServerEntry.TriggerPoint.AFTER_SERVER_STOP,
+					endDimensionType,
+					endLevel,
+					endLevelStem);
+			ServerEntry.disableLevels(vanillaEndLevel);// 暂时禁用末地
+			ServerEntry.addTempAfterServerStopCallback((MinecraftServer s) -> {
+				ServerEntry.enableLevels(vanillaEndLevel);// 在存档后恢复末地
+			});
+		}
+	}
+
+	/**
+	 * 是否移除地狱
+	 * 
+	 * @param rm
+	 */
+	public static final void removeTheNether(boolean rm) {
+		if (rm) {
+			netherDimensionTypeKey = null;
+			netherLevelStemKey = null;
+		}
+	}
+
+	/**
+	 * 是否移除末地
+	 * 
+	 * @param rm
+	 */
+	public static final void removeTheEnd(boolean rm) {
+		if (rm) {
+			endDimensionTypeKey = null;
+			endLevelStemKey = null;
+		}
 	}
 
 	public static final void modifyVanillaDimensions() {
-		ServerEntry.addBeforeServerStartCallback(Dimensions::unregisterVanillaDimensions);
-		ServerEntry.addBeforeServerStartCallback(Dimensions::redirectOverworld);
-		redirectOverworldFields();
+		ServerEntry.addBeforeServerStartCallback(Dimensions::collectMutableMappedRegistry);
+		ServerEntry.addAfterServerLoadLevelCallback(Dimensions::redirectTheNether);
+		ServerEntry.addAfterServerLoadLevelCallback(Dimensions::redirectTheEnd);
+		ServerEntry.addAfterServerLoadLevelCallback(Dimensions::redirectOverworld);
 	}
 }

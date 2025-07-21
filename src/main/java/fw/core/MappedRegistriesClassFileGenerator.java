@@ -3,6 +3,8 @@ package fw.core;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,20 +51,40 @@ public class MappedRegistriesClassFileGenerator {
 			lines.add("	}\r\n");
 		}
 		for (RegistryWalker.RegistryInfo regInfo : regInfoList) {
-			Core.logInfo("Analyzing Registry " + regInfo.toString());
-			lines.add("	public static final MappedRegistry<" + regInfo.regType.getSimpleName() + "> " + regInfo.fieldName + " = null;\r\n"
-					+ "\r\n");
+			Core.logInfo("Analyzing registry " + regInfo.toString());
+			lines.add("	public static final MappedRegistry<" + regInfo.regType.getSimpleName() + "> " + regInfo.fieldName + " = null;\r\n");
 		}
 		lines.add("}");
 		try {
-			IoOperations.writeToFile(output_dir + File.separatorChar + classPackage.replace('.', File.separatorChar) + File.separatorChar + className + ".java", lines);
+			IoOperations.writeToFile(generatedClassPath(output_dir, classPackage, className), lines);
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		}
 	}
 
+	public static final String generatedClassPath(String output_dir, String classPackage, String className) {
+		return output_dir + File.separatorChar + classPackage.replace('.', File.separatorChar) + File.separatorChar + className + ".java";
+	}
+
+	public static final String bootstrapClassPath() {
+		return generatedClassPath(outputDir, registriesPkg, bootstrapClsName);
+	}
+
+	public static final String dynamicClassPath() {
+		return generatedClassPath(outputDir, registriesPkg, dynamicClsName);
+	}
+
+	/**
+	 * 是否覆写现有启动注册表
+	 */
+	public static boolean override_bootstrap = false;
+
+	/**
+	 * 是否覆写现有动态注册表
+	 */
+	public static boolean override_dynamic = false;
 	public static final String outputDir = "D:\\JavaProjects\\BlueArchive-Rendezvous\\src\\main\\java";
-	public static final String registriesPkg = "fw.core.registry";
+	public static final String registriesPkg = "fw.core.registry.registries";
 	public static final String bootstrapClsName = "BootstrapRegistries";
 	public static final String dynamicClsName = "DynamicRegistries";
 
@@ -77,22 +99,28 @@ public class MappedRegistriesClassFileGenerator {
 
 		@SubscribeEvent(priority = EventPriority.LOWEST)
 		private static void onRegister(GatherDataEvent event) {
-			generate(outputDir, registriesPkg, bootstrapClsName, bootstrapRegistries, true, false);
+			if (!Files.exists(Paths.get(bootstrapClassPath())) || override_bootstrap)
+				generate(outputDir, registriesPkg, bootstrapClsName, bootstrapRegistries, true, false);
 		}
 	}
 
 	@EventBusSubscriber(modid = Core.ModId, bus = Bus.GAME)
 	private static class DynamicGenerator {
+		/**
+		 * 服务器启动后再收集加载的注册表
+		 */
 		@SuppressWarnings({ "rawtypes", "unchecked" })
-		@SubscribeEvent(priority = EventPriority.LOWEST) // 服务器启动后再收集加载的注册表
+		@SubscribeEvent(priority = EventPriority.LOWEST)
 		private static void onServerStarted(ServerStartedEvent event) {
-			ArrayList<ResourceKey<? extends Registry<?>>> dynamicRegistries = new ArrayList<>();
-			RegistryWalker.walkRegistries((Field f, ResourceKey registryKey, Class<?> registryType) -> {
-				if (!BootstrapGenerator.bootstrapRegistries.contains(registryKey))
-					dynamicRegistries.add(registryKey);
-				return true;
-			});
-			generate(outputDir, registriesPkg, dynamicClsName, dynamicRegistries, false, true);
+			if (!Files.exists(Paths.get(dynamicClassPath())) || override_dynamic) {// 动态注册表java源文件存在则且不覆写则不再生成
+				ArrayList<ResourceKey<? extends Registry<?>>> dynamicRegistries = new ArrayList<>();
+				RegistryWalker.walkRegistries((Field f, ResourceKey registryKey, Class<?> registryType) -> {
+					if (!BootstrapGenerator.bootstrapRegistries.contains(registryKey))
+						dynamicRegistries.add(registryKey);
+					return true;
+				});
+				generate(outputDir, registriesPkg, dynamicClsName, dynamicRegistries, false, true);
+			}
 		}
 	}
 }

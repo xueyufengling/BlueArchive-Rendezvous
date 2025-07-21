@@ -3,6 +3,7 @@ package fw.core.registry;
 import java.lang.reflect.Field;
 import java.util.IdentityHashMap;
 
+import fw.core.Core;
 import lyra.klass.KlassWalker;
 import lyra.object.ObjectManipulator;
 import net.minecraft.client.Minecraft;
@@ -35,9 +36,16 @@ public class MappedRegistryAccess {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static final void initializeRegistryFields(Class<?> target, RegistryAccess.Frozen registryAccess) {
 		KlassWalker.walkTypeFields(target, MappedRegistry.class, (Field f, boolean isStatic, MappedRegistry registry) -> {
+			MappedRegistry actual_registry = null;
 			// 判断目标是否是静态字段，以及目标字段是否可以赋值给MappedRegistry（即目标字段是否是MappedRegistry类或其子类）
 			if (isStatic) {
-				ObjectManipulator.setObject(target, f.getName(), getUnfrozenRegistry(registryAccess, (ResourceKey) ObjectManipulator.access(Registries.class, f.getName())));
+				try {
+					actual_registry = getUnfrozenRegistry(registryAccess, (ResourceKey) ObjectManipulator.access(Registries.class, f.getName()));
+				} catch (Exception ex) {
+					Core.logError("Initialize dynamic registry field " + f + " failed. got actual registry=" + actual_registry);
+					return true;
+				}
+				ObjectManipulator.setObject(target, f.getName(), actual_registry);
 			}
 			return true;
 		});
@@ -49,10 +57,13 @@ public class MappedRegistryAccess {
 
 	@SuppressWarnings("rawtypes")
 	public static final void freezeRegistries(Class<?> target) {
-		KlassWalker.walkTypeFields(target, MappedRegistry.class, (Field f, boolean isStatic, MappedRegistry value) -> {
+		KlassWalker.walkTypeFields(target, MappedRegistry.class, (Field f, boolean isStatic, MappedRegistry registry) -> {
 			// 判断目标是否是静态字段，以及目标字段是否可以赋值给MappedRegistry（即目标字段是否是MappedRegistry类或其子类）
 			if (isStatic) {
-				freezeRegistry((Registry<?>) value);
+				if (registry == null)
+					Core.logInfo("Skipped freezing null dynamic registry field " + f);
+				else
+					freezeRegistry((Registry<?>) registry);
 			}
 			return true;
 		});

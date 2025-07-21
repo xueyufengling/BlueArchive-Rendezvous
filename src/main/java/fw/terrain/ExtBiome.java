@@ -1,7 +1,7 @@
 package fw.terrain;
 
 import fw.core.Core;
-import fw.core.registry.DynamicRegistries;
+import fw.core.registry.registries.DynamicRegistries;
 import fw.datagen.DatagenHolder;
 import fw.resources.ResourceKeyBuilder;
 import net.minecraft.core.Holder;

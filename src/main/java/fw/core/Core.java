@@ -1,13 +1,17 @@
 package fw.core;
 
+import java.util.ArrayList;
+
 import org.slf4j.Logger;
 
 import fw.Config;
 import fw.codec.annotation.CodecAutogen;
+import fw.core.ServerEntry.Operation;
 import fw.core.registry.RegistryFactory;
 import fw.dimension.Dimensions;
 import fw.resources.ResourceLocationBuilder;
 import lyra.klass.JarKlassLoader;
+import lyra.klass.KlassLoader;
 import lyra.object.ObjectManipulator;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.EventPriority;
@@ -79,6 +83,13 @@ public class Core {
 		if (Config.loadLibBySelf)
 			loadLibrary();
 		ObjectManipulator.setObject(Core.class, "ModBus", getModEventBus(event));// 初始化赋值ModBus
+		KlassLoader.loadKlass("fw.core.registry.registries", true);// 加载并初始化注册表的字段初始化器
+	}
+
+	private static ArrayList<Runnable> postinitFuncs = new ArrayList<>();
+
+	public static final void addPostinit(Runnable func) {
+		postinitFuncs.add(func);
 	}
 
 	/**
@@ -87,10 +98,11 @@ public class Core {
 	 * @param event
 	 */
 	@SubscribeEvent(priority = EventPriority.LOWEST)
-	private static final void init(FMLConstructModEvent event) {
+	private static final void postinit(FMLConstructModEvent event) {
 		CodecAutogen.CodecGenerator.autoGenerateCodecs();// 生成CODEC
 		RegistryFactory.registerAll();// 注册所有新添加的注册表及其条目
-		Dimensions.modifyVanillaDimensions();// 修改原版维度
+		for (Runnable postinit : postinitFuncs)
+			postinit.run();
 	}
 
 	/**

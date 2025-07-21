@@ -1,4 +1,4 @@
-package fw.core.registry;
+package fw.core.registry.registries;
 
 import fw.core.RegistryFieldsInitializer;
 import net.minecraft.core.MappedRegistry;
@@ -39,6 +39,7 @@ import net.minecraft.world.item.crafting.Recipe;
 public class DynamicRegistries {
 
 	static {
+		;
 		RegistryFieldsInitializer.forDynamic(DynamicRegistries.class);
 	}
 

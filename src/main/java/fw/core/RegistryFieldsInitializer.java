@@ -52,8 +52,9 @@ public class RegistryFieldsInitializer {
 
 	class Dynamic {
 		public static void initializeFields() {
-			for (Class<?> DynamicRegistriesClass : DynamicRegistriesClasses)
+			for (Class<?> DynamicRegistriesClass : DynamicRegistriesClasses) {
 				MappedRegistryAccess.initializeRegistryFields(DynamicRegistriesClass);
+			}
 		}
 
 		public static void freeze() {

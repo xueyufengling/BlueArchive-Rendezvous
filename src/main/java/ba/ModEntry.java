@@ -16,8 +16,8 @@ import lyra.vm.Vm;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.common.Mod;
 
-@Mod(value = ModEntryObject.ModId)
-public class ModEntryObject {
+@Mod(value = ModEntry.ModId)
+public class ModEntry {
 	public static final String ModName = "BlueArchive: Rendezvous";
 	public static final String ModId = "ba";
 
@@ -25,7 +25,7 @@ public class ModEntryObject {
 
 	static {
 		LangDatagen.LangProvider.genLangs(Translation.EN_US, Translation.ZH_CN);
-		ModInit.Initializer.forInit(ModEntryObject.class);
+		ModInit.Initializer.forInit(ModEntry.class);
 	}
 
 	public static void registerEntries() {

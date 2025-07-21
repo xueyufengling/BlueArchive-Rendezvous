@@ -2,18 +2,18 @@ package fw;
 
 import org.slf4j.Logger;
 
-import ba.ModEntryObject;
+import ba.ModEntry;
 
 public class Config {
 	/**
 	 * 模组的ID，亦即命名空间
 	 */
-	public static final String ModId = ModEntryObject.ModId;
+	public static final String ModId = ModEntry.ModId;
 
 	/**
 	 * 日志记录器
 	 */
-	public static final Logger Logger = ModEntryObject.Logger;
+	public static final Logger Logger = ModEntry.Logger;
 
 	/**
 	 * 是否输出日志消息
