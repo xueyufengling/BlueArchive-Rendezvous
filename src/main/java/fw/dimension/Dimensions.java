@@ -1,7 +1,7 @@
 package fw.dimension;
 
 import fw.core.Core;
-import fw.core.ServerEntry;
+import fw.core.ServerInstance;
 import fw.core.registry.MutableMappedRegistry;
 import fw.core.registry.registries.DynamicRegistries;
 import fw.datagen.DatagenHolder;
@@ -77,9 +77,9 @@ public class Dimensions {
 		}
 		if (shouldRedirect) {
 			// 服务器关闭后需要将主世界相关注册表复原，否则会抛出错误。
-			ServerEntry.delegateRecoverableRedirectors(
-					ServerEntry.TriggerPoint.AFTER_SERVER_LOAD_LEVEL,
-					ServerEntry.TriggerPoint.BEFORE_SERVER_STOP, // 原版主世界必须保存
+			ServerInstance.delegateRecoverableRedirectors(
+					ServerInstance.EventTrigger.AFTER_SERVER_LOAD_LEVEL,
+					ServerInstance.EventTrigger.BEFORE_SERVER_STOP, // 原版主世界必须保存
 					mutableDimensionTypeRegistry,
 					mutableDimensionRegistry,
 					mutableLevelStemRegistry,
@@ -89,9 +89,9 @@ public class Dimensions {
 			mutableDimensionTypeRegistry.unregister(BuiltinDimensionTypes.OVERWORLD);
 			mutableDimensionRegistry.unregister(Level.OVERWORLD);
 			mutableLevelStemRegistry.unregister(LevelStem.OVERWORLD);
-			ServerEntry.disableLevels(vanillaOverworldKey);// 暂时禁用主世界
-			ServerEntry.addTempBeforeServerStopCallback((MinecraftServer s) -> {
-				ServerEntry.enableLevels(vanillaOverworldKey);// 在存档前恢复主世界
+			ServerInstance.disableLevels(vanillaOverworldKey);// 暂时禁用主世界
+			ServerInstance.addTempBeforeServerStopCallback((MinecraftServer s) -> {
+				ServerInstance.enableLevels(vanillaOverworldKey);// 在存档前恢复主世界
 			});
 		}
 	}
@@ -120,7 +120,7 @@ public class Dimensions {
 	 * @param modDimensionId
 	 */
 	public static final void redirectOverworldMod(String modDimensionId) {
-		redirectOverworld(Core.namespacedId(modDimensionId));
+		redirectOverworld(Core.modNamespacedId(modDimensionId));
 	}
 
 	private static final void collectMutableMappedRegistry(MinecraftServer server) {
@@ -157,15 +157,15 @@ public class Dimensions {
 			mutableDimensionTypeRegistry.unregister(vanillaNetherDimensionType);
 			mutableDimensionRegistry.unregister(vanillaNetherLevel);
 			mutableLevelStemRegistry.unregister(vanillaNetherLevelStem);
-			ServerEntry.delegateRecoverableRedirectors(
-					ServerEntry.TriggerPoint.BEFORE_SERVER_START,
-					ServerEntry.TriggerPoint.AFTER_SERVER_STOP,
+			ServerInstance.delegateRecoverableRedirectors(
+					ServerInstance.EventTrigger.BEFORE_SERVER_START,
+					ServerInstance.EventTrigger.AFTER_SERVER_STOP,
 					netherDimensionType,
 					netherLevel,
 					netherLevelStem);
-			ServerEntry.disableLevels(vanillaNetherLevel);// 暂时禁用地狱
-			ServerEntry.addTempAfterServerStopCallback((MinecraftServer s) -> {
-				ServerEntry.enableLevels(vanillaNetherLevel);// 在存档后恢复地狱
+			ServerInstance.disableLevels(vanillaNetherLevel);// 暂时禁用地狱
+			ServerInstance.addTempAfterServerStopCallback((MinecraftServer s) -> {
+				ServerInstance.enableLevels(vanillaNetherLevel);// 在存档后恢复地狱
 			});
 		}
 	}
@@ -194,15 +194,15 @@ public class Dimensions {
 			mutableDimensionTypeRegistry.unregister(vanillaEndDimensionType);
 			mutableDimensionRegistry.unregister(vanillaEndLevel);
 			mutableLevelStemRegistry.unregister(vanillaEndLevelStem);
-			ServerEntry.delegateRecoverableRedirectors(
-					ServerEntry.TriggerPoint.BEFORE_SERVER_START,
-					ServerEntry.TriggerPoint.AFTER_SERVER_STOP,
+			ServerInstance.delegateRecoverableRedirectors(
+					ServerInstance.EventTrigger.BEFORE_SERVER_START,
+					ServerInstance.EventTrigger.AFTER_SERVER_STOP,
 					endDimensionType,
 					endLevel,
 					endLevelStem);
-			ServerEntry.disableLevels(vanillaEndLevel);// 暂时禁用末地
-			ServerEntry.addTempAfterServerStopCallback((MinecraftServer s) -> {
-				ServerEntry.enableLevels(vanillaEndLevel);// 在存档后恢复末地
+			ServerInstance.disableLevels(vanillaEndLevel);// 暂时禁用末地
+			ServerInstance.addTempAfterServerStopCallback((MinecraftServer s) -> {
+				ServerInstance.enableLevels(vanillaEndLevel);// 在存档后恢复末地
 			});
 		}
 	}
@@ -232,9 +232,9 @@ public class Dimensions {
 	}
 
 	public static final void modifyVanillaDimensions() {
-		ServerEntry.addBeforeServerStartCallback(Dimensions::collectMutableMappedRegistry);
-		ServerEntry.addAfterServerLoadLevelCallback(Dimensions::redirectTheNether);
-		ServerEntry.addAfterServerLoadLevelCallback(Dimensions::redirectTheEnd);
-		ServerEntry.addAfterServerLoadLevelCallback(Dimensions::redirectOverworld);
+		ServerInstance.addBeforeServerStartCallback(Dimensions::collectMutableMappedRegistry);
+		ServerInstance.addAfterServerLoadLevelCallback(Dimensions::redirectTheNether);
+		ServerInstance.addAfterServerLoadLevelCallback(Dimensions::redirectTheEnd);
+		ServerInstance.addAfterServerLoadLevelCallback(Dimensions::redirectOverworld);
 	}
 }

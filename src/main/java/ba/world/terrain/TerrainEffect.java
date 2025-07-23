@@ -17,7 +17,7 @@ public enum TerrainEffect {
 	public final float shieldBlockRate;
 
 	private TerrainEffect(String icon_path, String evaluation, float damageDealt, float shieldBlockRate) {
-		this.icon = Core.resourceLocation(icon_path);
+		this.icon = Core.modResourceLocation(icon_path);
 		this.evaluation = evaluation;
 		this.damageDealt = damageDealt;
 		this.shieldBlockRate = shieldBlockRate;

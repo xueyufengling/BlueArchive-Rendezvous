@@ -35,7 +35,7 @@ public class ShittimChestBiomes extends ExtBiomeSource {
 			0,
 			Biome.TemperatureModifier.NONE,
 			0,
-			ExtBiome.buildBiomeSpecialEffects(0, 0, 0, 0, null),
+			ExtBiome.buildBiomeSpecialEffects(0xD2EFFD, 0x47C6FA, 0x62DEFB, 0xA4E2FC, null),
 			MobSpawnSettings.EMPTY,
 			BiomeGenerationSettings.EMPTY));
 

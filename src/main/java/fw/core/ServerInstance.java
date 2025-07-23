@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import fw.core.registry.MappedRegistryAccess;
 import fw.dimension.ExtDimension;
@@ -25,8 +26,8 @@ import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 
 @EventBusSubscriber(modid = Core.ModId)
-public class ServerEntry {
-	public enum TriggerPoint {
+public class ServerInstance {
+	public enum EventTrigger {
 		BEFORE_SERVER_START, // 未加载世界
 		AFTER_SERVER_LOAD_LEVEL, // 加载完世界
 		AFTER_SERVER_STARTED, // 服务器加载全部完成
@@ -41,49 +42,49 @@ public class ServerEntry {
 		private final ArrayList<Recoverable<?>> redirect_recoverables = new ArrayList<>();
 		private final ArrayList<Recoverable<?>> recovery_recoverables = new ArrayList<>();
 
-		public final TriggerPoint addCallbacks(Operation... ops) {
+		public final EventTrigger addCallbacks(Operation... ops) {
 			for (Operation op : ops)
 				callbacks.add(op);
 			return this;
 		}
 
-		public final TriggerPoint addTempCallbacks(Operation... ops) {
+		public final EventTrigger addTempCallbacks(Operation... ops) {
 			for (Operation op : ops)
 				temp_callbacks.add(op);
 			return this;
 		}
 
-		public final TriggerPoint addRedirectRecoverables(Recoverable<?>... refs) {
+		public final EventTrigger addRedirectRecoverables(Recoverable<?>... refs) {
 			for (Recoverable<?> ref : refs)
 				if (!redirect_recoverables.contains(ref))
 					redirect_recoverables.add(ref);
 			return this;
 		}
 
-		public final TriggerPoint addRecoveryRecoverables(Recoverable<?>... refs) {
+		public final EventTrigger addRecoveryRecoverables(Recoverable<?>... refs) {
 			for (Recoverable<?> ref : refs)
 				if (!redirect_recoverables.contains(ref))
 					recovery_recoverables.add(ref);
 			return this;
 		}
 
-		public final TriggerPoint addCallback(Operation op) {
+		public final EventTrigger addCallback(Operation op) {
 			callbacks.add(op);
 			return this;
 		}
 
-		public final TriggerPoint addTempCallback(Operation op) {
+		public final EventTrigger addTempCallback(Operation op) {
 			temp_callbacks.add(op);
 			return this;
 		}
 
-		public final TriggerPoint addRedirectRecoverable(Recoverable<?> ref) {
+		public final EventTrigger addRedirectRecoverable(Recoverable<?> ref) {
 			if (!redirect_recoverables.contains(ref))
 				redirect_recoverables.add(ref);
 			return this;
 		}
 
-		public final TriggerPoint addRecoveryRecoverable(Recoverable<?> ref) {
+		public final EventTrigger addRecoveryRecoverable(Recoverable<?> ref) {
 			if (!redirect_recoverables.contains(ref))
 				recovery_recoverables.add(ref);
 			return this;
@@ -112,8 +113,17 @@ public class ServerEntry {
 	/**
 	 * 不论单人还是多人都有服务器，，单人为内置服务器，多人则是外部服务器
 	 */
-	private static MinecraftServer server;
+	private static MinecraftServer server = null;
 	static ServerConnectionListener connections;
+
+	/**
+	 * 本类是否当前可用
+	 * 
+	 * @return
+	 */
+	public static final boolean available() {
+		return server != null;
+	}
 
 	/**
 	 * 设置服务器构建好启动前的回调，此时数据包注册表全部加载完成，但还未创建和初始化Level
@@ -121,43 +131,43 @@ public class ServerEntry {
 	 * @param op
 	 */
 	public static final void addBeforeServerStartCallback(Operation op) {
-		TriggerPoint.BEFORE_SERVER_START.addCallback(op);
+		EventTrigger.BEFORE_SERVER_START.addCallback(op);
 	}
 
 	public static final void addAfterServerLoadLevelCallback(Operation op) {
-		TriggerPoint.AFTER_SERVER_LOAD_LEVEL.addCallback(op);
+		EventTrigger.AFTER_SERVER_LOAD_LEVEL.addCallback(op);
 	}
 
 	public static final void addAfterServerStartedCallback(Operation op) {
-		TriggerPoint.AFTER_SERVER_STARTED.addCallback(op);
+		EventTrigger.AFTER_SERVER_STARTED.addCallback(op);
 	}
 
 	public static final void addBeforeServerStopCallback(Operation op) {
-		TriggerPoint.BEFORE_SERVER_STOP.addCallback(op);
+		EventTrigger.BEFORE_SERVER_STOP.addCallback(op);
 	}
 
 	public static final void addAfterServerStopCallback(Operation op) {
-		TriggerPoint.AFTER_SERVER_STOP.addCallback(op);
+		EventTrigger.AFTER_SERVER_STOP.addCallback(op);
 	}
 
 	public static final void addTempBeforeServerStartCallback(Operation op) {
-		TriggerPoint.BEFORE_SERVER_START.addTempCallback(op);
+		EventTrigger.BEFORE_SERVER_START.addTempCallback(op);
 	}
 
 	public static final void addTempAfterServerLoadLevelCallback(Operation op) {
-		TriggerPoint.AFTER_SERVER_LOAD_LEVEL.addTempCallback(op);
+		EventTrigger.AFTER_SERVER_LOAD_LEVEL.addTempCallback(op);
 	}
 
 	public static final void addTempAfterServerStartedCallback(Operation op) {
-		TriggerPoint.AFTER_SERVER_STARTED.addTempCallback(op);
+		EventTrigger.AFTER_SERVER_STARTED.addTempCallback(op);
 	}
 
 	public static final void addTempBeforeServerStopCallback(Operation op) {
-		TriggerPoint.BEFORE_SERVER_STOP.addTempCallback(op);
+		EventTrigger.BEFORE_SERVER_STOP.addTempCallback(op);
 	}
 
 	public static final void addTempAfterServerStopCallback(Operation op) {
-		TriggerPoint.AFTER_SERVER_STOP.addTempCallback(op);
+		EventTrigger.AFTER_SERVER_STOP.addTempCallback(op);
 	}
 
 	/**
@@ -168,7 +178,7 @@ public class ServerEntry {
 	 * @param recoveryTrigger
 	 * @param references
 	 */
-	public static final void delegateRecoverableRedirectors(TriggerPoint redirectTrigger, TriggerPoint recoveryTrigger, Recoverable<?>... references) {
+	public static final void delegateRecoverableRedirectors(EventTrigger redirectTrigger, EventTrigger recoveryTrigger, Recoverable<?>... references) {
 		for (Recoverable<?> ref : references) {
 			redirectTrigger.addRedirectRecoverable(ref);
 			recoveryTrigger.addRecoveryRecoverable(ref);
@@ -249,6 +259,15 @@ public class ServerEntry {
 		}
 	}
 
+	public static final void disableAllLevels() {
+		Iterator<Entry<ResourceKey<Level>, ServerLevel>> iter = levels.entrySet().iterator();
+		while (iter.hasNext()) {
+			Entry<ResourceKey<Level>, ServerLevel> entry = iter.next();
+			disabled_levels.put(entry.getKey(), entry.getValue());
+			iter.remove();
+		}
+	}
+
 	public static final void enableLevels(String... level_keys) {
 		for (String level_key : level_keys) {
 			ResourceKey<Level> res_key = ExtDimension.Stem.levelKey(level_key);
@@ -272,21 +291,30 @@ public class ServerEntry {
 		}
 	}
 
+	public static final void enableAllLevels() {
+		Iterator<Entry<ResourceKey<Level>, ServerLevel>> iter = disabled_levels.entrySet().iterator();
+		while (iter.hasNext()) {
+			Entry<ResourceKey<Level>, ServerLevel> entry = iter.next();
+			levels.put(entry.getKey(), entry.getValue());
+			iter.remove();
+		}
+	}
+
 	/**
 	 * 设置当前服务器
 	 * 
 	 * @param server
 	 */
 	static final void setServer(MinecraftServer server) {
-		ServerEntry.server = server;
-		ObjectManipulator.setObject(ServerEntry.class, "levels", levels(server));
+		ServerInstance.server = server;
+		ObjectManipulator.setObject(ServerInstance.class, "levels", levels(server));
 		// 如果不使用MappedRegistries.registryAccess，那么就无法修改MappedRegistries.registryAccess的值
 		Placeholders.NotInlined(MappedRegistryAccess.serverRegistryAccess);
 		if (!ObjectManipulator.setObject(MappedRegistryAccess.class, "serverRegistryAccess", server.registryAccess()))
 			Core.logError("Get server registryAccess failed.");
 		connections = server.getConnection();
 		RegistryFieldsInitializer.Dynamic.initializeFields();// 初始化动态注册表字段
-		TriggerPoint.BEFORE_SERVER_START.execute();
+		EventTrigger.BEFORE_SERVER_START.execute();
 		RegistryFieldsInitializer.Dynamic.freeze();
 	}
 
@@ -301,21 +329,22 @@ public class ServerEntry {
 
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	private static void onServerStarting(ServerStartingEvent event) {
-		TriggerPoint.AFTER_SERVER_LOAD_LEVEL.execute();
+		EventTrigger.AFTER_SERVER_LOAD_LEVEL.execute();
 	}
 
 	@SubscribeEvent(priority = EventPriority.LOWEST)
 	private static void onServerStarted(ServerStartedEvent event) {
-		TriggerPoint.AFTER_SERVER_STARTED.execute();
+		EventTrigger.AFTER_SERVER_STARTED.execute();
 	}
 
 	@SubscribeEvent(priority = EventPriority.LOWEST)
 	private static void onServerStopping(ServerStoppingEvent event) {
-		TriggerPoint.BEFORE_SERVER_STOP.execute();
+		EventTrigger.BEFORE_SERVER_STOP.execute();
 	}
 
 	@SubscribeEvent(priority = EventPriority.LOWEST)
 	private static void onServerStopped(ServerStoppedEvent event) {
-		TriggerPoint.AFTER_SERVER_STOP.execute();
+		EventTrigger.AFTER_SERVER_STOP.execute();
+		server = null;
 	}
 }

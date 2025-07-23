@@ -276,6 +276,7 @@
   "item.ba.selection_tier6_piece": "Selection Tier6 Piece",
   "item.ba.selection_tier7_piece": "Selection Tier7 Piece",
   "item.ba.selection_tier8_piece": "Selection Tier8 Piece",
+  "item.ba.shittim_chest": "Shittim Chest",
   "item.ba.shoes_tier1": "Shoes Tier1",
   "item.ba.shoes_tier2": "Shoes Tier2",
   "item.ba.shoes_tier2_piece": "Shoes Tier2 Piece",
@@ -405,6 +406,7 @@
   "itemGroup.ba.blocks": "BlueArchive Blocks",
   "itemGroup.ba.currency": "BlueArchive Currency",
   "itemGroup.ba.equipments": "BlueArchive Equipments",
+  "itemGroup.ba.key_items": "BlueArchive Key Items",
   "itemGroup.ba.materials": "BlueArchive Materials",
   "itemGroup.ba.skillbooks": "BlueArchive Skill Books",
   "itemGroup.ba.weapons": "BlueArchive Weapons"

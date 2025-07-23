@@ -33,17 +33,17 @@ public class ShittimChest {
 
 	public static final String ID = "shittim_chest";
 
-	public static final int MIN_Y = -64;
+	public static final int MIN_Y = 0;
 	public static final int MAX_Y = 368;
 	public static final int HEIGHT = MAX_Y - MIN_Y;
-	public static final int SEALEVEL = 64;
+	public static final int SEALEVEL = MIN_Y;
 
 	/**
 	 * 维度属性定义
 	 */
 	@RegistryDatagen
 	public static final DatagenHolder<DimensionType> DIMENSION_TYPE = ExtDimension.Type.register(ID, new DimensionType(
-			OptionalLong.empty(),
+			OptionalLong.of(600),
 			true,
 			false,
 			false,
@@ -54,7 +54,7 @@ public class ShittimChest {
 			MIN_Y,
 			HEIGHT,
 			HEIGHT,
-			BlockTags.INFINIBURN_OVERWORLD,
+			BlockTags.VALID_SPAWN,
 			BuiltinDimensionTypes.OVERWORLD_EFFECTS,
 			0.0F,
 			new DimensionType.MonsterSettings(true, false, UniformInt.of(0, 0), 0)));
@@ -72,11 +72,11 @@ public class ShittimChest {
 				2,
 				2);
 
-		DensityFunction finalDensity = DensityFunctions.zero();
+		DensityFunction finalDensity = DensityFunctions.yClampedGradient(MIN_Y, MAX_Y, 1, -5);
 
 		return new NoiseGeneratorSettings(
 				noise,
-				Blocks.AIR.defaultBlockState(), // 世界生成时填充的默认方块
+				Blocks.WATER.defaultBlockState(), // 世界生成时填充的默认方块
 				Blocks.AIR.defaultBlockState(), // 海平面处的默认流体
 				new NoiseRouter(
 						DensityFunctions.zero(), // barrier
@@ -89,7 +89,7 @@ public class ShittimChest {
 						DensityFunctions.zero(), // erosion
 						DensityFunctions.zero(), // depth
 						DensityFunctions.zero(), // ridges
-						finalDensity, // initial_density_without_jaggedness
+						DensityFunctions.zero(), // initial_density_without_jaggedness
 						finalDensity, // final_density
 						DensityFunctions.zero(), // vein_toggle
 						DensityFunctions.zero(), // vein_ridged

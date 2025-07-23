@@ -18,7 +18,6 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.EventBusSubscriber.Bus;
 import net.neoforged.fml.event.lifecycle.FMLConstructModEvent;
 import net.neoforged.fml.javafmlmod.FMLModContainer;
-import net.neoforged.fml.loading.FMLLoader;
 
 /**
  * 初始化函数注解、<br>
@@ -43,7 +42,7 @@ public @interface ModInit {
 		static final void executeAllInitFuncs(FMLConstructModEvent event) {
 			ModContainer mod = Core.getModContainer(event);
 			IEventBus bus = Core.getModEventBus(mod);
-			Dist dist = FMLLoader.getDist();
+			Dist dist = Core.Env;
 			for (Class<?> modInitClass : modInitClasses)
 				KlassWalker.walkAnnotatedMethods(modInitClass, ModInit.class, (Method m, boolean isStatic, Object obj, ModInit annotation) -> {
 					if (isStatic) {

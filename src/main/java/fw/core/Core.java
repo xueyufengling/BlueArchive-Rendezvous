@@ -6,14 +6,13 @@ import org.slf4j.Logger;
 
 import fw.Config;
 import fw.codec.annotation.CodecAutogen;
-import fw.core.ServerEntry.Operation;
 import fw.core.registry.RegistryFactory;
-import fw.dimension.Dimensions;
 import fw.resources.ResourceLocationBuilder;
 import lyra.klass.JarKlassLoader;
 import lyra.klass.KlassLoader;
 import lyra.object.ObjectManipulator;
 import net.minecraft.resources.ResourceLocation;
+import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -23,6 +22,7 @@ import net.neoforged.fml.common.EventBusSubscriber.Bus;
 import net.neoforged.fml.event.lifecycle.FMLConstructModEvent;
 import net.neoforged.fml.event.lifecycle.ModLifecycleEvent;
 import net.neoforged.fml.javafmlmod.FMLModContainer;
+import net.neoforged.fml.loading.FMLLoader;
 
 @EventBusSubscriber(modid = Core.ModId, bus = Bus.MOD)
 public class Core {
@@ -32,6 +32,7 @@ public class Core {
 	public static final String ModId = Config.ModId;
 
 	public static final IEventBus ModBus = null;
+	public static final Dist Env = FMLLoader.getDist();
 
 	public static final Logger Logger = Config.Logger;
 
@@ -111,17 +112,27 @@ public class Core {
 	 * @param loc
 	 * @return
 	 */
-	public static ResourceLocation resourceLocation(String loc) {
+	public static ResourceLocation modResourceLocation(String loc) {
 		return ResourceLocationBuilder.build(Core.ModId, loc);
 	}
 
-	public static String namespacedId(String id) {
+	public static String modNamespacedId(String id) {
 		return ModId + ResourceLocation.NAMESPACE_SEPARATOR + id;
+	}
+
+	public static final void logDebug(String msg) {
+		if (Config.logInfo)
+			Logger.debug(msg);
 	}
 
 	public static final void logInfo(String msg) {
 		if (Config.logInfo)
 			Logger.info(msg);
+	}
+
+	public static final void logWarn(String msg) {
+		if (Config.logInfo)
+			Logger.warn(msg);
 	}
 
 	public static final void logError(String msg) {

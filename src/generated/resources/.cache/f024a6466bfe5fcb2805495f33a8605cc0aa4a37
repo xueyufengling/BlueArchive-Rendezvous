@@ -1,4 +1,4 @@
-// 1.21.1	2025-07-02T10:43:06.5839329	Item Models: ba
+// 1.21.1	2025-07-23T17:13:03.6848096	Item Models: ba
 5393f35063dfec5807652e83d66c7dbb042eba83 assets/ba/models/item/antikythera_0.json
 9dfbcd462fad5dd7c32b9552c1c7cb7986bc661a assets/ba/models/item/antikythera_1.json
 c5c7cc18ec7ec4b4825472405a07f91145afc31e assets/ba/models/item/antikythera_2.json
@@ -276,6 +276,7 @@ be6ee8934f701fcd89b708edf12551579c080df6 assets/ba/models/item/selection_3.json
 85c1439f6f0a386bdc825cb14a1499290ad6d05c assets/ba/models/item/selection_tier6_piece.json
 9eefca8837f9597583c05681dfaf517d82d3c7ea assets/ba/models/item/selection_tier7_piece.json
 562ff2edec325dadeab6d87eb3da15df86331ba4 assets/ba/models/item/selection_tier8_piece.json
+894d1c23da1f214e635ee8adef74fae0d6404801 assets/ba/models/item/shittim_chest.json
 dc05cd710e90d1a0d4403d986184b9d2040efa95 assets/ba/models/item/shoes_tier1.json
 16ad2641f260310da324c6b05914d201e58dd4e2 assets/ba/models/item/shoes_tier2.json
 29e996d4d2029fa9598d90efe8dc617a500de01a assets/ba/models/item/shoes_tier2_piece.json
