@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 import java.util.IdentityHashMap;
 
 import fw.core.Core;
+import fw.resources.ResourceLocationBuilder;
 import lyra.klass.KlassWalker;
 import lyra.object.ObjectManipulator;
 import net.minecraft.client.Minecraft;
@@ -141,5 +142,11 @@ public class MappedRegistryAccess {
 	 */
 	public static <T> void freezeRegistry(Registry<T> registry) {
 		registry.freeze();
+	}
+
+	public static <T> T getValue(Registry<T> registry, String reslocWithNamespace) {
+		if (registry == null)
+			return null;
+		return registry.get(ResourceLocationBuilder.build(reslocWithNamespace));
 	}
 }

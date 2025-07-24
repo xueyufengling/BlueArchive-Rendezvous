@@ -31,6 +31,7 @@ public class Core {
 	 */
 	public static final String ModId = Config.ModId;
 
+	public static final ModContainer Mod = null;
 	public static final IEventBus ModBus = null;
 	public static final Dist Env = FMLLoader.getDist();
 
@@ -83,7 +84,8 @@ public class Core {
 	private static final void preinit(FMLConstructModEvent event) {
 		if (Config.loadLibBySelf)
 			loadLibrary();
-		ObjectManipulator.setObject(Core.class, "ModBus", getModEventBus(event));// 初始化赋值ModBus
+		ObjectManipulator.setObject(Core.class, "Mod", getModContainer(event));
+		ObjectManipulator.setObject(Core.class, "ModBus", getModEventBus(Mod));// 初始化赋值ModBus
 		KlassLoader.loadKlass("fw.core.registry.registries", true);// 加载并初始化注册表的字段初始化器
 	}
 
@@ -125,9 +127,19 @@ public class Core {
 			Logger.debug(msg);
 	}
 
+	public static final void logDebug(String msg, Throwable e) {
+		if (Config.logInfo)
+			Logger.debug(msg, e);
+	}
+
 	public static final void logInfo(String msg) {
 		if (Config.logInfo)
 			Logger.info(msg);
+	}
+
+	public static final void logInfo(String msg, Throwable e) {
+		if (Config.logInfo)
+			Logger.info(msg, e);
 	}
 
 	public static final void logWarn(String msg) {
@@ -135,8 +147,18 @@ public class Core {
 			Logger.warn(msg);
 	}
 
+	public static final void logWarn(String msg, Throwable e) {
+		if (Config.logInfo)
+			Logger.warn(msg, e);
+	}
+
 	public static final void logError(String msg) {
 		if (Config.logInfo)
 			Logger.error(msg);
+	}
+
+	public static final void logError(String msg, Throwable e) {
+		if (Config.logInfo)
+			Logger.error(msg, e);
 	}
 }

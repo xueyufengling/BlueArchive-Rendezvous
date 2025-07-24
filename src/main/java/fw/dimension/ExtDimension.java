@@ -2,7 +2,9 @@ package fw.dimension;
 
 import com.mojang.serialization.MapCodec;
 
+import fw.core.registry.MappedRegistryAccess;
 import fw.core.registry.RegistryFactory;
+import fw.core.registry.registries.DynamicRegistries;
 import fw.datagen.DatagenHolder;
 import fw.resources.ResourceKeyBuilder;
 import net.minecraft.core.registries.Registries;
@@ -22,6 +24,10 @@ public class ExtDimension {
 	public static class Type {
 		public static final DatagenHolder<DimensionType> register(String name, DimensionType dimType) {
 			return DatagenHolder.of(Registries.DIMENSION_TYPE, name, dimType);
+		}
+
+		public static final DimensionType get(String name) {
+			return MappedRegistryAccess.getValue(DynamicRegistries.DIMENSION_TYPE, name);
 		}
 	}
 

@@ -26,15 +26,8 @@ public enum BaCreativeTab implements ExtCreativeTab {
 	@LangDatagen(translations = { @Translation(locale = "en_us", text = "BlueArchive Skill Books"), @Translation(locale = "zh_cn", text = "蔚蓝档案 技能书") })
 	BA_SKILLBOOKS(Id.BA_SKILLBOOKS, "skillbook_selection_3");
 
-	public final ExtCreativeTab.Definition definition;
-
 	private BaCreativeTab(String id, String iconItem) {
-		definition = ExtCreativeTab.define(this, id, iconItem);
-	}
-
-	@Override
-	public Definition definition() {
-		return definition;
+		ExtCreativeTab.define(this, id, iconItem);
 	}
 
 	public static class Id {

@@ -6,6 +6,7 @@ import java.util.HashMap;
 import fw.core.Core;
 import fw.core.registry.RegistryFactory;
 import fw.datagen.Localizable;
+import lyra.klass.special.BaseClass;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -15,33 +16,31 @@ import net.neoforged.neoforge.registries.DeferredItem;
 /**
  * 创造模式物品栏
  */
-public interface ExtCreativeTab extends Localizable {
+public interface ExtCreativeTab extends BaseClass<ExtCreativeTab.Definition>, Localizable {
 
 	public static String header = "itemGroup";
 
 	/**
 	 * 物品栏的定义
 	 */
-	public static class Definition {
+	class Definition extends BaseClass.Definition<ExtCreativeTab> {
 
 		public final String id;
 		public final DeferredHolder<CreativeModeTab, CreativeModeTab> deferredHolder;
 
-		private ExtCreativeTab derived;
 		private String iconItem;
 		private ArrayList<DeferredItem<Item>> itemsList = new ArrayList<>();
 
 		private CreativeModeTab.Builder builder;
 
-		private Definition(ExtCreativeTab derived, String id, String iconItem) {
-			this.derived = derived;
+		private Definition(String id, String iconItem) {
 			this.id = id;
 			this.iconItem = iconItem;
 			builder = new CreativeModeTab.Builder(CreativeModeTab.Row.TOP, 0);
 			deferredHolder = RegistryFactory.CREATIVE_TABS.register(id, () -> {
 				return builder
 						.icon(() -> new ItemStack((ExtItems.contains(this.iconItem) ? ExtItems.get(this.iconItem) : ExtItems.register(this.iconItem)).get()))
-						.title(this.derived.localizedComponent())
+						.title(this_.localizedComponent())
 						.displayItems((featureFlagSet, tabOutput) -> {
 							this.itemsList.forEach(item -> tabOutput.accept(new ItemStack(item.get())));
 						})
@@ -55,55 +54,29 @@ public interface ExtCreativeTab extends Localizable {
 
 		@Override
 		public String toString() {
-			return "CreativeModeTab{ id=" + id + ", iconItem=" + iconItem + ", localizationKey=" + derived.localizationKey() + " }";
-		}
-
-		private static final HashMap<String, Definition> definitions = new HashMap<>();
-
-		public static final Definition get(String id) {
-			return definitions.get(id);
-		}
-
-		/**
-		 * 定义一个物品栏，一个id的物品栏只会定义和注册一次
-		 * 
-		 * @param derived
-		 * @param id
-		 * @param iconItem
-		 * @return
-		 */
-		public static final Definition define(ExtCreativeTab derived, String id, String iconItem) {
-			// 第一次调用该方法时，此时derived.definition()为null，因此避免在本方法内使用derived.definition()
-			Definition def = Definition.get(id);
-			if (def == null) {
-				def = new Definition(derived, id, iconItem);
-				definitions.put(id, def);
-			} else {
-				def.derived = derived;
-				def.iconItem = iconItem;
-			}
-			return def;
+			return "CreativeModeTab{ id=" + id + ", iconItem=" + iconItem + ", localizationKey=" + this_.localizationKey() + " }";
 		}
 	}
 
+	static final HashMap<String, ExtCreativeTab> creative_tabs = new HashMap<>();
+
+	public static ExtCreativeTab get(String id) {
+		return creative_tabs.get(id);
+	}
+
 	/**
-	 * 获取Definition实例，如果不存在id对应的Definition则创建，如果存在对应id的Definition则直接返回已经存在的
+	 * 定义一个物品栏，一个id的物品栏只会定义和注册一次
 	 * 
 	 * @param derived
 	 * @param id
 	 * @param iconItem
 	 * @return
 	 */
-	public static Definition define(ExtCreativeTab derived, String id, String iconItem) {
-		return Definition.define(derived, id, iconItem);
+	static ExtCreativeTab define(ExtCreativeTab derived, String id, String iconItem) {
+		derived.construct(Definition.class, new Class<?>[] { String.class, String.class }, id, iconItem);
+		creative_tabs.put(id, derived);
+		return derived;
 	}
-
-	/**
-	 * 子类需要有正确的Definition对象
-	 * 
-	 * @return
-	 */
-	public abstract Definition definition();
 
 	public default ExtCreativeTab append(DeferredItem<Item> item) {
 		definition().itemsList.add(item);

@@ -40,8 +40,8 @@ public @interface ModInit {
 
 		@SubscribeEvent(priority = EventPriority.HIGH)
 		static final void executeAllInitFuncs(FMLConstructModEvent event) {
-			ModContainer mod = Core.getModContainer(event);
-			IEventBus bus = Core.getModEventBus(mod);
+			ModContainer mod = Core.Mod;
+			IEventBus bus = Core.ModBus;
 			Dist dist = Core.Env;
 			for (Class<?> modInitClass : modInitClasses)
 				KlassWalker.walkAnnotatedMethods(modInitClass, ModInit.class, (Method m, boolean isStatic, Object obj, ModInit annotation) -> {
@@ -64,7 +64,7 @@ public @interface ModInit {
 								try {
 									m.invoke(obj, args);
 								} catch (IllegalAccessException | InvocationTargetException e) {
-									Core.logError("@CoreInit method " + m + " execute failed.");
+									Core.logError("@CoreInit method " + m + " execute failed.", e);
 								}
 								break;// 只要匹配任意一个env指定的运行环境，则执行该静态方法并退出循环转而判定下一个静态方法
 							}

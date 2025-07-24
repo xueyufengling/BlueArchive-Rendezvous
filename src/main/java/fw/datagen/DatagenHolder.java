@@ -7,6 +7,11 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceKey;
+import net.neoforged.bus.api.EventPriority;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
 
 public class DatagenHolder<T> {
@@ -40,6 +45,17 @@ public class DatagenHolder<T> {
 		this.resourceKey = ResourceKeyBuilder.build(registryKey, namespace, path);
 		this.deferredHolder = deferredHolder;
 		this.value = value;
+		NeoForge.EVENT_BUS.register(this);
+	}
+
+	/**
+	 * 从数据包加载后自动将值引用改为数据包反序列化后的对象，保证对本对象的value修改后将同步应用到服务器运行时
+	 * 
+	 * @param event
+	 */
+	@SubscribeEvent(priority = EventPriority.HIGH)
+	private void onServerAboutToStart(ServerAboutToStartEvent event) {
+		value = registry().get(resourceKey);
 	}
 
 	/**

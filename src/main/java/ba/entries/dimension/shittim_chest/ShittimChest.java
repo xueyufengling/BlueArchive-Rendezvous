@@ -43,7 +43,7 @@ public class ShittimChest {
 	 */
 	@RegistryDatagen
 	public static final DatagenHolder<DimensionType> DIMENSION_TYPE = ExtDimension.Type.register(ID, new DimensionType(
-			OptionalLong.of(600),
+			OptionalLong.empty(),
 			true,
 			false,
 			false,
@@ -64,8 +64,6 @@ public class ShittimChest {
 	 */
 	@RegistryDatagen
 	public static final DatagenHolder<NoiseGeneratorSettings> NOISE_SETTINGS = ExtDimension.Noise.register(ID, (BootstrapContext<NoiseGeneratorSettings> context) -> {
-		Df df = Df.of(context);
-
 		NoiseSettings noise = NoiseSettings.create(
 				MIN_Y,
 				HEIGHT,
