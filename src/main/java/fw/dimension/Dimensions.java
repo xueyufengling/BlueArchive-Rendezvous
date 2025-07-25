@@ -2,6 +2,7 @@ package fw.dimension;
 
 import fw.core.Core;
 import fw.core.ServerInstance;
+import fw.core.event.ServerLifecycleTrigger;
 import fw.core.registry.MutableMappedRegistry;
 import fw.core.registry.registries.DynamicRegistries;
 import fw.datagen.DatagenHolder;
@@ -78,8 +79,8 @@ public class Dimensions {
 		if (shouldRedirect) {
 			// 服务器关闭后需要将主世界相关注册表复原，否则会抛出错误。
 			ServerInstance.delegateRecoverableRedirectors(
-					ServerInstance.LifecycleTrigger.AFTER_SERVER_LOAD_LEVEL,
-					ServerInstance.LifecycleTrigger.BEFORE_SERVER_STOP, // 原版主世界必须保存
+					ServerLifecycleTrigger.AFTER_SERVER_LOAD_LEVEL,
+					ServerLifecycleTrigger.BEFORE_SERVER_STOP, // 原版主世界必须保存
 					mutableDimensionTypeRegistry,
 					mutableDimensionRegistry,
 					mutableLevelStemRegistry,
@@ -158,8 +159,8 @@ public class Dimensions {
 			mutableDimensionRegistry.unregister(vanillaNetherLevel);
 			mutableLevelStemRegistry.unregister(vanillaNetherLevelStem);
 			ServerInstance.delegateRecoverableRedirectors(
-					ServerInstance.LifecycleTrigger.BEFORE_SERVER_START,
-					ServerInstance.LifecycleTrigger.AFTER_SERVER_STOP,
+					ServerLifecycleTrigger.BEFORE_SERVER_START,
+					ServerLifecycleTrigger.AFTER_SERVER_STOP,
 					netherDimensionType,
 					netherLevel,
 					netherLevelStem);
@@ -195,8 +196,8 @@ public class Dimensions {
 			mutableDimensionRegistry.unregister(vanillaEndLevel);
 			mutableLevelStemRegistry.unregister(vanillaEndLevelStem);
 			ServerInstance.delegateRecoverableRedirectors(
-					ServerInstance.LifecycleTrigger.BEFORE_SERVER_START,
-					ServerInstance.LifecycleTrigger.AFTER_SERVER_STOP,
+					ServerLifecycleTrigger.BEFORE_SERVER_START,
+					ServerLifecycleTrigger.AFTER_SERVER_STOP,
 					endDimensionType,
 					endLevel,
 					endLevelStem);

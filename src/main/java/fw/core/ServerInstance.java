@@ -1,11 +1,11 @@
 package fw.core;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import fw.core.event.ServerLifecycleTrigger;
 import fw.core.registry.MappedRegistryAccess;
 import fw.dimension.ExtDimension;
 import lyra.alpha.reference.Recoverable;
@@ -17,94 +17,8 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.network.ServerConnectionListener;
 import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.EventPriority;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
-import net.neoforged.neoforge.event.server.ServerStartedEvent;
-import net.neoforged.neoforge.event.server.ServerStartingEvent;
-import net.neoforged.neoforge.event.server.ServerStoppedEvent;
-import net.neoforged.neoforge.event.server.ServerStoppingEvent;
-import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
-@EventBusSubscriber(modid = Core.ModId)
 public class ServerInstance {
-	public enum LifecycleTrigger {
-		BEFORE_SERVER_START, // 未加载世界
-		AFTER_SERVER_LOAD_LEVEL, // 加载完世界
-		AFTER_SERVER_STARTED, // 服务器加载全部完成
-		BEFORE_SERVER_STOP, // 世界保存前
-		AFTER_SERVER_STOP;// 世界保存后，服务器完全关闭
-
-		private final ArrayList<Operation> callbacks = new ArrayList<>();
-		/**
-		 * 执行完成后就会移除的回调函数
-		 */
-		private final ArrayList<Operation> temp_callbacks = new ArrayList<>();
-		private final ArrayList<Recoverable<?>> redirect_recoverables = new ArrayList<>();
-		private final ArrayList<Recoverable<?>> recovery_recoverables = new ArrayList<>();
-
-		public final LifecycleTrigger addCallbacks(Operation... ops) {
-			for (Operation op : ops)
-				callbacks.add(op);
-			return this;
-		}
-
-		public final LifecycleTrigger addTempCallbacks(Operation... ops) {
-			for (Operation op : ops)
-				temp_callbacks.add(op);
-			return this;
-		}
-
-		public final LifecycleTrigger addRedirectRecoverables(Recoverable<?>... refs) {
-			for (Recoverable<?> ref : refs)
-				if (!redirect_recoverables.contains(ref))
-					redirect_recoverables.add(ref);
-			return this;
-		}
-
-		public final LifecycleTrigger addRecoveryRecoverables(Recoverable<?>... refs) {
-			for (Recoverable<?> ref : refs)
-				if (!redirect_recoverables.contains(ref))
-					recovery_recoverables.add(ref);
-			return this;
-		}
-
-		public final LifecycleTrigger addCallback(Operation op) {
-			callbacks.add(op);
-			return this;
-		}
-
-		public final LifecycleTrigger addTempCallback(Operation op) {
-			temp_callbacks.add(op);
-			return this;
-		}
-
-		public final LifecycleTrigger addRedirectRecoverable(Recoverable<?> ref) {
-			if (!redirect_recoverables.contains(ref))
-				redirect_recoverables.add(ref);
-			return this;
-		}
-
-		public final LifecycleTrigger addRecoveryRecoverable(Recoverable<?> ref) {
-			if (!redirect_recoverables.contains(ref))
-				recovery_recoverables.add(ref);
-			return this;
-		}
-
-		public final void execute() {
-			for (Operation callback : callbacks)
-				callback.operate(server);
-			Iterator<Operation> iter = temp_callbacks.iterator();
-			while (iter.hasNext()) {
-				iter.next().operate(server);
-				iter.remove();
-			}
-			for (Recoverable<?> ref : redirect_recoverables)
-				ref.redirect();
-			for (Recoverable<?> ref : recovery_recoverables)
-				ref.recovery();
-		}
-	}
 
 	@FunctionalInterface
 	public static interface Operation {
@@ -114,7 +28,7 @@ public class ServerInstance {
 	/**
 	 * 不论单人还是多人都有服务器，，单人为内置服务器，多人则是外部服务器
 	 */
-	public static MinecraftServer server = null;
+	public static final MinecraftServer server = null;
 	static ServerConnectionListener connections;
 
 	/**
@@ -132,43 +46,43 @@ public class ServerInstance {
 	 * @param op
 	 */
 	public static final void addBeforeServerStartCallback(Operation op) {
-		LifecycleTrigger.BEFORE_SERVER_START.addCallback(op);
+		ServerLifecycleTrigger.BEFORE_SERVER_START.addCallback(op);
 	}
 
 	public static final void addAfterServerLoadLevelCallback(Operation op) {
-		LifecycleTrigger.AFTER_SERVER_LOAD_LEVEL.addCallback(op);
+		ServerLifecycleTrigger.AFTER_SERVER_LOAD_LEVEL.addCallback(op);
 	}
 
 	public static final void addAfterServerStartedCallback(Operation op) {
-		LifecycleTrigger.AFTER_SERVER_STARTED.addCallback(op);
+		ServerLifecycleTrigger.AFTER_SERVER_STARTED.addCallback(op);
 	}
 
 	public static final void addBeforeServerStopCallback(Operation op) {
-		LifecycleTrigger.BEFORE_SERVER_STOP.addCallback(op);
+		ServerLifecycleTrigger.BEFORE_SERVER_STOP.addCallback(op);
 	}
 
 	public static final void addAfterServerStopCallback(Operation op) {
-		LifecycleTrigger.AFTER_SERVER_STOP.addCallback(op);
+		ServerLifecycleTrigger.AFTER_SERVER_STOP.addCallback(op);
 	}
 
 	public static final void addTempBeforeServerStartCallback(Operation op) {
-		LifecycleTrigger.BEFORE_SERVER_START.addTempCallback(op);
+		ServerLifecycleTrigger.BEFORE_SERVER_START.addTempCallback(op);
 	}
 
 	public static final void addTempAfterServerLoadLevelCallback(Operation op) {
-		LifecycleTrigger.AFTER_SERVER_LOAD_LEVEL.addTempCallback(op);
+		ServerLifecycleTrigger.AFTER_SERVER_LOAD_LEVEL.addTempCallback(op);
 	}
 
 	public static final void addTempAfterServerStartedCallback(Operation op) {
-		LifecycleTrigger.AFTER_SERVER_STARTED.addTempCallback(op);
+		ServerLifecycleTrigger.AFTER_SERVER_STARTED.addTempCallback(op);
 	}
 
 	public static final void addTempBeforeServerStopCallback(Operation op) {
-		LifecycleTrigger.BEFORE_SERVER_STOP.addTempCallback(op);
+		ServerLifecycleTrigger.BEFORE_SERVER_STOP.addTempCallback(op);
 	}
 
 	public static final void addTempAfterServerStopCallback(Operation op) {
-		LifecycleTrigger.AFTER_SERVER_STOP.addTempCallback(op);
+		ServerLifecycleTrigger.AFTER_SERVER_STOP.addTempCallback(op);
 	}
 
 	/**
@@ -179,7 +93,7 @@ public class ServerInstance {
 	 * @param recoveryTrigger
 	 * @param references
 	 */
-	public static final void delegateRecoverableRedirectors(LifecycleTrigger redirectTrigger, LifecycleTrigger recoveryTrigger, Recoverable<?>... references) {
+	public static final void delegateRecoverableRedirectors(ServerLifecycleTrigger redirectTrigger, ServerLifecycleTrigger recoveryTrigger, Recoverable<?>... references) {
 		for (Recoverable<?> ref : references) {
 			redirectTrigger.addRedirectRecoverable(ref);
 			recoveryTrigger.addRecoveryRecoverable(ref);
@@ -306,8 +220,8 @@ public class ServerInstance {
 	 * 
 	 * @param server
 	 */
-	private static final void setServer(MinecraftServer server) {
-		ServerInstance.server = server;
+	public static final void setServer(MinecraftServer server) {
+		ObjectManipulator.setObject(ServerInstance.class, "server", server);
 		ObjectManipulator.setObject(ServerInstance.class, "levels", levels(server));
 		// 如果不使用MappedRegistries.registryAccess，那么就无法修改MappedRegistries.registryAccess的值
 		Placeholders.NotInlined(MappedRegistryAccess.serverRegistryAccess);
@@ -315,47 +229,7 @@ public class ServerInstance {
 			Core.logError("Get server registryAccess failed.");
 		connections = server.getConnection();
 		RegistryFieldsInitializer.Dynamic.initializeFields();// 初始化动态注册表字段
-		LifecycleTrigger.BEFORE_SERVER_START.execute();
+		ServerLifecycleTrigger.BEFORE_SERVER_START.definition().priority(EventPriority.HIGHEST).execute();
 		RegistryFieldsInitializer.Dynamic.freeze();
-	}
-
-	public static final MinecraftServer getServer() {
-		return server;
-	}
-
-	@SubscribeEvent(priority = EventPriority.HIGHEST) // 最高优先级以获取注册表
-	private static void onServerAboutToStart(ServerAboutToStartEvent event) {
-		setServer(event.getServer());
-	}
-
-	@SubscribeEvent(priority = EventPriority.LOWEST)
-	private static void onServerStarting(ServerStartingEvent event) {
-		LifecycleTrigger.AFTER_SERVER_LOAD_LEVEL.execute();
-	}
-
-	@SubscribeEvent(priority = EventPriority.LOWEST)
-	private static void onServerStarted(ServerStartedEvent event) {
-		LifecycleTrigger.AFTER_SERVER_STARTED.execute();
-	}
-
-	@SubscribeEvent(priority = EventPriority.LOWEST)
-	private static void onServerStopping(ServerStoppingEvent event) {
-		LifecycleTrigger.BEFORE_SERVER_STOP.execute();
-	}
-
-	@SubscribeEvent(priority = EventPriority.LOWEST)
-	private static void onServerStopped(ServerStoppedEvent event) {
-		LifecycleTrigger.AFTER_SERVER_STOP.execute();
-		server = null;
-	}
-
-	public enum RunningTrigger {
-		PRE_SERVER_TICK, // 世界更新前
-		POST_SERVER_TICK; // 世界更新后
-	}
-
-	@SubscribeEvent(priority = EventPriority.LOWEST)
-	private static void preServerTick(ServerTickEvent.Pre event) {
-
 	}
 }
