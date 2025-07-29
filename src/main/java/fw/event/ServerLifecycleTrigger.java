@@ -1,8 +1,9 @@
-package fw.core.event;
+package fw.event;
 
 import fw.core.Core;
 import fw.core.ServerInstance;
 import lyra.object.ObjectManipulator;
+import net.minecraft.server.MinecraftServer;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -13,12 +14,17 @@ import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 
 @EventBusSubscriber(modid = Core.ModId)
-public enum ServerLifecycleTrigger implements EventTrigger {
+public enum ServerLifecycleTrigger implements EventTrigger<ServerLifecycleTrigger.Operation> {
 	BEFORE_SERVER_START(EventPriority.HIGHEST), // 未加载世界
 	AFTER_SERVER_LOAD_LEVEL(EventPriority.LOWEST), // 加载完世界
 	AFTER_SERVER_STARTED(EventPriority.LOWEST), // 服务器加载全部完成
 	BEFORE_SERVER_STOP(EventPriority.LOWEST), // 世界保存前
 	AFTER_SERVER_STOP(EventPriority.LOWEST);// 世界保存后，服务器完全关闭
+
+	@FunctionalInterface
+	public static interface Operation {
+		public void operate(MinecraftServer server);
+	}
 
 	ServerLifecycleTrigger(EventPriority defaultPriority) {
 		define(defaultPriority);
@@ -29,17 +35,17 @@ public enum ServerLifecycleTrigger implements EventTrigger {
 		ServerInstance.setServer(event.getServer());
 	}
 
-	@SubscribeEvent(priority = EventPriority.HIGH) // 最高优先级以获取注册表
+	@SubscribeEvent(priority = EventPriority.HIGH)
 	private static void onServerAboutToStartHigh(ServerAboutToStartEvent event) {
 		ServerLifecycleTrigger.BEFORE_SERVER_START.definition().priority(EventPriority.HIGH).execute();
 	}
 
-	@SubscribeEvent(priority = EventPriority.LOW) // 最高优先级以获取注册表
+	@SubscribeEvent(priority = EventPriority.LOW)
 	private static void onServerAboutToStartLow(ServerAboutToStartEvent event) {
 		ServerLifecycleTrigger.BEFORE_SERVER_START.definition().priority(EventPriority.LOW).execute();
 	}
 
-	@SubscribeEvent(priority = EventPriority.LOWEST) // 最高优先级以获取注册表
+	@SubscribeEvent(priority = EventPriority.LOWEST)
 	private static void onServerAboutToStartLowest(ServerAboutToStartEvent event) {
 		ServerLifecycleTrigger.BEFORE_SERVER_START.definition().priority(EventPriority.LOWEST).execute();
 	}
@@ -122,6 +128,11 @@ public enum ServerLifecycleTrigger implements EventTrigger {
 	@SubscribeEvent(priority = EventPriority.LOWEST)
 	private static void onServerStoppedLowest(ServerStoppedEvent event) {
 		ServerLifecycleTrigger.AFTER_SERVER_STOP.definition().priority(EventPriority.LOWEST).execute();
-		ObjectManipulator.setObject(ServerInstance.class, "server", null);
+		ObjectManipulator.setObject(ServerInstance.class, "server", null);// 服务器停止后将ServerInstance的server对象置空
+	}
+
+	@Override
+	public void executeCallback(Operation op, Object... args) {
+		op.operate(ServerInstance.server);
 	}
 }

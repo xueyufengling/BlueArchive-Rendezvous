@@ -1,4 +1,4 @@
-package fw.core.registry.registries;
+package fw.core.registry.registries.client;
 
 import fw.core.RegistryFieldsInitializer;
 import net.minecraft.core.MappedRegistry;
@@ -40,103 +40,71 @@ public class DynamicRegistries {
 
 	static {
 		;
-		RegistryFieldsInitializer.forDynamic(DynamicRegistries.class);
+		RegistryFieldsInitializer.forDynamicClient(DynamicRegistries.class);
 	}
 
 	public static final MappedRegistry<BannerPattern> BANNER_PATTERN = null;
 
-
 	public static final MappedRegistry<WolfVariant> WOLF_VARIANT = null;
-
 
 	public static final MappedRegistry<DamageType> DAMAGE_TYPE = null;
 
-
 	public static final MappedRegistry<JukeboxSong> JUKEBOX_SONG = null;
-
 
 	public static final MappedRegistry<PaintingVariant> PAINTING_VARIANT = null;
 
-
 	public static final MappedRegistry<Biome> BIOME = null;
-
 
 	public static final MappedRegistry<ChatType> CHAT_TYPE = null;
 
-
 	public static final MappedRegistry<ConfiguredWorldCarver> CONFIGURED_CARVER = null;
-
 
 	public static final MappedRegistry<ConfiguredFeature> CONFIGURED_FEATURE = null;
 
-
 	public static final MappedRegistry<DensityFunction> DENSITY_FUNCTION = null;
-
 
 	public static final MappedRegistry<DimensionType> DIMENSION_TYPE = null;
 
-
 	public static final MappedRegistry<Enchantment> ENCHANTMENT = null;
-
 
 	public static final MappedRegistry<EnchantmentProvider> ENCHANTMENT_PROVIDER = null;
 
-
 	public static final MappedRegistry<FlatLevelGeneratorPreset> FLAT_LEVEL_GENERATOR_PRESET = null;
-
 
 	public static final MappedRegistry<NoiseGeneratorSettings> NOISE_SETTINGS = null;
 
-
 	public static final MappedRegistry<NoiseParameters> NOISE = null;
-
 
 	public static final MappedRegistry<PlacedFeature> PLACED_FEATURE = null;
 
-
 	public static final MappedRegistry<Structure> STRUCTURE = null;
-
 
 	public static final MappedRegistry<StructureProcessorList> PROCESSOR_LIST = null;
 
-
 	public static final MappedRegistry<StructureSet> STRUCTURE_SET = null;
-
 
 	public static final MappedRegistry<StructureTemplatePool> TEMPLATE_POOL = null;
 
-
 	public static final MappedRegistry<TrimMaterial> TRIM_MATERIAL = null;
-
 
 	public static final MappedRegistry<TrimPattern> TRIM_PATTERN = null;
 
-
 	public static final MappedRegistry<WorldPreset> WORLD_PRESET = null;
-
 
 	public static final MappedRegistry<MultiNoiseBiomeSourceParameterList> MULTI_NOISE_BIOME_SOURCE_PARAMETER_LIST = null;
 
-
 	public static final MappedRegistry<Level> DIMENSION = null;
-
 
 	public static final MappedRegistry<LevelStem> LEVEL_STEM = null;
 
-
 	public static final MappedRegistry<LootTable> LOOT_TABLE = null;
-
 
 	public static final MappedRegistry<LootItemFunction> ITEM_MODIFIER = null;
 
-
 	public static final MappedRegistry<LootItemCondition> PREDICATE = null;
-
 
 	public static final MappedRegistry<Advancement> ADVANCEMENT = null;
 
-
 	public static final MappedRegistry<Recipe> RECIPE = null;
-
 
 }

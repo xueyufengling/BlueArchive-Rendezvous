@@ -1,4 +1,4 @@
-package fw.core.registry.registries;
+package fw.core.registry.registries.bootstrap;
 
 import fw.core.RegistryFieldsInitializer;
 import net.minecraft.core.MappedRegistry;

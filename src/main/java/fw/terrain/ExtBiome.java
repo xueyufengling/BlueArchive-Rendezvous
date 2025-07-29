@@ -1,7 +1,10 @@
 package fw.terrain;
 
+import java.util.ArrayList;
+import java.util.Set;
+
 import fw.core.Core;
-import fw.core.registry.registries.DynamicRegistries;
+import fw.core.registry.registries.server.DynamicRegistries;
 import fw.datagen.DatagenHolder;
 import fw.resources.ResourceKeyBuilder;
 import net.minecraft.core.Holder;
@@ -15,8 +18,11 @@ import net.minecraft.world.level.biome.AmbientMoodSettings;
 import net.minecraft.world.level.biome.AmbientParticleSettings;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeGenerationSettings;
+import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.biome.BiomeSpecialEffects;
 import net.minecraft.world.level.biome.MobSpawnSettings;
+import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.dimension.LevelStem;
 
 public class ExtBiome {
 	/**
@@ -200,5 +206,28 @@ public class ExtBiome {
 				0,
 				0,
 				backgroundMusic);
+	}
+
+	@SuppressWarnings("unchecked")
+	public static Holder<Biome>[] possibleBiomeHolders(BiomeSource source) {
+		Set<Holder<Biome>> biomeSet = source.possibleBiomes();
+		Holder<Biome>[] biomes = new Holder[biomeSet.size()];
+		return biomeSet.toArray(biomes);
+	}
+
+	public static Biome[] possibleBiomes(BiomeSource source) {
+		ArrayList<Biome> biomeList = new ArrayList<>();
+		for (Holder<Biome> biomeHolder : source.possibleBiomes())
+			biomeList.add(biomeHolder.value());
+		Biome[] biomes = new Biome[biomeList.size()];
+		return biomeList.toArray(biomes);
+	}
+
+	public static Biome[] possibleBiomes(ChunkGenerator gen) {
+		return possibleBiomes(gen.getBiomeSource());
+	}
+
+	public static Biome[] possibleBiomes(LevelStem stem) {
+		return possibleBiomes(stem.generator());
 	}
 }

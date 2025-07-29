@@ -7,7 +7,6 @@ import ba.entries.biome.shittim_chest.ShittimChestBiomes;
 import fw.datagen.DatagenHolder;
 import fw.datagen.annotation.RegistryDatagen;
 import fw.dimension.ExtDimension;
-import fw.terrain.Df;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.registries.Registries;

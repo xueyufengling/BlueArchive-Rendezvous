@@ -64,7 +64,7 @@ public class DatagenHolder<T> {
 	 * @return
 	 */
 	public final Registry<T> registry() {
-		return MappedRegistryAccess.getRegistry(registryKey);
+		return MappedRegistryAccess.getServerRegistry(registryKey);
 	}
 
 	public final <C> ResourceKey<C> resourceKey(ResourceKey<? extends Registry<C>> registryKey) {

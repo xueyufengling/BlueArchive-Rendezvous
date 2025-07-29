@@ -4,7 +4,7 @@ import com.mojang.serialization.MapCodec;
 
 import fw.core.registry.MappedRegistryAccess;
 import fw.core.registry.RegistryFactory;
-import fw.core.registry.registries.DynamicRegistries;
+import fw.core.registry.registries.server.DynamicRegistries;
 import fw.datagen.DatagenHolder;
 import fw.resources.ResourceKeyBuilder;
 import net.minecraft.core.registries.Registries;

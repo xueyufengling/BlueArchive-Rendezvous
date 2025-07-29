@@ -2,10 +2,10 @@ package fw.dimension;
 
 import fw.core.Core;
 import fw.core.ServerInstance;
-import fw.core.event.ServerLifecycleTrigger;
 import fw.core.registry.MutableMappedRegistry;
-import fw.core.registry.registries.DynamicRegistries;
+import fw.core.registry.registries.server.DynamicRegistries;
 import fw.datagen.DatagenHolder;
+import fw.event.ServerLifecycleTrigger;
 import fw.resources.ResourceKeyBuilder;
 import lyra.alpha.reference.FieldReference;
 import net.minecraft.core.registries.Registries;
@@ -15,6 +15,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.dimension.LevelStem;
+import net.neoforged.bus.api.EventPriority;
 
 public class Dimensions {
 	private static MutableMappedRegistry<DimensionType> mutableDimensionTypeRegistry;
@@ -91,7 +92,7 @@ public class Dimensions {
 			mutableDimensionRegistry.unregister(Level.OVERWORLD);
 			mutableLevelStemRegistry.unregister(LevelStem.OVERWORLD);
 			ServerInstance.disableLevels(vanillaOverworldKey);// 暂时禁用主世界
-			ServerInstance.addTempBeforeServerStopCallback((MinecraftServer s) -> {
+			ServerLifecycleTrigger.BEFORE_SERVER_STOP.addTempCallback(EventPriority.LOWEST, (MinecraftServer s) -> {
 				ServerInstance.enableLevels(vanillaOverworldKey);// 在存档前恢复主世界
 			});
 		}
@@ -165,7 +166,7 @@ public class Dimensions {
 					netherLevel,
 					netherLevelStem);
 			ServerInstance.disableLevels(vanillaNetherLevel);// 暂时禁用地狱
-			ServerInstance.addTempAfterServerStopCallback((MinecraftServer s) -> {
+			ServerLifecycleTrigger.AFTER_SERVER_STOP.addTempCallback(EventPriority.LOWEST, (MinecraftServer s) -> {
 				ServerInstance.enableLevels(vanillaNetherLevel);// 在存档后恢复地狱
 			});
 		}
@@ -202,7 +203,7 @@ public class Dimensions {
 					endLevel,
 					endLevelStem);
 			ServerInstance.disableLevels(vanillaEndLevel);// 暂时禁用末地
-			ServerInstance.addTempAfterServerStopCallback((MinecraftServer s) -> {
+			ServerLifecycleTrigger.AFTER_SERVER_STOP.addTempCallback(EventPriority.LOWEST, (MinecraftServer s) -> {
 				ServerInstance.enableLevels(vanillaEndLevel);// 在存档后恢复末地
 			});
 		}

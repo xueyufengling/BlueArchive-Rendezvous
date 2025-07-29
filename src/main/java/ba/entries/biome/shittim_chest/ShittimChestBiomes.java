@@ -5,10 +5,13 @@ import java.util.List;
 import com.mojang.serialization.MapCodec;
 
 import fw.codec.annotation.CodecAutogen;
+import fw.core.ExecuteIn;
 import fw.datagen.DatagenHolder;
 import fw.datagen.annotation.RegistryDatagen;
 import fw.terrain.ExtBiome;
 import fw.terrain.ExtBiomeSource;
+import fw.terrain.MutableBiomeSpecialEffects;
+import fw.terrain.TimeBasedColorLinearInterpolation;
 import net.minecraft.core.Holder;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.world.level.biome.Biome;
@@ -19,9 +22,24 @@ import net.minecraft.world.level.biome.MobSpawnSettings;
 
 public class ShittimChestBiomes extends ExtBiomeSource {
 
+	private static MutableBiomeSpecialEffects effects;
+
 	static {
 		CodecAutogen.CodecGenerator.forCodec(ShittimChestBiomes.class);
 		RegistryDatagen.RegistriesProvider.forDatagen(ShittimChestBiomes.class);
+		ExecuteIn.Client(() -> {
+			effects = MutableBiomeSpecialEffects.from("ba:shittim_chest");
+			effects.tick(TimeBasedColorLinearInterpolation
+					.begin(0, 0, 0, 0, 0)// 6 h 紫
+					.append(3000, 0, 131, 210, 250)// 9 h 浅天蓝
+					.append(6000, 0, 92, 194, 253)// 12 h 深天蓝
+					.append(9000, 0, 131, 210, 250)// 15 h 浅天蓝
+					.append(12000, 0, 215, 184, 223)// 18 h 紫
+					.append(15000, 0, 35, 68, 134)// 21 h 浅黑蓝
+					.append(18000, 0, 11, 28, 74)// 0 h 深黑蓝
+					.append(21000, 0, 35, 68, 134)// 3 h 浅黑蓝
+			);
+		});
 	}
 
 	@CodecAutogen(null_if_empty = true)

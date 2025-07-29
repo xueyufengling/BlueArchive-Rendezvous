@@ -8,18 +8,22 @@ import fw.core.registry.RegistryWalker;
 import lyra.klass.KlassWalker;
 import lyra.object.ObjectManipulator;
 import net.minecraft.core.MappedRegistry;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.EventBusSubscriber.Bus;
 import net.neoforged.neoforge.registries.RegisterEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 
 /**
  * 为MappedRegistriesClassFileGenerator生成的文件中的全部注册表字段在正确时机进行初始化操作
  */
 public class RegistryFieldsInitializer {
 	private static ArrayList<Class<?>> BootstrapRegistriesClasses = new ArrayList<>();
-	private static ArrayList<Class<?>> DynamicRegistriesClasses = new ArrayList<>();
+	private static ArrayList<Class<?>> ServerDynamicRegistriesClasses = new ArrayList<>();
+	private static ArrayList<Class<?>> ClientDynamicRegistriesClasses = new ArrayList<>();
 
 	/**
 	 * 游戏启动阶段加载的注册表，这些注册表依然是MappedRegistry，但在启动时加载
@@ -50,15 +54,17 @@ public class RegistryFieldsInitializer {
 		BootstrapRegistriesClasses.add(bootstrapRegCls);
 	}
 
-	class Dynamic {
+	class DynamicServer {
 		public static void initializeFields() {
-			for (Class<?> DynamicRegistriesClass : DynamicRegistriesClasses) {
-				MappedRegistryAccess.initializeRegistryFields(DynamicRegistriesClass);
+			Core.logInfo("Initializing server DynamicRegistry");
+			for (Class<?> DynamicRegistriesClass : ServerDynamicRegistriesClasses) {
+				MappedRegistryAccess.initializeServerRegistryFields(DynamicRegistriesClass);
 			}
 		}
 
 		public static void freeze() {
-			for (Class<?> DynamicRegistriesClass : DynamicRegistriesClasses)
+			Core.logInfo("Freezing server DynamicRegistry");
+			for (Class<?> DynamicRegistriesClass : ServerDynamicRegistriesClasses)
 				MappedRegistryAccess.freezeRegistries(DynamicRegistriesClass);
 		}
 	}
@@ -66,9 +72,26 @@ public class RegistryFieldsInitializer {
 	/**
 	 * 设置运行时动态注册表所在类
 	 * 
-	 * @param bootstrapRegCls
+	 * @param dynamicRegCls
 	 */
-	public static final void forDynamic(Class<?> dynamicRegCls) {
-		DynamicRegistriesClasses.add(dynamicRegCls);
+	public static final void forDynamicServer(Class<?> dynamicRegCls) {
+		ServerDynamicRegistriesClasses.add(dynamicRegCls);
+	}
+
+	@OnlyIn(Dist.CLIENT)
+	@EventBusSubscriber(modid = Core.ModId, bus = Bus.GAME)
+	class DynamicClient {
+		@SubscribeEvent(priority = EventPriority.HIGHEST) // 最高优先级以获取注册表
+		private static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
+			Core.logInfo("Initializing client DynamicRegistry");
+			for (Class<?> DynamicRegistriesClass : ClientDynamicRegistriesClasses) {
+				MappedRegistryAccess.initializeClientRegistryFields(DynamicRegistriesClass);
+				MappedRegistryAccess.freezeRegistries(DynamicRegistriesClass);
+			}
+		}
+	}
+
+	public static final void forDynamicClient(Class<?> dynamicRegCls) {
+		ClientDynamicRegistriesClasses.add(dynamicRegCls);
 	}
 }

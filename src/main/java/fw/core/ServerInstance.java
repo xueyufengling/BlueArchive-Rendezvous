@@ -5,9 +5,12 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import fw.core.event.ServerLifecycleTrigger;
 import fw.core.registry.MappedRegistryAccess;
 import fw.dimension.ExtDimension;
+import fw.event.ServerLifecycleTrigger.Operation;
+import fw.event.ServerTickTrigger.TickOperation;
+import fw.event.ServerLifecycleTrigger;
+import fw.event.ServerTickTrigger;
 import lyra.alpha.reference.Recoverable;
 import lyra.object.ObjectManipulator;
 import lyra.object.Placeholders;
@@ -19,11 +22,6 @@ import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.EventPriority;
 
 public class ServerInstance {
-
-	@FunctionalInterface
-	public static interface Operation {
-		public void operate(MinecraftServer server);
-	}
 
 	/**
 	 * 不论单人还是多人都有服务器，，单人为内置服务器，多人则是外部服务器
@@ -85,6 +83,23 @@ public class ServerInstance {
 		ServerLifecycleTrigger.AFTER_SERVER_STOP.addTempCallback(op);
 	}
 
+	public static final void addTempPreServerTickCallback(TickOperation op) {
+		ServerTickTrigger.PRE_SERVER_TICK.addTempCallback(op);
+	}
+
+	public static final void addTempPostServerTickCallback(TickOperation op) {
+		ServerTickTrigger.POST_SERVER_TICK.addTempCallback(op);
+	}
+
+	// 服务器运行中tick回调
+	public static final void addPreServerTickCallback(TickOperation op) {
+		ServerTickTrigger.PRE_SERVER_TICK.addCallback(op);
+	}
+
+	public static final void addPostServerTickCallback(TickOperation op) {
+		ServerTickTrigger.POST_SERVER_TICK.addCallback(op);
+	}
+
 	/**
 	 * 托管临时的字段重定向，服务器启动时将字段重定向为指定值，并在服务器退出时将字段恢复。<br>
 	 * 该功能用于重定向MC原版的静态ResourceKey引用，防止修改后退出重新进入世界时验证数据包失败，这是因为代码和数据包json的耦合性，进入世界时需要确保原版的数据包和引用完整如初。
@@ -118,7 +133,7 @@ public class ServerInstance {
 	 * @param levels
 	 */
 	public static final void setLevels(MinecraftServer server, Map<ResourceKey<Level>, ServerLevel> levels) {
-		ObjectManipulator.setObject(MinecraftServer.class, "levels", levels);
+		ObjectManipulator.setStaticObject(MinecraftServer.class, "levels", levels);
 	}
 
 	public static final Map<ResourceKey<Level>, ServerLevel> levels = null;
@@ -221,15 +236,14 @@ public class ServerInstance {
 	 * @param server
 	 */
 	public static final void setServer(MinecraftServer server) {
-		ObjectManipulator.setObject(ServerInstance.class, "server", server);
-		ObjectManipulator.setObject(ServerInstance.class, "levels", levels(server));
+		ObjectManipulator.setStaticObject(ServerInstance.class, "server", server);
+		ObjectManipulator.setStaticObject(ServerInstance.class, "levels", levels(server));
 		// 如果不使用MappedRegistries.registryAccess，那么就无法修改MappedRegistries.registryAccess的值
 		Placeholders.NotInlined(MappedRegistryAccess.serverRegistryAccess);
-		if (!ObjectManipulator.setObject(MappedRegistryAccess.class, "serverRegistryAccess", server.registryAccess()))
-			Core.logError("Get server registryAccess failed.");
+		ObjectManipulator.setStaticObject(MappedRegistryAccess.class, "serverRegistryAccess", server.registryAccess());
 		connections = server.getConnection();
-		RegistryFieldsInitializer.Dynamic.initializeFields();// 初始化动态注册表字段
+		RegistryFieldsInitializer.DynamicServer.initializeFields();// 初始化动态注册表字段
 		ServerLifecycleTrigger.BEFORE_SERVER_START.definition().priority(EventPriority.HIGHEST).execute();
-		RegistryFieldsInitializer.Dynamic.freeze();
+		RegistryFieldsInitializer.DynamicServer.freeze();
 	}
 }

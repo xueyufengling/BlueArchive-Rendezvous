@@ -8,6 +8,7 @@ import fw.resources.ResourceLocationBuilder;
 import lyra.klass.KlassWalker;
 import lyra.object.ObjectManipulator;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
@@ -26,7 +27,8 @@ public class MappedRegistryAccess {
 	public static final RegistryAccess.Frozen serverRegistryAccess = null;
 
 	public static final RegistryAccess.Frozen clientRegistryAccess() {
-		return Minecraft.getInstance().getConnection().registryAccess();
+		ClientPacketListener connection = Minecraft.getInstance().getConnection();
+		return connection == null ? null : connection.registryAccess();
 	}
 
 	/**
@@ -46,14 +48,22 @@ public class MappedRegistryAccess {
 					Core.logError("Initialize dynamic registry field " + f + " failed. got actual registry=" + actual_registry);
 					return true;
 				}
+				if (actual_registry == null) {
+					Core.logWarn("Dynamic registry field " + f + " is null");
+					return true;
+				}
 				ObjectManipulator.setObject(target, f.getName(), actual_registry);
 			}
 			return true;
 		});
 	}
 
-	public static final void initializeRegistryFields(Class<?> target) {
+	public static final void initializeServerRegistryFields(Class<?> target) {
 		initializeRegistryFields(target, serverRegistryAccess);
+	}
+
+	public static final void initializeClientRegistryFields(Class<?> target) {
+		initializeRegistryFields(target, clientRegistryAccess());
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -82,7 +92,7 @@ public class MappedRegistryAccess {
 		return registryAccess.registryOrThrow(resource_key);
 	}
 
-	public static <T> Registry<T> getRegistry(ResourceKey<? extends Registry<T>> resource_key) {
+	public static <T> Registry<T> getServerRegistry(ResourceKey<? extends Registry<T>> resource_key) {
 		return getRegistry(serverRegistryAccess, resource_key);
 	}
 
@@ -97,7 +107,7 @@ public class MappedRegistryAccess {
 		return unfreezeRegistry(getRegistry(registryAccess, resource_key));
 	}
 
-	public static <T> void manipulate(ResourceKey<? extends Registry<T>> resource_key, Operation<T> op) {
+	public static <T> void manipulateServer(ResourceKey<? extends Registry<T>> resource_key, Operation<T> op) {
 		MappedRegistry<T> registry = getUnfrozenRegistry(serverRegistryAccess, resource_key);
 		op.operate(registry);
 		freezeRegistry(registry);

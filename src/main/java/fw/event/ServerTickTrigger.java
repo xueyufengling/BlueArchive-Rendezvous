@@ -1,15 +1,23 @@
-package fw.core.event;
+package fw.event;
 
 import fw.core.Core;
+import fw.core.ServerInstance;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 @EventBusSubscriber(modid = Core.ModId)
-public enum ServerTickTrigger implements EventTrigger {
+public enum ServerTickTrigger implements EventTrigger<ServerTickTrigger.TickOperation> {
 	PRE_SERVER_TICK(EventPriority.HIGHEST), // 世界更新前
 	POST_SERVER_TICK(EventPriority.LOWEST); // 世界更新后
+
+	@FunctionalInterface
+	public static interface TickOperation {
+		public void operate(MinecraftServer server, ServerLevel level, long dayTime);
+	}
 
 	ServerTickTrigger(EventPriority defaultPriority) {
 		define(defaultPriority);
@@ -53,5 +61,12 @@ public enum ServerTickTrigger implements EventTrigger {
 	@SubscribeEvent(priority = EventPriority.LOWEST)
 	private static void postServerTickLowest(ServerTickEvent.Post event) {
 		ServerTickTrigger.POST_SERVER_TICK.definition().priority(EventPriority.LOWEST).execute();
+	}
+
+	@Override
+	public void executeCallback(TickOperation op, Object... args) {
+		MinecraftServer server = ServerInstance.server;
+		for (ServerLevel level : server.getAllLevels())
+			op.operate(server, level, level.dayTime());
 	}
 }

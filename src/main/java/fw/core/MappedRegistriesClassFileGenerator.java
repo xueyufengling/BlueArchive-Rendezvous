@@ -74,6 +74,8 @@ public class MappedRegistriesClassFileGenerator {
 		return generatedClassPath(outputDir, registriesPkg, dynamicClsName);
 	}
 
+	public static boolean gen_file = false;
+
 	/**
 	 * 是否覆写现有启动注册表
 	 */
@@ -99,7 +101,7 @@ public class MappedRegistriesClassFileGenerator {
 
 		@SubscribeEvent(priority = EventPriority.LOWEST)
 		private static void onRegister(GatherDataEvent event) {
-			if (!Files.exists(Paths.get(bootstrapClassPath())) || override_bootstrap)
+			if (gen_file && !Files.exists(Paths.get(bootstrapClassPath())) || override_bootstrap)
 				generate(outputDir, registriesPkg, bootstrapClsName, bootstrapRegistries, true, false);
 		}
 	}
@@ -112,7 +114,7 @@ public class MappedRegistriesClassFileGenerator {
 		@SuppressWarnings({ "rawtypes", "unchecked" })
 		@SubscribeEvent(priority = EventPriority.LOWEST)
 		private static void onServerStarted(ServerStartedEvent event) {
-			if (!Files.exists(Paths.get(dynamicClassPath())) || override_dynamic) {// 动态注册表java源文件存在则且不覆写则不再生成
+			if (gen_file && !Files.exists(Paths.get(dynamicClassPath())) || override_dynamic) {// 动态注册表java源文件存在则且不覆写则不再生成
 				ArrayList<ResourceKey<? extends Registry<?>>> dynamicRegistries = new ArrayList<>();
 				RegistryWalker.walkRegistries((Field f, ResourceKey registryKey, Class<?> registryType) -> {
 					if (!BootstrapGenerator.bootstrapRegistries.contains(registryKey))

@@ -1,11 +1,9 @@
-package fw.core.event;
+package fw.event;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import fw.core.ServerInstance;
-import fw.core.ServerInstance.Operation;
 import lyra.alpha.reference.Recoverable;
 import lyra.klass.special.BaseClass;
 import net.neoforged.bus.api.EventPriority;
@@ -13,27 +11,32 @@ import net.neoforged.bus.api.EventPriority;
 /**
  * 事件触发和执行器封装
  */
-public interface EventTrigger extends BaseClass<EventTrigger.Definition> {
+public interface EventTrigger<O> extends BaseClass<EventTrigger.Definition<O>> {
+
+	public abstract void executeCallback(O op, Object... args);
+
 	/**
 	 * 事件触发动作定义
 	 */
-	class Definition extends BaseClass.Definition<EventTrigger> {
-		public static class Executor {
-			private final ArrayList<Operation> callbacks = new ArrayList<>();
+	class Definition<O> extends BaseClass.Definition<EventTrigger<O>> {
+		public class Executor {
+			private final ArrayList<O> callbacks = new ArrayList<>();
 			/**
 			 * 执行完成后就会移除的回调函数
 			 */
-			private final ArrayList<Operation> temp_callbacks = new ArrayList<>();
+			private final ArrayList<O> temp_callbacks = new ArrayList<>();
 			private final ArrayList<Recoverable<?>> redirect_recoverables = new ArrayList<>();
 			private final ArrayList<Recoverable<?>> recovery_recoverables = new ArrayList<>();
 
-			public final void addCallbacks(Operation... ops) {
-				for (Operation op : ops)
+			@SuppressWarnings("unchecked")
+			public final void addCallbacks(O... ops) {
+				for (O op : ops)
 					callbacks.add(op);
 			}
 
-			public final void addTempCallbacks(Operation... ops) {
-				for (Operation op : ops)
+			@SuppressWarnings("unchecked")
+			public final void addTempCallbacks(O... ops) {
+				for (O op : ops)
 					temp_callbacks.add(op);
 			}
 
@@ -49,11 +52,11 @@ public interface EventTrigger extends BaseClass<EventTrigger.Definition> {
 						recovery_recoverables.add(ref);
 			}
 
-			public final void addCallback(Operation op) {
+			public final void addCallback(O op) {
 				callbacks.add(op);
 			}
 
-			public final void addTempCallback(Operation op) {
+			public final void addTempCallback(O op) {
 				temp_callbacks.add(op);
 			}
 
@@ -67,12 +70,12 @@ public interface EventTrigger extends BaseClass<EventTrigger.Definition> {
 					recovery_recoverables.add(ref);
 			}
 
-			public final void execute() {
-				for (Operation callback : callbacks)
-					callback.operate(ServerInstance.server);
-				Iterator<Operation> iter = temp_callbacks.iterator();
+			public final void execute(Object... args) {
+				for (O callback : callbacks)
+					Definition.this.this_.executeCallback(callback, args);
+				Iterator<O> iter = temp_callbacks.iterator();
 				while (iter.hasNext()) {
-					iter.next().operate(ServerInstance.server);
+					Definition.this.this_.executeCallback(iter.next(), args);
 					iter.remove();
 				}
 				for (Recoverable<?> ref : redirect_recoverables)
@@ -105,17 +108,19 @@ public interface EventTrigger extends BaseClass<EventTrigger.Definition> {
 			return defaultPriority;
 		}
 
-		public Definition setDefaultPriority(EventPriority defaultPriority) {
+		public Definition<O> setDefaultPriority(EventPriority defaultPriority) {
 			this.defaultPriority = defaultPriority;
 			return this;
 		}
 	}
 
-	public default void addCallbacks(EventPriority p, Operation... ops) {
+	@SuppressWarnings("unchecked")
+	public default void addCallbacks(EventPriority p, O... ops) {
 		definition().priority(p).addCallbacks(ops);
 	}
 
-	public default void addTempCallbacks(EventPriority p, Operation... ops) {
+	@SuppressWarnings("unchecked")
+	public default void addTempCallbacks(EventPriority p, O... ops) {
 		definition().priority(p).addTempCallbacks(ops);
 	}
 
@@ -127,11 +132,11 @@ public interface EventTrigger extends BaseClass<EventTrigger.Definition> {
 		definition().priority(p).addRecoveryRecoverables(refs);
 	}
 
-	public default void addCallback(EventPriority p, Operation op) {
+	public default void addCallback(EventPriority p, O op) {
 		definition().priority(p).addCallback(op);
 	}
 
-	public default void addTempCallback(EventPriority p, Operation op) {
+	public default void addTempCallback(EventPriority p, O op) {
 		definition().priority(p).addTempCallback(op);
 	}
 
@@ -144,11 +149,13 @@ public interface EventTrigger extends BaseClass<EventTrigger.Definition> {
 	}
 
 	// 默认优先级
-	public default void addCallbacks(Operation... ops) {
+	@SuppressWarnings("unchecked")
+	public default void addCallbacks(O... ops) {
 		definition().priority().addCallbacks(ops);
 	}
 
-	public default void addTempCallbacks(Operation... ops) {
+	@SuppressWarnings("unchecked")
+	public default void addTempCallbacks(O... ops) {
 		definition().priority().addTempCallbacks(ops);
 	}
 
@@ -160,11 +167,11 @@ public interface EventTrigger extends BaseClass<EventTrigger.Definition> {
 		definition().priority().addRecoveryRecoverables(refs);
 	}
 
-	public default void addCallback(Operation op) {
+	public default void addCallback(O op) {
 		definition().priority().addCallback(op);
 	}
 
-	public default void addTempCallback(Operation op) {
+	public default void addTempCallback(O op) {
 		definition().priority().addTempCallback(op);
 	}
 

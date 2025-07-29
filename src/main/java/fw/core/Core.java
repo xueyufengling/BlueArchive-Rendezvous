@@ -122,6 +122,10 @@ public class Core {
 		return ModId + ResourceLocation.NAMESPACE_SEPARATOR + id;
 	}
 
+	public static void loadPackage(String pkg) {
+		KlassLoader.loadKlass(pkg, true);// 强制加载并初始化未使用的类
+	}
+
 	public static final void logDebug(String msg) {
 		if (Config.logInfo)
 			Logger.debug(msg);

@@ -1,9 +1,9 @@
 {
 	"required": true,
-	"package": "ba.mixins",
+	"package": "fw.mixins",
 	"compatibilityLevel": "JAVA_21",
 	"client": [
-		
+		"LevelRendererMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

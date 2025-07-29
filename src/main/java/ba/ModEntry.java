@@ -5,13 +5,13 @@ import org.slf4j.Logger;
 import com.mojang.logging.LogUtils;
 
 import ba.entries.dimension.shittim_chest.ShittimChest;
+import fw.core.Core;
 import fw.core.ModInit;
 import fw.datagen.annotation.LangDatagen;
 import fw.datagen.annotation.Translation;
 import fw.dimension.Dimensions;
 import lyra.filesystem.KlassPath;
 import lyra.internal.oops.markWord;
-import lyra.klass.KlassLoader;
 import lyra.vm.Vm;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.common.Mod;
@@ -28,11 +28,6 @@ public class ModEntry {
 		ModInit.Initializer.forInit(ModEntry.class);
 	}
 
-	public static void registerEntries() {
-		KlassLoader.loadKlass("ba.entries", true);// 强制加载并初始化未使用的类
-		Logger.info("Loaded entries class");
-	}
-
 	@ModInit
 	public static final void init(Dist env) {
 		// 打印调试信息
@@ -40,7 +35,8 @@ public class ModEntry {
 		Logger.info("KlassWord offset is " + markWord.KLASS_WORD_OFFSET + ", lenght is " + markWord.KLASS_WORD_LENGTH);
 		Logger.info("Running on " + env + " environment with PID " + Vm.getProcessId());
 		Logger.info("Mod located at " + KlassPath.getKlassPath());
-		registerEntries();
+		Core.loadPackage("ba.entries");
+		Logger.info("Loaded entries class");
 		Dimensions.removeTheNether(true);
 		Dimensions.removeTheEnd(true);
 		Dimensions.redirectOverworldMod(ShittimChest.ID);
