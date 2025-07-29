@@ -8,6 +8,7 @@ import fw.core.registry.RegistryWalker;
 import lyra.klass.KlassWalker;
 import lyra.object.ObjectManipulator;
 import net.minecraft.core.MappedRegistry;
+import net.minecraft.core.RegistryAccess.Frozen;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.EventPriority;

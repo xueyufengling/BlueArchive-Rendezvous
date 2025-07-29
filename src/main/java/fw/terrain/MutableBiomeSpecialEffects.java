@@ -6,6 +6,7 @@ import java.util.OptionalInt;
 import fw.core.ServerInstance;
 import fw.core.registry.registries.client.DynamicRegistries;
 import fw.event.ClientLifecycleTrigger;
+import fw.event.LevelTickTrigger;
 import fw.resources.ResourceKeyBuilder;
 import lyra.object.ObjectManipulator;
 import net.minecraft.core.Holder;
@@ -15,6 +16,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.Music;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.AmbientAdditionsSettings;
 import net.minecraft.world.level.biome.AmbientMoodSettings;
 import net.minecraft.world.level.biome.AmbientParticleSettings;
@@ -24,7 +26,7 @@ import net.minecraft.world.level.biome.BiomeSpecialEffects;
 public class MutableBiomeSpecialEffects {
 	@FunctionalInterface
 	public static interface TickOperation {
-		public void operate(MinecraftServer server, ServerLevel level, long dayTime, MutableBiomeSpecialEffects effects);
+		public void operate(Level level, long dayTime, MutableBiomeSpecialEffects effects);
 	}
 
 	private BiomeSpecialEffects effects;
@@ -175,14 +177,14 @@ public class MutableBiomeSpecialEffects {
 	}
 
 	public MutableBiomeSpecialEffects tick(MutableBiomeSpecialEffects.TickOperation op) {
-		ServerInstance.addPreServerTickCallback((MinecraftServer server, ServerLevel level, long dayTime) -> {
-			op.operate(server, level, dayTime, this);
+		LevelTickTrigger.PRE_CLIENT_LEVEL_TICK.addCallback((Level level) -> {
+			op.operate(level, level.getDayTime(), this);
 		});
 		return this;
 	}
 
 	public MutableBiomeSpecialEffects tick(TimeBasedColorLinearInterpolation skyColor) {
-		return tick((MinecraftServer server, ServerLevel level, long dayTime, MutableBiomeSpecialEffects effects) -> {
+		return tick((Level level, long dayTime, MutableBiomeSpecialEffects effects) -> {
 			effects.skyColor(skyColor.interplote(dayTime));
 		});
 	}
