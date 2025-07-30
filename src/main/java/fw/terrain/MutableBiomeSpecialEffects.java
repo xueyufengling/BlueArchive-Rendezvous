@@ -5,23 +5,23 @@ import java.util.OptionalInt;
 
 import fw.core.ServerInstance;
 import fw.core.registry.registries.client.DynamicRegistries;
-import fw.event.ClientLifecycleTrigger;
 import fw.event.LevelTickTrigger;
+import fw.event.LevelTrigger;
 import fw.resources.ResourceKeyBuilder;
 import lyra.object.ObjectManipulator;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.Music;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.biome.AmbientAdditionsSettings;
 import net.minecraft.world.level.biome.AmbientMoodSettings;
 import net.minecraft.world.level.biome.AmbientParticleSettings;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeSpecialEffects;
+import net.neoforged.bus.api.EventPriority;
 
 public class MutableBiomeSpecialEffects {
 	@FunctionalInterface
@@ -40,7 +40,7 @@ public class MutableBiomeSpecialEffects {
 	}
 
 	private MutableBiomeSpecialEffects(String biomeKey) {
-		ClientLifecycleTrigger.CLIENT_CONNECT.addTempCallback((Player player) -> {
+		LevelTrigger.CLIENT_LEVEL_LOAD.addCallback(EventPriority.HIGH, (LevelAccessor level) -> {
 			this.effects = DynamicRegistries.BIOME.getHolderOrThrow(ResourceKeyBuilder.build(Registries.BIOME, biomeKey)).value().getSpecialEffects();
 		});
 	}
@@ -57,7 +57,7 @@ public class MutableBiomeSpecialEffects {
 	 * @return
 	 */
 	public final MutableBiomeSpecialEffects bindTo(String... biomesWithNamespace) {
-		ServerInstance.addAfterServerLoadLevelCallback((MinecraftServer server) -> {
+		LevelTrigger.CLIENT_LEVEL_LOAD.addCallback(EventPriority.LOWEST, (LevelAccessor level) -> {
 			for (String biomeKey : biomesWithNamespace) {
 				Holder.Reference<Biome> holder = DynamicRegistries.BIOME.getHolder(ResourceKeyBuilder.build(Registries.BIOME, biomeKey)).orElse(null);
 				if (holder != null)
@@ -131,7 +131,6 @@ public class MutableBiomeSpecialEffects {
 	}
 
 	public MutableBiomeSpecialEffects skyColor(int skyColor) {
-		System.err.println("orig=" + effects.getSkyColor() + " set to " + skyColor);
 		ObjectManipulator.setMemberInt(effects, "skyColor", skyColor);
 		return this;
 	}
@@ -185,7 +184,9 @@ public class MutableBiomeSpecialEffects {
 
 	public MutableBiomeSpecialEffects tick(TimeBasedColorLinearInterpolation skyColor) {
 		return tick((Level level, long dayTime, MutableBiomeSpecialEffects effects) -> {
-			effects.skyColor(skyColor.interplote(dayTime));
+			int color = skyColor.interplotePacked(dayTime);
+			effects.skyColor(color);
+			effects.fogColor(color);
 		});
 	}
 }

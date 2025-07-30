@@ -5,9 +5,11 @@ import java.util.ArrayList;
 import net.minecraft.world.level.Level;
 
 public class TimeBasedColorLinearInterpolation {
-	private static class ColorPoint {
+	public static class ColorPoint {
 		int time;
 		int r, g, b, a;
+
+		public static final ColorPoint BLACK = new ColorPoint(0, 0, 0, 0, 0);
 
 		ColorPoint(int t, int r, int g, int b, int a) {
 			this.time = t;
@@ -15,6 +17,14 @@ public class TimeBasedColorLinearInterpolation {
 			this.g = g;
 			this.b = b;
 			this.a = a;
+		}
+
+		ColorPoint(long t, int r, int g, int b, int a) {
+			this((int) t, r, g, b, a);
+		}
+
+		public final int pack() {
+			return (a << 24) | (r << 16) | (g << 8) | b;
 		}
 	}
 
@@ -56,24 +66,25 @@ public class TimeBasedColorLinearInterpolation {
 		return this;
 	}
 
+	public TimeBasedColorLinearInterpolation append(int time, int r, int g, int b) {
+		return append(time, r, g, b, 0);
+	}
+
 	public static TimeBasedColorLinearInterpolation begin(int time, int r, int g, int b, int a) {
 		return new TimeBasedColorLinearInterpolation().append(time, r, g, b, a);
 	}
 
-	/**
-	 * 根据时间进行插值
-	 * 
-	 * @param time
-	 * @return
-	 */
-	public int interplote(long time) {
-		System.err.println(time);
+	public static TimeBasedColorLinearInterpolation begin(int time, int r, int g, int b) {
+		return begin(time, r, g, b, 0);
+	}
+
+	public ColorPoint interplote(long time) {
 		switch (points.size()) {
 		case 0:
-			return 0;
+			return ColorPoint.BLACK;
 		case 1: {
 			ColorPoint single = points.get(0);
-			return single.a << 24 | single.r << 16 | single.g << 8 | single.b;
+			return new ColorPoint(time, single.r, single.g, single.b, single.a);
 		}
 		default: {
 			ColorPoint start = null;
@@ -106,8 +117,18 @@ public class TimeBasedColorLinearInterpolation {
 			int g = (int) (start.g + (end.g - start.g) * f);
 			int b = (int) (start.b + (end.b - start.b) * f);
 			int a = (int) (start.a + (end.a - start.a) * f);
-			return a << 24 | r << 16 | g << 8 | b;
+			return new ColorPoint(time, r, g, b, a);
 		}
 		}
+	}
+
+	/**
+	 * 根据时间进行插值
+	 * 
+	 * @param time
+	 * @return
+	 */
+	public int interplotePacked(long time) {
+		return interplote(time).pack();
 	}
 }

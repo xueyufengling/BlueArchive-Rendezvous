@@ -65,6 +65,6 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
 
 	@Inject(method = "renderLevel", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/LevelRenderer;renderSky(Lorg/joml/Matrix4f;Lorg/joml/Matrix4f;FLnet/minecraft/client/Camera;ZLjava/lang/Runnable;)V", shift = Shift.BEFORE), cancellable = true)
 	private void rsky(DeltaTracker deltaTracker, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f frustumMatrix, Matrix4f projectionMatrix, CallbackInfo ci) {
-		System.err.println("Mixin get " + level.getSkyColor(minecraft.gameRenderer.getMainCamera().getPosition(), 0));
+
 	}
 }

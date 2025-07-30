@@ -28,7 +28,7 @@ import net.minecraft.world.level.levelgen.NoiseSettings;
 
 public class Kivotos {
 	static {
-		//RegistryDatagen.RegistriesProvider.forDatagen(Kivotos.class);
+		RegistryDatagen.RegistriesProvider.forDatagen(Kivotos.class);
 	}
 
 	public static final String ID = "kivotos";

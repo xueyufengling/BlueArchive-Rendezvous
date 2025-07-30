@@ -5,18 +5,20 @@ import java.util.ArrayList;
 
 import fw.core.registry.MappedRegistryAccess;
 import fw.core.registry.RegistryWalker;
+import fw.event.ClientLifecycleTrigger;
 import lyra.klass.KlassWalker;
 import lyra.object.ObjectManipulator;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.MappedRegistry;
-import net.minecraft.core.RegistryAccess.Frozen;
+import net.minecraft.core.RegistryAccess;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.EventBusSubscriber.Bus;
+import net.neoforged.fml.event.lifecycle.FMLConstructModEvent;
 import net.neoforged.neoforge.registries.RegisterEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 
 /**
  * 为MappedRegistriesClassFileGenerator生成的文件中的全部注册表字段在正确时机进行初始化操作
@@ -80,15 +82,17 @@ public class RegistryFieldsInitializer {
 	}
 
 	@OnlyIn(Dist.CLIENT)
-	@EventBusSubscriber(modid = Core.ModId, bus = Bus.GAME)
+	@EventBusSubscriber(modid = Core.ModId, bus = Bus.MOD)
 	class DynamicClient {
 		@SubscribeEvent(priority = EventPriority.HIGHEST) // 最高优先级以获取注册表
-		private static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
-			Core.logInfo("Initializing client DynamicRegistry");
-			for (Class<?> DynamicRegistriesClass : ClientDynamicRegistriesClasses) {
-				MappedRegistryAccess.initializeClientRegistryFields(DynamicRegistriesClass);
-				MappedRegistryAccess.freezeRegistries(DynamicRegistriesClass);
-			}
+		private static void onRegister(FMLConstructModEvent event) {
+			ClientLifecycleTrigger.CLIENT_CONNECT.addCallback(EventPriority.HIGHEST, (ClientLevel level, RegistryAccess.Frozen registryAccess) -> {
+				Core.logInfo("Initializing client DynamicRegistry");
+				for (Class<?> DynamicRegistriesClass : ClientDynamicRegistriesClasses) {
+					MappedRegistryAccess.initializeClientRegistryFields(DynamicRegistriesClass);
+					MappedRegistryAccess.freezeRegistries(DynamicRegistriesClass);
+				}
+			});
 		}
 	}
 

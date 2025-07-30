@@ -4,11 +4,10 @@ import java.lang.reflect.Field;
 import java.util.IdentityHashMap;
 
 import fw.core.Core;
+import fw.event.ClientLifecycleTrigger;
 import fw.resources.ResourceLocationBuilder;
 import lyra.klass.KlassWalker;
 import lyra.object.ObjectManipulator;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
@@ -27,8 +26,7 @@ public class MappedRegistryAccess {
 	public static final RegistryAccess.Frozen serverRegistryAccess = null;
 
 	public static final RegistryAccess.Frozen clientRegistryAccess() {
-		ClientPacketListener connection = Minecraft.getInstance().getConnection();
-		return connection == null ? null : connection.registryAccess();
+		return ClientLifecycleTrigger.registryAccess;
 	}
 
 	/**
@@ -45,8 +43,10 @@ public class MappedRegistryAccess {
 				try {
 					actual_registry = getUnfrozenRegistry(registryAccess, (ResourceKey) ObjectManipulator.access(Registries.class, f.getName()));
 				} catch (Exception ex) {
-					Core.logError("Initialize dynamic registry field " + f + " failed. got actual registry=" + actual_registry);
-					return true;
+					if (!ex.getMessage().startsWith("Missing registry")) {
+						Core.logError("Initialize dynamic registry field " + f + " failed. got actual registry=" + actual_registry, ex);
+						return true;
+					}
 				}
 				if (actual_registry == null) {
 					Core.logWarn("Dynamic registry field " + f + " is null");
