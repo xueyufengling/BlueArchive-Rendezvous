@@ -6,7 +6,7 @@ import fw.items.ExtCreativeTab;
 
 public enum BaCreativeTab implements ExtCreativeTab {
 	@LangDatagen(translations = { @Translation(locale = "en_us", text = "BlueArchive Key Items"), @Translation(locale = "zh_cn", text = "蔚蓝档案 重要物品") })
-	BA_KEY_ITEMS(Id.BA_KEY_ITEMS, "gem"),
+	BA_KEY_ITEMS(Id.BA_KEY_ITEMS, "shittim_chest"),
 
 	@LangDatagen(translations = { @Translation(locale = "en_us", text = "BlueArchive Currency"), @Translation(locale = "zh_cn", text = "蔚蓝档案 货币") })
 	BA_CURRENCY(Id.BA_CURRENCY, "gem"),

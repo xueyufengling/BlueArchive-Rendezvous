@@ -7,11 +7,14 @@ import fw.core.ServerInstance;
 import fw.core.registry.registries.client.DynamicRegistries;
 import fw.event.LevelTickTrigger;
 import fw.event.LevelTrigger;
+import fw.event.ServerTickTrigger;
 import fw.resources.ResourceKeyBuilder;
+import lyra.lang.Reflection;
 import lyra.object.ObjectManipulator;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.Music;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.level.Level;
@@ -61,7 +64,7 @@ public class MutableBiomeSpecialEffects {
 			for (String biomeKey : biomesWithNamespace) {
 				Holder.Reference<Biome> holder = DynamicRegistries.BIOME.getHolder(ResourceKeyBuilder.build(Registries.BIOME, biomeKey)).orElse(null);
 				if (holder != null)
-					ObjectManipulator.setMemberObject(holder.value(), "specialEffects", effects);
+					ObjectManipulator.setDeclaredMemberObject(holder.value(), "specialEffects", effects);
 			}
 		});
 		return this;
@@ -116,62 +119,62 @@ public class MutableBiomeSpecialEffects {
 	}
 
 	public MutableBiomeSpecialEffects fogColor(int fogColor) {
-		ObjectManipulator.setMemberInt(effects, "fogColor", fogColor);
+		ObjectManipulator.setDeclaredMemberInt(effects, "fogColor", fogColor);
 		return this;
 	}
 
 	public MutableBiomeSpecialEffects waterColor(int waterColor) {
-		ObjectManipulator.setMemberInt(effects, "waterColor", waterColor);
+		ObjectManipulator.setDeclaredMemberInt(effects, "waterColor", waterColor);
 		return this;
 	}
 
 	public MutableBiomeSpecialEffects waterFogColor(int waterFogColor) {
-		ObjectManipulator.setMemberInt(effects, "waterFogColor", waterFogColor);
+		ObjectManipulator.setDeclaredMemberInt(effects, "waterFogColor", waterFogColor);
 		return this;
 	}
 
 	public MutableBiomeSpecialEffects skyColor(int skyColor) {
-		ObjectManipulator.setMemberInt(effects, "skyColor", skyColor);
+		ObjectManipulator.setDeclaredMemberInt(effects, "skyColor", skyColor);
 		return this;
 	}
 
 	public MutableBiomeSpecialEffects foliageColorOverride(int foliageColorOverride) {
-		ObjectManipulator.setMemberObject(effects, "foliageColorOverride", OptionalInt.of(foliageColorOverride));
+		ObjectManipulator.setDeclaredMemberObject(effects, "foliageColorOverride", OptionalInt.of(foliageColorOverride));
 		return this;
 	}
 
 	public MutableBiomeSpecialEffects grassColorOverride(int grassColorOverride) {
-		ObjectManipulator.setMemberObject(effects, "grassColorOverride", OptionalInt.of(grassColorOverride));
+		ObjectManipulator.setDeclaredMemberObject(effects, "grassColorOverride", OptionalInt.of(grassColorOverride));
 		return this;
 	}
 
 	public MutableBiomeSpecialEffects grassColorModifier(BiomeSpecialEffects.GrassColorModifier grassColorModifier) {
-		ObjectManipulator.setMemberObject(effects, "grassColorModifier", grassColorModifier);
+		ObjectManipulator.setDeclaredMemberObject(effects, "grassColorModifier", grassColorModifier);
 		return this;
 	}
 
 	public MutableBiomeSpecialEffects ambientParticle(AmbientParticleSettings ambientParticle) {
-		ObjectManipulator.setMemberObject(effects, "ambientParticle", Optional.of(ambientParticle));
+		ObjectManipulator.setDeclaredMemberObject(effects, "ambientParticle", Optional.of(ambientParticle));
 		return this;
 	}
 
 	public MutableBiomeSpecialEffects ambientLoopSound(Holder<SoundEvent> ambientLoopSoundEvent) {
-		ObjectManipulator.setMemberObject(effects, "ambientLoopSoundEvent", Optional.of(ambientLoopSoundEvent));
+		ObjectManipulator.setDeclaredMemberObject(effects, "ambientLoopSoundEvent", Optional.of(ambientLoopSoundEvent));
 		return this;
 	}
 
 	public MutableBiomeSpecialEffects ambientMoodSound(AmbientMoodSettings ambientMoodSettings) {
-		ObjectManipulator.setMemberObject(effects, "ambientMoodSettings", Optional.of(ambientMoodSettings));
+		ObjectManipulator.setDeclaredMemberObject(effects, "ambientMoodSettings", Optional.of(ambientMoodSettings));
 		return this;
 	}
 
 	public MutableBiomeSpecialEffects ambientAdditionsSound(AmbientAdditionsSettings ambientAdditionsSettings) {
-		ObjectManipulator.setMemberObject(effects, "ambientAdditionsSettings", Optional.of(ambientAdditionsSettings));
+		ObjectManipulator.setDeclaredMemberObject(effects, "ambientAdditionsSettings", Optional.of(ambientAdditionsSettings));
 		return this;
 	}
 
 	public MutableBiomeSpecialEffects backgroundMusic(Music backgroundMusic) {
-		ObjectManipulator.setMemberObject(effects, "backgroundMusic", Optional.ofNullable(backgroundMusic));
+		ObjectManipulator.setDeclaredMemberObject(effects, "backgroundMusic", Optional.ofNullable(backgroundMusic));
 		return this;
 	}
 
@@ -187,6 +190,7 @@ public class MutableBiomeSpecialEffects {
 			int color = skyColor.interplotePacked(dayTime);
 			effects.skyColor(color);
 			effects.fogColor(color);
+			effects.waterFogColor(color);
 		});
 	}
 }

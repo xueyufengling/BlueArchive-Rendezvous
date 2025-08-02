@@ -10,10 +10,10 @@ import net.neoforged.neoforge.event.tick.LevelTickEvent;
 
 @EventBusSubscriber(modid = Core.ModId)
 public enum LevelTickTrigger implements EventTrigger<LevelTickTrigger.LevelTickOperation> {
-	PRE_SERVER_LEVEL_TICK(EventPriority.HIGHEST), // 服务器世界更新前
-	POST_SERVER_LEVEL_TICK(EventPriority.LOWEST), // 服务器世界更新后
-	PRE_CLIENT_LEVEL_TICK(EventPriority.HIGHEST), // 客户端世界更新前
-	POST_CLIENT_LEVEL_TICK(EventPriority.LOWEST); // 客户端世界更新后
+	PRE_SERVER_LEVEL_TICK(EventPriority.HIGH), // 服务器世界更新前
+	POST_SERVER_LEVEL_TICK(EventPriority.LOW), // 服务器世界更新后
+	PRE_CLIENT_LEVEL_TICK(EventPriority.HIGH), // 客户端世界更新前
+	POST_CLIENT_LEVEL_TICK(EventPriority.LOW); // 客户端世界更新后
 
 	@FunctionalInterface
 	public static interface LevelTickOperation {

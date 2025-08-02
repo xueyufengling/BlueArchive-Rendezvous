@@ -1,0 +1,15 @@
+{
+  "type": "ba:kivotos",
+  "generator": {
+    "type": "minecraft:noise",
+    "biome_source": {
+      "type": "ba:kivotos_biomes",
+      "possible_biomes_list": [
+        "minecraft:forest",
+        "minecraft:jungle",
+        "minecraft:desert"
+      ]
+    },
+    "settings": "ba:kivotos"
+  }
+}

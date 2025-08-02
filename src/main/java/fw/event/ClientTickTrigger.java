@@ -11,7 +11,7 @@ import net.neoforged.neoforge.client.event.ClientTickEvent;
 @EventBusSubscriber(modid = Core.ModId)
 public enum ClientTickTrigger implements EventTrigger<ClientTickTrigger.TickOperation> {
 	PRE_CLIENT_TICK(EventPriority.HIGH), // 世界更新前
-	POST_CLIENT_TICK(EventPriority.LOWEST); // 世界更新后
+	POST_CLIENT_TICK(EventPriority.LOW); // 世界更新后
 
 	@FunctionalInterface
 	public static interface TickOperation {

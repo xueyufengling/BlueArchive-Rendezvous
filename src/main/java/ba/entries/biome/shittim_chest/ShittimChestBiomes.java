@@ -30,14 +30,14 @@ public class ShittimChestBiomes extends ExtBiomeSource {
 		ExecuteIn.Client(() -> {
 			effects = MutableBiomeSpecialEffects.from("ba:shittim_chest");
 			effects.tick(TimeBasedColorLinearInterpolation
-					.begin(0, 215, 184, 223)// 6 h 紫
+					.begin(0, 237, 186, 183)// 6 h 粉红
 					.append(3000, 131, 210, 250)// 9 h 浅天蓝
 					.append(6000, 92, 194, 253)// 12 h 深天蓝
 					.append(9000, 131, 210, 250)// 15 h 浅天蓝
 					.append(12000, 215, 184, 223)// 18 h 紫
-					.append(15000, 35, 68, 134)// 21 h 浅黑蓝
-					.append(18000, 11, 28, 74)// 0 h 深黑蓝
-					.append(21000, 35, 68, 134)// 3 h 浅黑蓝
+					.append(15000, 146, 215, 232)// 21 h 浅黑蓝
+					.append(18000, 48, 87, 160)// 0 h 深黑蓝
+					.append(21000, 146, 215, 232)// 3 h 浅黑蓝
 			);
 		});
 	}

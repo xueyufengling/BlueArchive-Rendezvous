@@ -18,8 +18,8 @@ import net.neoforged.neoforge.event.level.LevelEvent;;
 @OnlyIn(Dist.CLIENT)
 @EventBusSubscriber(modid = Core.ModId)
 public enum ClientLifecycleTrigger implements EventTrigger<ClientLifecycleTrigger.Operation> {
-	CLIENT_CONNECT(EventPriority.LOWEST), // 世界更新前
-	CLIENT_DISCONNECT(EventPriority.LOWEST); // 世界更新后
+	CLIENT_CONNECT(EventPriority.LOW), // 世界更新前
+	CLIENT_DISCONNECT(EventPriority.LOW); // 世界更新后
 
 	public static ClientLevel level;
 	public static RegistryAccess.Frozen registryAccess;

@@ -86,7 +86,7 @@ public class Core {
 			loadLibrary();
 		ObjectManipulator.setObject(Core.class, "Mod", getModContainer(event));
 		ObjectManipulator.setObject(Core.class, "ModBus", getModEventBus(Mod));// 初始化赋值ModBus
-		KlassLoader.loadKlass("fw.core.registry.registries", true);// 加载并初始化注册表的字段初始化器
+		loadPackage("fw.core.registry.registries");// 加载并初始化注册表的字段初始化器
 	}
 
 	private static ArrayList<Runnable> postinitFuncs = new ArrayList<>();

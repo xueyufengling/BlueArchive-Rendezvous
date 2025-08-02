@@ -2,19 +2,23 @@ package fw.dimension;
 
 import fw.core.Core;
 import fw.core.ServerInstance;
+import fw.core.ServerLevels;
 import fw.core.registry.MutableMappedRegistry;
 import fw.core.registry.registries.server.DynamicRegistries;
 import fw.datagen.DatagenHolder;
 import fw.event.ServerLifecycleTrigger;
 import fw.resources.ResourceKeyBuilder;
 import lyra.alpha.reference.FieldReference;
+import lyra.object.ObjectManipulator;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.dimension.LevelStem;
+import net.minecraft.world.level.storage.DerivedLevelData;
 import net.neoforged.bus.api.EventPriority;
 
 public class Dimensions {
@@ -56,6 +60,7 @@ public class Dimensions {
 
 	private static ResourceKey<DimensionType> overworldDimensionTypeKey = null;
 	private static ResourceKey<LevelStem> overworldLevelStemKey = null;
+	private static ResourceKey<Level> overworldLevelKey = null;
 
 	/**
 	 * 注册表检查时机：<br>
@@ -73,15 +78,16 @@ public class Dimensions {
 			shouldRedirect = true;
 		}
 		if (overworldLevelStemKey != null) {
-			overworldLevel.redirectTo(ExtDimension.Stem.levelKey(overworldLevelStemKey));
+			overworldLevelKey = ExtDimension.Stem.levelKey(overworldLevelStemKey);
+			overworldLevel.redirectTo(overworldLevelKey);
 			overworldLevelStem.redirectTo(overworldLevelStemKey);
 			shouldRedirect = true;
 		}
 		if (shouldRedirect) {
 			// 服务器关闭后需要将主世界相关注册表复原，否则会抛出错误。
 			ServerInstance.delegateRecoverableRedirectors(
-					ServerLifecycleTrigger.AFTER_SERVER_LOAD_LEVEL,
-					ServerLifecycleTrigger.BEFORE_SERVER_STOP, // 原版主世界必须保存
+					ServerLifecycleTrigger.AFTER_SERVER_LOAD_LEVEL, EventPriority.LOWEST,
+					ServerLifecycleTrigger.BEFORE_SERVER_STOP, EventPriority.LOWEST, // 原版主世界必须保存
 					mutableDimensionTypeRegistry,
 					mutableDimensionRegistry,
 					mutableLevelStemRegistry,
@@ -91,9 +97,15 @@ public class Dimensions {
 			mutableDimensionTypeRegistry.unregister(BuiltinDimensionTypes.OVERWORLD);
 			mutableDimensionRegistry.unregister(Level.OVERWORLD);
 			mutableLevelStemRegistry.unregister(LevelStem.OVERWORLD);
-			ServerInstance.disableLevels(vanillaOverworldKey);// 暂时禁用主世界
+			ServerLevels.disableLevels(vanillaOverworldKey);// 暂时禁用主世界
+			ServerLifecycleTrigger.AFTER_SERVER_LOAD_LEVEL.addTempCallback(EventPriority.LOWEST, (MinecraftServer s) -> {
+				redirectServerLevelDataMain();// 设置该维度的WorldData为主世界的，否则tick时无法修改世界的属性，例如增加时间设置天气等
+				tickTime(true);// 开启tick时间（默认只有原版主世界开启）
+			});// 替换主世界后，需要将新的主世界设置为开启tick时间（除了原版主世界，其他世界tickTime默认均为false）
 			ServerLifecycleTrigger.BEFORE_SERVER_STOP.addTempCallback(EventPriority.LOWEST, (MinecraftServer s) -> {
-				ServerInstance.enableLevels(vanillaOverworldKey);// 在存档前恢复主世界
+				tickTime(false);
+				recoveryServerLevelDataMain();
+				ServerLevels.enableLevels(vanillaOverworldKey);// 在存档前恢复主世界
 			});
 		}
 	}
@@ -116,8 +128,46 @@ public class Dimensions {
 	}
 
 	/**
+	 * 设置世界是否有时间流动
+	 * 
+	 * @param level
+	 * @param tick
+	 */
+	public static final void tickTime(ServerLevel level, boolean tick) {
+		ObjectManipulator.setDeclaredMemberBoolean(level, "tickTime", tick);
+	}
+
+	/**
+	 * 设置所有世界是否有时间流动，只需要设置主世界即可
+	 * 
+	 * @param tick
+	 */
+	public static final void tickTime(boolean tick) {
+		tickTime(ServerLevels.levels.get(overworldLevelKey), tick);
+	}
+
+	private static DerivedLevelData targetOverworldOrigData;
+
+	/**
+	 * 将目标Level的WorldData数据改为主世界的可修改实例<br>
+	 * 重定向主世界后必须调用，否则重定向后的主世界时间不会流动，且一切更改世界属性的操作都不会被执行
+	 */
+	private static final void redirectServerLevelDataMain() {
+		ServerLevel targetOverworld = ServerLevels.levels.get(overworldLevelKey);
+		if (ServerLevels.setServerLevelData(targetOverworld, ServerLevels.mainData) instanceof DerivedLevelData derivedData)
+			targetOverworldOrigData = derivedData;
+	}
+
+	private static final void recoveryServerLevelDataMain() {
+		ServerLevel targetOverworld = ServerLevels.levels.get(overworldLevelKey);
+		ServerLevels.setServerLevelData(targetOverworld, targetOverworldOrigData);
+		targetOverworldOrigData = null;
+	}
+
+	/**
 	 * 将主世界重定向到指定的不带modid的维度。<br>
-	 * modid为Core.ModId。
+	 * modid为Core.ModId。<br>
+	 * 必须在@ModInit注解的方法里调用
 	 * 
 	 * @param modDimensionId
 	 */
@@ -160,14 +210,15 @@ public class Dimensions {
 			mutableDimensionRegistry.unregister(vanillaNetherLevel);
 			mutableLevelStemRegistry.unregister(vanillaNetherLevelStem);
 			ServerInstance.delegateRecoverableRedirectors(
-					ServerLifecycleTrigger.BEFORE_SERVER_START,
-					ServerLifecycleTrigger.AFTER_SERVER_STOP,
+					ServerLifecycleTrigger.BEFORE_SERVER_START, EventPriority.HIGHEST,
+					ServerLifecycleTrigger.AFTER_SERVER_STOP, EventPriority.LOWEST,
 					netherDimensionType,
 					netherLevel,
 					netherLevelStem);
-			ServerInstance.disableLevels(vanillaNetherLevel);// 暂时禁用地狱
+			ServerLevels.disableLevels(vanillaNetherLevel);// 暂时禁用地狱
+
 			ServerLifecycleTrigger.AFTER_SERVER_STOP.addTempCallback(EventPriority.LOWEST, (MinecraftServer s) -> {
-				ServerInstance.enableLevels(vanillaNetherLevel);// 在存档后恢复地狱
+				ServerLevels.enableLevels(vanillaNetherLevel);// 在存档后恢复地狱
 			});
 		}
 	}
@@ -197,14 +248,14 @@ public class Dimensions {
 			mutableDimensionRegistry.unregister(vanillaEndLevel);
 			mutableLevelStemRegistry.unregister(vanillaEndLevelStem);
 			ServerInstance.delegateRecoverableRedirectors(
-					ServerLifecycleTrigger.BEFORE_SERVER_START,
-					ServerLifecycleTrigger.AFTER_SERVER_STOP,
+					ServerLifecycleTrigger.BEFORE_SERVER_START, EventPriority.HIGHEST,
+					ServerLifecycleTrigger.AFTER_SERVER_STOP, EventPriority.LOWEST,
 					endDimensionType,
 					endLevel,
 					endLevelStem);
-			ServerInstance.disableLevels(vanillaEndLevel);// 暂时禁用末地
+			ServerLevels.disableLevels(vanillaEndLevel);// 暂时禁用末地
 			ServerLifecycleTrigger.AFTER_SERVER_STOP.addTempCallback(EventPriority.LOWEST, (MinecraftServer s) -> {
-				ServerInstance.enableLevels(vanillaEndLevel);// 在存档后恢复末地
+				ServerLevels.enableLevels(vanillaEndLevel);// 在存档后恢复末地
 			});
 		}
 	}

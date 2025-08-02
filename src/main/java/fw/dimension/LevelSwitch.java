@@ -1,6 +1,7 @@
 package fw.dimension;
 
 import fw.core.ServerInstance;
+import fw.core.ServerLevels;
 
 public abstract class LevelSwitch {
 	private static String[] current_levels = new String[] {};
@@ -11,8 +12,8 @@ public abstract class LevelSwitch {
 
 	public static void switchTo(String... level_names) {
 		if (ServerInstance.available()) {
-			ServerInstance.disableLevels(current_levels);
-			ServerInstance.enableLevels(level_names);
+			ServerLevels.disableLevels(current_levels);
+			ServerLevels.enableLevels(level_names);
 		}
 		current_levels = level_names;
 	}

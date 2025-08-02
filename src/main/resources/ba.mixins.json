@@ -1,6 +1,6 @@
 {
 	"required": true,
-	"package": "fw.mixins",
+	"package": "fw.mixins.defs",
 	"compatibilityLevel": "JAVA_21",
 	"client": [
 		"LevelRendererMixin"

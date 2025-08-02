@@ -11,12 +11,12 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
 @EventBusSubscriber(modid = Core.ModId)
 public enum ServerTickTrigger implements EventTrigger<ServerTickTrigger.TickOperation> {
-	PRE_SERVER_TICK(EventPriority.HIGHEST), // 世界更新前
-	POST_SERVER_TICK(EventPriority.LOWEST); // 世界更新后
+	PRE_SERVER_TICK(EventPriority.HIGH), // 世界更新前
+	POST_SERVER_TICK(EventPriority.LOW); // 世界更新后
 
 	@FunctionalInterface
 	public static interface TickOperation {
-		public void operate(MinecraftServer server, ServerLevel level, long dayTime);
+		public void operate(MinecraftServer server, ServerLevel level);
 	}
 
 	ServerTickTrigger(EventPriority defaultPriority) {
@@ -67,6 +67,6 @@ public enum ServerTickTrigger implements EventTrigger<ServerTickTrigger.TickOper
 	public void executeCallback(TickOperation op, Object... args) {
 		MinecraftServer server = ServerInstance.server;
 		for (ServerLevel level : server.getAllLevels())
-			op.operate(server, level, level.dayTime());
+			op.operate(server, level);
 	}
 }

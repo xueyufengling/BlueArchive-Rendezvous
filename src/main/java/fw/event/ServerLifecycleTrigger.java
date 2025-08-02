@@ -15,11 +15,11 @@ import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 
 @EventBusSubscriber(modid = Core.ModId)
 public enum ServerLifecycleTrigger implements EventTrigger<ServerLifecycleTrigger.Operation> {
-	BEFORE_SERVER_START(EventPriority.HIGHEST), // 未加载世界
-	AFTER_SERVER_LOAD_LEVEL(EventPriority.LOWEST), // 加载完世界
-	AFTER_SERVER_STARTED(EventPriority.LOWEST), // 服务器加载全部完成
-	BEFORE_SERVER_STOP(EventPriority.LOWEST), // 世界保存前
-	AFTER_SERVER_STOP(EventPriority.LOWEST);// 世界保存后，服务器完全关闭
+	BEFORE_SERVER_START(EventPriority.HIGH), // 未加载世界
+	AFTER_SERVER_LOAD_LEVEL(EventPriority.LOW), // 加载完世界
+	AFTER_SERVER_STARTED(EventPriority.LOW), // 服务器加载全部完成
+	BEFORE_SERVER_STOP(EventPriority.LOW), // 世界保存前
+	AFTER_SERVER_STOP(EventPriority.LOW);// 世界保存后，服务器完全关闭
 
 	@FunctionalInterface
 	public static interface Operation {

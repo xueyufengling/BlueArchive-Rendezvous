@@ -12,7 +12,7 @@ public class Holders {
 	}
 
 	public static final <T> Holder.Reference<T> bindValue(Holder.Reference<T> holder, T value) {
-		ObjectManipulator.setMemberObject(holder, "value", value);
+		ObjectManipulator.setDeclaredMemberObject(holder, "value", value);
 		return holder;
 	}
 }
