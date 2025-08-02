@@ -4,7 +4,7 @@ import ba.entries.BaCreativeTab;
 import fw.datagen.annotation.ItemDatagen;
 import fw.datagen.annotation.LangDatagen;
 import fw.datagen.annotation.Translation;
-import fw.items.ExtItems;
+import fw.items.ExtItem;
 import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.registries.DeferredItem;
 
@@ -19,6 +19,6 @@ public class BaKeyItems {
 
 	@LangDatagen(translations = { @Translation(locale = "en_us", text = "Shittim Chest"), @Translation(locale = "zh_cn", text = "什亭之匣") })
 	@ItemDatagen(tex_path = resourcePath)
-	public static final DeferredItem<Item> shittim_chest = ExtItems.register("shittim_chest", BaCreativeTab.BA_KEY_ITEMS);
+	public static final DeferredItem<Item> shittim_chest = ExtItem.register("shittim_chest", BaCreativeTab.BA_KEY_ITEMS);
 
 }

@@ -4,12 +4,12 @@ import java.util.List;
 import java.util.OptionalLong;
 
 import ba.entries.biome.shittim_chest.ShittimChestBiomes;
+import fw.client.render.TimeBasedColorLinearInterpolation;
 import fw.client.render.sky.CloudColor;
 import fw.core.ExecuteIn;
 import fw.datagen.DatagenHolder;
 import fw.datagen.annotation.RegistryDatagen;
 import fw.dimension.ExtDimension;
-import fw.terrain.TimeBasedColorLinearInterpolation;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.registries.Registries;

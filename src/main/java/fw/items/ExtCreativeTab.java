@@ -39,7 +39,7 @@ public interface ExtCreativeTab extends BaseClass<ExtCreativeTab.Definition>, Lo
 			builder = new CreativeModeTab.Builder(CreativeModeTab.Row.TOP, 0);
 			deferredHolder = RegistryFactory.CREATIVE_TABS.register(id, () -> {
 				return builder
-						.icon(() -> new ItemStack((ExtItems.contains(this.iconItem) ? ExtItems.get(this.iconItem) : ExtItems.register(this.iconItem)).get()))
+						.icon(() -> new ItemStack((ExtItem.ITEMS.contains(this.iconItem) ? ExtItem.ITEMS.get(this.iconItem) : ExtItem.register(this.iconItem)).get()))
 						.title(this_.localizedComponent())
 						.displayItems((featureFlagSet, tabOutput) -> {
 							this.itemsList.forEach(item -> tabOutput.accept(new ItemStack(item.get())));

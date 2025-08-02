@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.mojang.serialization.MapCodec;
 
+import fw.client.render.TimeBasedColorLinearInterpolation;
 import fw.codec.annotation.CodecAutogen;
 import fw.core.ExecuteIn;
 import fw.datagen.DatagenHolder;
@@ -11,7 +12,6 @@ import fw.datagen.annotation.RegistryDatagen;
 import fw.terrain.ExtBiome;
 import fw.terrain.ExtBiomeSource;
 import fw.terrain.MutableBiomeSpecialEffects;
-import fw.terrain.TimeBasedColorLinearInterpolation;
 import net.minecraft.core.Holder;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.world.level.biome.Biome;
