@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.mojang.serialization.MapCodec;
 
-import fw.client.render.TimeBasedColorLinearInterpolation;
+import fw.client.render.color.TimeBasedColorLinearInterpolation;
 import fw.codec.annotation.CodecAutogen;
 import fw.core.ExecuteIn;
 import fw.datagen.DatagenHolder;

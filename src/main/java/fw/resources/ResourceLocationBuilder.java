@@ -62,4 +62,11 @@ public class ResourceLocationBuilder {
 	public ResourceLocation build() {
 		return build(namespace, path);
 	}
+
+	public static String toString(ResourceLocation resloc) {
+		if (resloc == null)
+			return null;
+		else
+			return resloc.toString();
+	}
 }

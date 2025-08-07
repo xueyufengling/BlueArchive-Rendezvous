@@ -3,7 +3,7 @@ package fw.terrain;
 import java.util.Optional;
 import java.util.OptionalInt;
 
-import fw.client.render.TimeBasedColorLinearInterpolation;
+import fw.client.render.color.TimeBasedColorLinearInterpolation;
 import fw.core.registry.registries.client.DynamicRegistries;
 import fw.event.LevelTickTrigger;
 import fw.event.LevelTrigger;

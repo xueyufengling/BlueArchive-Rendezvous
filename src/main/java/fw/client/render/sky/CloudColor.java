@@ -3,7 +3,7 @@ package fw.client.render.sky;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import fw.client.render.TimeBasedColorLinearInterpolation;
+import fw.client.render.color.TimeBasedColorLinearInterpolation;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.Holder;
 import net.minecraft.world.level.biome.Biome;

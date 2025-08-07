@@ -57,4 +57,11 @@ public class ResourceKeyBuilder {
 	public static <T> ResourceKey<? extends Registry<T>> build(TagKey<T> tag_key) {
 		return (ResourceKey<? extends Registry<T>>) Reflection.getValue(tag_key, "registry");
 	}
+
+	public static String toString(ResourceKey<?> resourceKey) {
+		if (resourceKey == null)
+			return null;
+		else
+			return resourceKey.location().toString();
+	}
 }

@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.OptionalLong;
 
 import ba.entries.biome.shittim_chest.ShittimChestBiomes;
-import fw.client.render.TimeBasedColorLinearInterpolation;
+import fw.client.render.color.TimeBasedColorLinearInterpolation;
 import fw.client.render.sky.CloudColor;
 import fw.core.ExecuteIn;
 import fw.datagen.DatagenHolder;
