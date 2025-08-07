@@ -13,6 +13,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 
 import fw.client.render.sky.CloudColor;
+import fw.client.render.sky.SkyColor;
 import fw.mixins.internal.Internal;
 import fw.mixins.internal.LevelRendererInternal;
 import net.minecraft.client.Camera;
@@ -41,10 +42,16 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
 		LevelRendererInternal.RenderLevel.LocalVars.store(level);
 	}
 
+	@WrapOperation(method = "renderSky", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/ClientLevel;getSkyColor(Lnet/minecraft/world/phys/Vec3;F)Lnet/minecraft/world/phys/Vec3;"))
+	private Vec3 renderSky_modifyAfterGetSkyColor(ClientLevel level, Vec3 pos, float partialTick, Operation<Vec3> orig) {
+		Vec3 o = orig.call(level, pos, partialTick);
+		return SkyColor.resolve(o, level, partialTick, LevelRendererInternal.RenderLevel.LocalVars.camPosBiome, LevelRendererInternal.RenderLevel.LocalVars.camPos, level.getDayTime());
+	}
+
 	@WrapOperation(method = "renderClouds", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/ClientLevel;getCloudColor(F)Lnet/minecraft/world/phys/Vec3;"))
 	private Vec3 renderClouds_modifyAfterGetCloudColor(ClientLevel level, float partialTick, Operation<Vec3> orig) {
 		Vec3 o = orig.call(level, partialTick);
-		return CloudColor.resolve(o, level, partialTick, LevelRendererInternal.RenderLevel.LocalVars.camPosBiome, level.getDayTime());
+		return CloudColor.resolve(o, level, partialTick, LevelRendererInternal.RenderLevel.LocalVars.camPosBiome, LevelRendererInternal.RenderLevel.LocalVars.camPos, level.getDayTime());
 	}
 
 	@Inject(method = "renderLevel", at = @At(value = "RETURN", shift = Shift.BEFORE), cancellable = true)

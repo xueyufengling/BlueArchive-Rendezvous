@@ -79,12 +79,20 @@ public class TimeBasedColorLinearInterpolation {
 		return append(time, r, g, b, 0);
 	}
 
+	public TimeBasedColorLinearInterpolation append(int time, int gray) {
+		return append(time, gray, gray, gray);
+	}
+
 	public static TimeBasedColorLinearInterpolation begin(int time, int r, int g, int b, int a) {
 		return new TimeBasedColorLinearInterpolation().append(time, r, g, b, a);
 	}
 
 	public static TimeBasedColorLinearInterpolation begin(int time, int r, int g, int b) {
 		return begin(time, r, g, b, 0);
+	}
+
+	public static TimeBasedColorLinearInterpolation begin(int time, int gray) {
+		return begin(time, gray, gray, gray);
 	}
 
 	public ColorPoint interplote(long time) {
@@ -96,7 +104,7 @@ public class TimeBasedColorLinearInterpolation {
 			return new ColorPoint(time, single.r, single.g, single.b, single.a);
 		}
 		default: {
-			ColorPoint start = null;
+			ColorPoint start = points.get(0);
 			ColorPoint end = null;
 			if (time < 0)
 				time = 0;

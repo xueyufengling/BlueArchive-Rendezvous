@@ -6,6 +6,7 @@ import java.util.OptionalLong;
 import ba.entries.biome.shittim_chest.ShittimChestBiomes;
 import fw.client.render.color.TimeBasedColorLinearInterpolation;
 import fw.client.render.sky.CloudColor;
+import fw.client.render.sky.SkyColor;
 import fw.core.ExecuteIn;
 import fw.datagen.DatagenHolder;
 import fw.datagen.annotation.RegistryDatagen;
@@ -41,6 +42,20 @@ public class ShittimChest {
 					.append(15000, 68, 139, 203)// 21 h 灰
 					.append(18000, 59, 106, 189)// 0 h 深黑蓝
 					.append(21000, 68, 139, 203)// 3 h 灰
+			);
+			SkyColor.setLevelSkyColorResolver("ba:shittim_chest",
+					TimeBasedColorLinearInterpolation
+							.begin(3000, 90, 145, 198)// 9 h 灰蓝
+							.append(9000, 90, 145, 198)// 15 h 灰蓝
+							.append(15000, 67, 130, 195)// 21 h 夜晚蓝
+							.append(18000, 12, 29, 71)// 0 h 深黑蓝
+							.append(21000, 67, 130, 195), // 3 h 夜晚蓝
+					TimeBasedColorLinearInterpolation
+							.begin(3000, 16)// 9 h 灰蓝
+							.append(9000, 16)// 15 h 亮白
+							.append(15000, 128)// 21 h 紫
+							.append(18000, 160)// 0 h 深黑蓝
+							.append(21000, 128) // 3 h 深黑蓝
 			);
 		});
 	}
