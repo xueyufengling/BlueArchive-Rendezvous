@@ -9,24 +9,24 @@ public interface Renderable2D extends Renderable {
 		public float offset_x, offset_y;// 相对于渲染左上角点的位移
 		public float width_scale, height_scale;
 
-		Instance(float x1_offset, float y1_offset, float width_scale, float height_scale) {
-			this.offset_x = x1_offset;
-			this.offset_y = y1_offset;
+		Instance(float offset_x, float offset_y, float width_scale, float height_scale) {
+			this.offset_x = offset_x;
+			this.offset_y = offset_y;
 			this.width_scale = width_scale;
 			this.height_scale = height_scale;
 		}
 
-		Instance(float x1_offset, float y1_offset) {
-			this(x1_offset, y1_offset, 1.0f, 1.0f);
+		Instance(float offset_x, float offset_y) {
+			this(offset_x, offset_y, 1.0f, 1.0f);
 		}
 
 		Instance() {
 			this(0.0f, 0.0f);
 		}
 
-		public Instance setOffset(float x1_offset, float y1_offset) {
-			this.offset_x = x1_offset;
-			this.offset_y = y1_offset;
+		public Instance setOffset(float offset_x, float offset_y) {
+			this.offset_x = offset_x;
+			this.offset_y = offset_y;
 			return this;
 		}
 
@@ -54,5 +54,6 @@ public interface Renderable2D extends Renderable {
 			return this;
 		}
 
+		public abstract Instance setRenderingSize(float x, float y);
 	}
 }

@@ -1,6 +1,7 @@
 package fw.items.enchantment;
 
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.Set;
 
 import fw.core.registry.registries.client.DynamicRegistries;
@@ -43,6 +44,11 @@ public class EnchantmentLevel {
 		return "{enchantmentId=" + enchantmentId + ", level=" + level + '}';
 	}
 
+	@Override
+	public int hashCode() {
+		return Objects.hashCode(enchantmentId) ^ Objects.hashCode(level);
+	}
+
 	@SuppressWarnings({ "deprecation" })
 	public static ArrayList<EnchantmentLevel> getAllEnchantmentLevels(ItemStack stack) {
 		ArrayList<EnchantmentLevel> list = new ArrayList<>();
@@ -51,5 +57,9 @@ public class EnchantmentLevel {
 			list.add(new EnchantmentLevel(entry.getKey().getKey(), entry.getIntValue()));
 		}
 		return list;
+	}
+
+	public static final EnchantmentLevel of(String enchantment_id, int level) {
+		return new EnchantmentLevel(enchantment_id, level);
 	}
 }

@@ -28,9 +28,21 @@ public class Texture implements Cloneable {
 	}
 
 	private ResourceLocation location;
+	/**
+	 * 图像原始宽度
+	 */
 	private int img_width;
+	/**
+	 * 图像原始高度
+	 */
 	private int img_height;
+	/**
+	 * 渲染宽度
+	 */
 	private float width;
+	/**
+	 * 渲染高度
+	 */
 	private float height;
 	private float u1;
 	private float v1;
@@ -274,22 +286,24 @@ public class Texture implements Cloneable {
 	 * 纹理局部区域实例<br>
 	 */
 	public class Area extends Renderable2D.Instance {
-		public float offset_x, offset_y;// 相对于渲染左上角点的位移
-		public float width_scale, height_scale;
 
-		Area(float x1_offset, float y1_offset, float width_scale, float height_scale) {
-			this.offset_x = x1_offset;
-			this.offset_y = y1_offset;
-			this.width_scale = width_scale;
-			this.height_scale = height_scale;
+		Area(float offset_x, float offset_y, float width_scale, float height_scale) {
+			super(offset_x, offset_y, width_scale, height_scale);
 		}
 
 		Area(float x1_offset, float y1_offset) {
-			this(x1_offset, y1_offset, 1.0f, 1.0f);
+			super(x1_offset, y1_offset);
 		}
 
 		Area() {
-			this(0.0f, 0.0f);
+			super();
+		}
+
+		@Override
+		public Renderable2D.Instance setRenderingSize(float x, float y) {
+			this.width_scale = x / Texture.this.width;
+			this.height_scale = y / Texture.this.height;
+			return this;
 		}
 
 		@Override

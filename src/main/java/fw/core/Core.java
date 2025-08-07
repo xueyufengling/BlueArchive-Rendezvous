@@ -126,6 +126,12 @@ public class Core {
 		KlassLoader.loadKlass(pkg, true);// 强制加载并初始化未使用的类
 	}
 
+	public static void loadClientPackage(String pkg) {
+		ExecuteIn.Client(() -> {
+			KlassLoader.loadKlass(pkg, true);
+		});
+	}
+
 	public static final void logDebug(String msg) {
 		if (Config.logInfo)
 			Logger.debug(msg);

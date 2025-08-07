@@ -19,13 +19,15 @@ public class ConditionalRenderable2D implements Cloneable, Renderable2D {
 		public static final DrawStrategy THIS = (int this_idx, ArrayList<Entry> renderables) -> this_idx;
 		public static final DrawStrategy BY_PRIORITY = (int this_idx, ArrayList<Entry> renderables) -> this_idx + 1;
 		public static final DrawStrategy PRIORITY_HIGHEST = (int this_idx, ArrayList<Entry> renderables) -> -1;
-		public static final DrawStrategy DEFAULT = DrawStrategy.BY_PRIORITY;
+		public static final DrawStrategy DEFAULT = DrawStrategy.PRIORITY_HIGHEST;
 	}
 
 	public class Entry implements Cloneable {
 		Renderable2D renderable;
 
-		public int drawPriority = 0;// 该图像的整体优先级
+		public static final int DEFAULT_PRIORITY = 0;
+
+		public int drawPriority = DEFAULT_PRIORITY;// 该图像的整体优先级
 
 		@Override
 		public Entry clone() {
@@ -37,13 +39,13 @@ public class ConditionalRenderable2D implements Cloneable, Renderable2D {
 			return null;
 		}
 
-		Entry(Renderable2D renderable, int drawPriority) {
+		public Entry(Renderable2D renderable, int drawPriority) {
 			this.renderable = renderable;
 			this.drawPriority = drawPriority;
 		}
 
-		Entry(Renderable2D renderable) {
-			this(renderable, 0);
+		public Entry(Renderable2D renderable) {
+			this(renderable, DEFAULT_PRIORITY);
 		}
 
 		public Entry setDrawPriority(int drawPriority) {
@@ -115,13 +117,24 @@ public class ConditionalRenderable2D implements Cloneable, Renderable2D {
 		this.renderables.sort((Entry e1, Entry e2) -> e2.drawPriority - e1.drawPriority);
 	}
 
-	public void add(Renderable2D... renderables) {
+	public ConditionalRenderable2D add(int priority, Renderable2D... renderables) {
 		for (Renderable2D renderable : renderables)
-			this.renderables.add(new Entry(renderable));
+			this.renderables.add(new Entry(renderable, priority));
 		sort();
+		return this;
 	}
 
-	public void remove(Renderable2D... renderables) {
+	public ConditionalRenderable2D add(Renderable2D... renderables) {
+		return this.add(Entry.DEFAULT_PRIORITY, renderables);
+	}
+
+	public ConditionalRenderable2D add(Renderable2D renderable, int priority) {
+		this.renderables.add(new Entry(renderable, priority));
+		sort();
+		return this;
+	}
+
+	public ConditionalRenderable2D remove(Renderable2D... renderables) {
 		Iterator<Entry> iter = this.renderables.iterator();
 		while (iter.hasNext()) {
 			Renderable2D r = iter.next().renderable;
@@ -132,6 +145,7 @@ public class ConditionalRenderable2D implements Cloneable, Renderable2D {
 				}
 		}
 		sort();
+		return this;
 	}
 
 	public Entry remove(int source_idx) {

@@ -36,6 +36,7 @@ public class ModEntry {
 		Logger.info("Running on " + env + " environment with PID " + Vm.getProcessId());
 		Logger.info("Mod located at " + KlassPath.getKlassPath());
 		Core.loadPackage("ba.entries");
+		Core.loadClientPackage("ba.client.render");
 		Logger.info("Loaded entries class");
 		Dimensions.removeTheNether(true);
 		Dimensions.removeTheEnd(true);
