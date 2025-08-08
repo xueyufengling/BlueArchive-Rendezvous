@@ -26,8 +26,8 @@ public class TesselatorInstance {
 	static {
 		instance = Tesselator.getInstance();
 		Tesselator_begin = Handles.findMethodHandle(Tesselator.class, "begin", VertexFormat.Mode.class, VertexFormat.class);
-		VertexConsumer_addvertex$Matrix4f$FFF = Handles.findMethodHandle(VertexConsumer.class, "addvertex", Matrix4f.class, float.class, float.class, float.class);
-		BufferBuilder_setUv = Handles.findMethodHandle(BufferBuilder.class, "setUv", BufferBuilder.class, float.class, float.class);
+		VertexConsumer_addvertex$Matrix4f$FFF = Handles.findMethodHandle(VertexConsumer.class, "addVertex", Matrix4f.class, float.class, float.class, float.class);
+		BufferBuilder_setUv = Handles.findMethodHandle(BufferBuilder.class, "setUv", float.class, float.class);
 
 		VertexConsumer_setColor$FFFF = Handles.findMethodHandle(VertexConsumer.class, "setColor", float.class, float.class, float.class, float.class);
 		BufferUploader_drawWithShader = Handles.findMethodHandle(BufferUploader.class, "drawWithShader", MeshData.class);
@@ -46,7 +46,7 @@ public class TesselatorInstance {
 
 	public static BufferBuilder addVertex(BufferBuilder bufferBuilder, Matrix4f pose, float x, float y, float z) {
 		try {
-			VertexConsumer_addvertex$Matrix4f$FFF.invokeExact(bufferBuilder, pose, x, y, z);
+			return (BufferBuilder) (VertexConsumer) VertexConsumer_addvertex$Matrix4f$FFF.invokeExact((VertexConsumer) bufferBuilder, pose, x, y, z);
 		} catch (Throwable e) {
 			e.printStackTrace();
 		}
@@ -55,7 +55,7 @@ public class TesselatorInstance {
 
 	public static BufferBuilder setUv(BufferBuilder bufferBuilder, float u, float v) {
 		try {
-			BufferBuilder_setUv.invokeExact(bufferBuilder, u, v);
+			return (BufferBuilder) (VertexConsumer) BufferBuilder_setUv.invokeExact(bufferBuilder, u, v);
 		} catch (Throwable e) {
 			e.printStackTrace();
 		}
@@ -97,7 +97,7 @@ public class TesselatorInstance {
 	public static MeshData buildOrThrow(BufferBuilder bufferBuilder) {
 		MeshData data = null;
 		try {
-			data = (MeshData) BufferBuilder_buildOrThrow.invokeExact();
+			data = (MeshData) BufferBuilder_buildOrThrow.invokeExact(bufferBuilder);
 		} catch (Throwable e) {
 			e.printStackTrace();
 		}
@@ -108,7 +108,7 @@ public class TesselatorInstance {
 		drawWithShader(buildOrThrow(bufferBuilder));
 	}
 
-	public static void drawWithShader(Object bufferBuilder) {
+	public static void drawWithShader(MeshData bufferBuilder) {
 		try {
 			BufferUploader_drawWithShader.invokeExact(bufferBuilder);
 		} catch (Throwable e) {

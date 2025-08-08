@@ -2,6 +2,7 @@ package ba.apt;
 
 import java.awt.image.BufferedImage;
 import java.awt.image.RasterFormatException;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -91,5 +92,98 @@ public class BaTexturePreprocessor {
 	public static void preprocess(String start_path, String identifier) {
 		discardPrefix(start_path, ".png", identifier);
 		clipCenteredTexture(start_path, ".png");
+	}
+
+	public static final double gray(int r, int g, int b) {
+		return 0.299 * r + 0.587 * g + 0.114 * b;
+	}
+
+	public static final void toAlphaMask(String src, String dest) {
+		try {
+			BufferedImage image = ImageIO.read(new File(src));
+			int width = image.getWidth();
+			int height = image.getHeight();
+			int origMaxA = 0;
+			int procMaxA = 0;
+			for (int y = 0; y < height; y++) {
+				for (int x = 0; x < width; x++) {
+					int pixel = image.getRGB(x, y);
+					int a = (pixel >> 24) & 0xff;
+					int r = (pixel >> 16) & 0xff;
+					int g = (pixel >> 8) & 0xff;
+					int b = pixel & 0xff;
+					if (a > origMaxA)
+						origMaxA = a;
+					double gray = gray(r, g, b);
+					int newAlpha = (int) (a * (1 - gray / 255));
+					if (newAlpha > procMaxA)
+						procMaxA = newAlpha;
+					image.setRGB(x, y, (a << 24) | ((int) newAlpha << 16) | ((int) newAlpha << 8) | (int) newAlpha);
+				}
+			}
+			double aScale = ((double) origMaxA) / procMaxA;// 对转换后的alpha因子进行补偿
+			System.out.println("Original image maxAlpha=" + origMaxA + ", mask image maxAlpha=" + procMaxA + ", alpha scale factor is set to " + aScale);
+			for (int y = 0; y < height; y++) {
+				for (int x = 0; x < width; x++) {
+					int pixel = image.getRGB(x, y);
+					int a = (pixel >> 24) & 0xff;
+					int r = (pixel >> 16) & 0xff;
+					int g = (pixel >> 8) & 0xff;
+					int b = pixel & 0xff;
+					image.setRGB(x, y, ((int) (a) << 24) | ((int) (r * aScale) << 16) | ((int) (g * aScale) << 8) | (int) (b * aScale));
+				}
+			}
+			ImageIO.write(image, "PNG", new File(dest));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static final void applyAlphaMask(String mask, String src, String dest) {
+		try {
+			BufferedImage maskImage = ImageIO.read(new File(mask));
+			BufferedImage colorImage = ImageIO.read(new File(src));
+			int width = colorImage.getWidth();
+			int height = colorImage.getHeight();
+			for (int y = 0; y < height; y++) {
+				for (int x = 0; x < width; x++) {
+					int pixel = colorImage.getRGB(x, y);
+					int r = (pixel >> 16) & 0xff;
+					int g = (pixel >> 8) & 0xff;
+					int b = pixel & 0xff;
+					// mask
+					int mpixel = maskImage.getRGB(x, y);
+					int msa = (mpixel >> 24) & 0xff;// mask原始图像的alpha通道值
+					int ma = (mpixel >> 16) & 0xff;
+					double f = ma / 255.0;
+					colorImage.setRGB(x, y, (msa << 24) | ((int) (255 * (1 - f) + r * f) << 16) | ((int) (255 * (1 - f) + g * f) << 8) | (int) (255 * (1 - f) + b * f));
+				}
+			}
+			ImageIO.write(colorImage, "PNG", new File(dest));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static final void applyAlphaChannel(String alpha, String src, String dest) {
+		try {
+			BufferedImage alphaImage = ImageIO.read(new File(alpha));
+			BufferedImage colorImage = ImageIO.read(new File(src));
+			int width = colorImage.getWidth();
+			int height = colorImage.getHeight();
+			for (int y = 0; y < height; y++) {
+				for (int x = 0; x < width; x++) {
+					int pixel = colorImage.getRGB(x, y);
+					int r = (pixel >> 16) & 0xff;
+					int g = (pixel >> 8) & 0xff;
+					int b = pixel & 0xff;
+					int destAlpha = (alphaImage.getRGB(x, y) >> 24) & 0xff;
+					colorImage.setRGB(x, y, (destAlpha << 24) | (r << 16) | (g << 8) | b);
+				}
+			}
+			ImageIO.write(colorImage, "PNG", new File(dest));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 }

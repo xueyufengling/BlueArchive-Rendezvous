@@ -3,7 +3,8 @@ package fw.client.render.level;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import fw.client.render.color.ColorLinearInterpolation;
+import fw.math.ColorLinearInterpolation;
+import fw.math.Vec3LinearInterpolation;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.Holder;
 import net.minecraft.world.level.biome.Biome;
@@ -98,9 +99,9 @@ public class LevelColor {
 		};
 	}
 
-	public static final Resolver resolver(ColorLinearInterpolation color, ColorLinearInterpolation weight) {
+	public static final Resolver resolver(ColorLinearInterpolation color, Vec3LinearInterpolation weight) {
 		return (Vec3 orig, ClientLevel level, float partialTick, Holder<Biome> biome, Vec3 camPos, long time) -> {
-			Vec3 w = weight.interploteNormalizedVec3(time);
+			Vec3 w = weight.interploteVec3(time);
 			return color.interploteNormalizedVec3(time).multiply(w.x, w.y, w.z).add(orig.multiply(1.0 - w.x, 1.0 - w.y, 1.0 - w.z));
 		};
 	}

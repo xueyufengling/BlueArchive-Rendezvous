@@ -3,7 +3,7 @@
 	"package": "fw.mixins.defs",
 	"compatibilityLevel": "JAVA_21",
 	"client": [
-		"LevelRendererMixin"
+		"LevelRendererMixin","ItemRendererMixin","GuiGraphicsMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

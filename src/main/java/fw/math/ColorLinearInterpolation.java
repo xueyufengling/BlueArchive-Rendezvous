@@ -1,4 +1,4 @@
-package fw.client.render.color;
+package fw.math;
 
 import java.awt.Color;
 
@@ -23,27 +23,27 @@ public class ColorLinearInterpolation extends Interpolation<Color> {
 	 * @param a
 	 * @return
 	 */
-	public ColorLinearInterpolation append(int t, int r, int g, int b, int a) {
+	public ColorLinearInterpolation append(long t, int r, int g, int b, int a) {
 		return (ColorLinearInterpolation) super.append(t, new Color(r, g, b, a));
 	}
 
-	public ColorLinearInterpolation append(int t, int r, int g, int z) {
+	public ColorLinearInterpolation append(long t, int r, int g, int z) {
 		return append(t, r, g, z, 0);
 	}
 
-	public ColorLinearInterpolation append(int t, int gray) {
+	public ColorLinearInterpolation append(long t, int gray) {
 		return append(t, gray, gray, gray);
 	}
 
-	public static ColorLinearInterpolation begin(int t, int r, int g, int z, int a) {
+	public static ColorLinearInterpolation begin(long t, int r, int g, int z, int a) {
 		return new ColorLinearInterpolation().append(t, r, g, z, a);
 	}
 
-	public static ColorLinearInterpolation begin(int t, int r, int g, int b) {
+	public static ColorLinearInterpolation begin(long t, int r, int g, int b) {
 		return begin(t, r, g, b, 0);
 	}
 
-	public static ColorLinearInterpolation begin(int t, int gray) {
+	public static ColorLinearInterpolation begin(long t, int gray) {
 		return begin(t, gray, gray, gray);
 	}
 

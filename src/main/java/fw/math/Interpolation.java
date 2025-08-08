@@ -1,4 +1,4 @@
-package fw.client.render.color;
+package fw.math;
 
 import java.util.ArrayList;
 

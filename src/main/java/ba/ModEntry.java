@@ -40,6 +40,6 @@ public class ModEntry {
 		Logger.info("Loaded entries class");
 		Dimensions.removeTheNether(true);
 		Dimensions.removeTheEnd(true);
-		Dimensions.redirectOverworldMod(ShittimChest.ID);
+		//Dimensions.redirectOverworldMod(ShittimChest.ID);
 	}
 }

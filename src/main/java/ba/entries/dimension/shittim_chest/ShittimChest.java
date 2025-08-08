@@ -4,13 +4,14 @@ import java.util.List;
 import java.util.OptionalLong;
 
 import ba.entries.biome.shittim_chest.ShittimChestBiomes;
-import fw.client.render.color.ColorLinearInterpolation;
 import fw.client.render.sky.CloudColor;
 import fw.client.render.sky.SkyColor;
 import fw.core.ExecuteIn;
 import fw.datagen.DatagenHolder;
 import fw.datagen.annotation.RegistryDatagen;
 import fw.dimension.ExtDimension;
+import fw.math.ColorLinearInterpolation;
+import fw.math.Vec3LinearInterpolation;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.registries.Registries;
@@ -50,12 +51,12 @@ public class ShittimChest {
 							.append(15000, 67, 130, 195)// 21 h 夜晚蓝
 							.append(18000, 12, 29, 71)// 0 h 深黑蓝
 							.append(21000, 67, 130, 195), // 3 h 夜晚蓝
-					ColorLinearInterpolation
-							.begin(3000, 16)// 9 h 灰蓝
-							.append(9000, 16)// 15 h 亮白
-							.append(15000, 128)// 21 h 紫
-							.append(18000, 160)// 0 h 深黑蓝
-							.append(21000, 128) // 3 h 深黑蓝
+					Vec3LinearInterpolation
+							.begin(3000, 0.1)// 9 h
+							.append(9000, 0.1)// 15 h
+							.append(15000, 0.5)// 21 h
+							.append(18000, 0.7)// 0 h
+							.append(21000, 0.5) // 3 h
 			);
 		});
 	}

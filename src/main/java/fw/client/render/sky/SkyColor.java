@@ -1,7 +1,8 @@
 package fw.client.render.sky;
 
-import fw.client.render.color.ColorLinearInterpolation;
 import fw.client.render.level.LevelColor;
+import fw.math.ColorLinearInterpolation;
+import fw.math.Vec3LinearInterpolation;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.Holder;
 import net.minecraft.world.level.biome.Biome;
@@ -30,7 +31,7 @@ public class SkyColor {
 		levelBasedResolver.addEntry(levelKey, LevelColor.resolver(skyColor, ratio));
 	}
 
-	public static final void setLevelSkyColorResolver(String levelKey, ColorLinearInterpolation skyColor, ColorLinearInterpolation weight) {
+	public static final void setLevelSkyColorResolver(String levelKey, ColorLinearInterpolation skyColor, Vec3LinearInterpolation weight) {
 		levelBasedResolver.addEntry(levelKey, LevelColor.resolver(skyColor, weight));
 	}
 
@@ -42,7 +43,7 @@ public class SkyColor {
 		biomeBasedResolver.addEntry(levelKey, LevelColor.resolver(skyColor, ratio));
 	}
 
-	public static final void setBiomeSkyColorResolver(String levelKey, ColorLinearInterpolation skyColor, ColorLinearInterpolation weight) {
+	public static final void setBiomeSkyColorResolver(String levelKey, ColorLinearInterpolation skyColor, Vec3LinearInterpolation weight) {
 		biomeBasedResolver.addEntry(levelKey, LevelColor.resolver(skyColor, weight));
 	}
 }

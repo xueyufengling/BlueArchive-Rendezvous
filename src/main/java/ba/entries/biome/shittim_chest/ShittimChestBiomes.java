@@ -4,11 +4,11 @@ import java.util.List;
 
 import com.mojang.serialization.MapCodec;
 
-import fw.client.render.color.ColorLinearInterpolation;
 import fw.codec.annotation.CodecAutogen;
 import fw.core.ExecuteIn;
 import fw.datagen.DatagenHolder;
 import fw.datagen.annotation.RegistryDatagen;
+import fw.math.ColorLinearInterpolation;
 import fw.terrain.ExtBiome;
 import fw.terrain.ExtBiomeSource;
 import fw.terrain.MutableBiomeSpecialEffects;
@@ -30,7 +30,7 @@ public class ShittimChestBiomes extends ExtBiomeSource {
 		ExecuteIn.Client(() -> {
 			effects = MutableBiomeSpecialEffects.from("ba:shittim_chest");
 			effects.tick(ColorLinearInterpolation
-					.begin(0, 237, 186, 183)// 6 h 粉红
+					.begin(0, 120, 153, 197)// 6 h 灰蓝
 					.append(3000, 131, 210, 250)// 9 h 浅天蓝
 					.append(6000, 92, 194, 253)// 12 h 深天蓝
 					.append(9000, 131, 210, 250)// 15 h 浅天蓝
