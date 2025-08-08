@@ -1,9 +1,9 @@
-package fw.client.render.sky;
+package fw.client.render.level;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import fw.client.render.color.TimeBasedColorLinearInterpolation;
+import fw.client.render.color.ColorLinearInterpolation;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.Holder;
 import net.minecraft.world.level.biome.Biome;
@@ -46,9 +46,9 @@ public class LevelColor {
 		colorResolvers.remove(resolver);
 	}
 
-	public final void addColorResolver(TimeBasedColorLinearInterpolation color) {
+	public final void addColorResolver(ColorLinearInterpolation color) {
 		addColorResolver((Vec3 orig, ClientLevel level, float partialTick, Holder<Biome> biome, Vec3 camPos, long time) -> {
-			return color.interploteVec3f(time);
+			return color.interploteNormalizedVec3(time);
 		});
 	}
 
@@ -86,22 +86,22 @@ public class LevelColor {
 		}
 	};
 
-	public static final Resolver resolver(TimeBasedColorLinearInterpolation color) {
+	public static final Resolver resolver(ColorLinearInterpolation color) {
 		return (Vec3 orig, ClientLevel level, float partialTick, Holder<Biome> biome, Vec3 camPos, long time) -> {
-			return color.interploteVec3f(time);
+			return color.interploteNormalizedVec3(time);
 		};
 	}
 
-	public static final Resolver resolver(TimeBasedColorLinearInterpolation color, double ratio) {
+	public static final Resolver resolver(ColorLinearInterpolation color, double ratio) {
 		return (Vec3 orig, ClientLevel level, float partialTick, Holder<Biome> biome, Vec3 camPos, long time) -> {
-			return color.interploteVec3f(time).scale(ratio).add(orig.scale(1.0 - ratio));
+			return color.interploteNormalizedVec3(time).scale(ratio).add(orig.scale(1.0 - ratio));
 		};
 	}
 
-	public static final Resolver resolver(TimeBasedColorLinearInterpolation color, TimeBasedColorLinearInterpolation weight) {
+	public static final Resolver resolver(ColorLinearInterpolation color, ColorLinearInterpolation weight) {
 		return (Vec3 orig, ClientLevel level, float partialTick, Holder<Biome> biome, Vec3 camPos, long time) -> {
-			Vec3 w = weight.interploteVec3f(time);
-			return color.interploteVec3f(time).multiply(w.x, w.y, w.z).add(orig.multiply(1.0 - w.x, 1.0 - w.y, 1.0 - w.z));
+			Vec3 w = weight.interploteNormalizedVec3(time);
+			return color.interploteNormalizedVec3(time).multiply(w.x, w.y, w.z).add(orig.multiply(1.0 - w.x, 1.0 - w.y, 1.0 - w.z));
 		};
 	}
 }

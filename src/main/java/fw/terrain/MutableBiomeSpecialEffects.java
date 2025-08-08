@@ -3,7 +3,7 @@ package fw.terrain;
 import java.util.Optional;
 import java.util.OptionalInt;
 
-import fw.client.render.color.TimeBasedColorLinearInterpolation;
+import fw.client.render.color.ColorLinearInterpolation;
 import fw.core.registry.registries.client.DynamicRegistries;
 import fw.event.LevelTickTrigger;
 import fw.event.LevelTrigger;
@@ -181,7 +181,7 @@ public class MutableBiomeSpecialEffects {
 		return this;
 	}
 
-	public MutableBiomeSpecialEffects tick(TimeBasedColorLinearInterpolation skyColor) {
+	public MutableBiomeSpecialEffects tick(ColorLinearInterpolation skyColor) {
 		return tick((Level level, long dayTime, MutableBiomeSpecialEffects effects) -> {
 			int color = skyColor.interplotePacked(dayTime);
 			effects.skyColor(color);

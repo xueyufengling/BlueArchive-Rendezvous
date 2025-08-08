@@ -1,6 +1,7 @@
 package fw.client.render.sky;
 
-import fw.client.render.color.TimeBasedColorLinearInterpolation;
+import fw.client.render.color.ColorLinearInterpolation;
+import fw.client.render.level.LevelColor;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.Holder;
 import net.minecraft.world.level.biome.Biome;
@@ -21,27 +22,27 @@ public class SkyColor {
 		return skyColor.resolve(orig, level, partialTick, biome, camPos, time);
 	}
 
-	public static final void setLevelSkyColorResolver(String levelKey, TimeBasedColorLinearInterpolation skyColor) {
+	public static final void setLevelSkyColorResolver(String levelKey, ColorLinearInterpolation skyColor) {
 		levelBasedResolver.addEntry(levelKey, LevelColor.resolver(skyColor));
 	}
 
-	public static final void setLevelSkyColorResolver(String levelKey, TimeBasedColorLinearInterpolation skyColor, double ratio) {
+	public static final void setLevelSkyColorResolver(String levelKey, ColorLinearInterpolation skyColor, double ratio) {
 		levelBasedResolver.addEntry(levelKey, LevelColor.resolver(skyColor, ratio));
 	}
 
-	public static final void setLevelSkyColorResolver(String levelKey, TimeBasedColorLinearInterpolation skyColor, TimeBasedColorLinearInterpolation weight) {
+	public static final void setLevelSkyColorResolver(String levelKey, ColorLinearInterpolation skyColor, ColorLinearInterpolation weight) {
 		levelBasedResolver.addEntry(levelKey, LevelColor.resolver(skyColor, weight));
 	}
 
-	public static final void setBiomeSkyColorResolver(String biomeKey, TimeBasedColorLinearInterpolation skyColor) {
+	public static final void setBiomeSkyColorResolver(String biomeKey, ColorLinearInterpolation skyColor) {
 		biomeBasedResolver.addEntry(biomeKey, LevelColor.resolver(skyColor));
 	}
 
-	public static final void setBiomeSkyColorResolver(String levelKey, TimeBasedColorLinearInterpolation skyColor, double ratio) {
+	public static final void setBiomeSkyColorResolver(String levelKey, ColorLinearInterpolation skyColor, double ratio) {
 		biomeBasedResolver.addEntry(levelKey, LevelColor.resolver(skyColor, ratio));
 	}
 
-	public static final void setBiomeSkyColorResolver(String levelKey, TimeBasedColorLinearInterpolation skyColor, TimeBasedColorLinearInterpolation weight) {
+	public static final void setBiomeSkyColorResolver(String levelKey, ColorLinearInterpolation skyColor, ColorLinearInterpolation weight) {
 		biomeBasedResolver.addEntry(levelKey, LevelColor.resolver(skyColor, weight));
 	}
 }

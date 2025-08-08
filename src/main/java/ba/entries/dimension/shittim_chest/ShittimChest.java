@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.OptionalLong;
 
 import ba.entries.biome.shittim_chest.ShittimChestBiomes;
-import fw.client.render.color.TimeBasedColorLinearInterpolation;
+import fw.client.render.color.ColorLinearInterpolation;
 import fw.client.render.sky.CloudColor;
 import fw.client.render.sky.SkyColor;
 import fw.core.ExecuteIn;
@@ -33,7 +33,7 @@ public class ShittimChest {
 	static {
 		RegistryDatagen.RegistriesProvider.forDatagen(ShittimChest.class);
 		ExecuteIn.Client(() -> {
-			CloudColor.setLevelCloudColorResolver("ba:shittim_chest", TimeBasedColorLinearInterpolation
+			CloudColor.setLevelCloudColorResolver("ba:shittim_chest", ColorLinearInterpolation
 					.begin(0, 214, 186, 159)// 6 h 灰黄
 					.append(3000, 208, 228, 243)// 9 h 灰白
 					.append(6000, 246, 242, 243)// 12 h 亮白
@@ -44,13 +44,13 @@ public class ShittimChest {
 					.append(21000, 68, 139, 203)// 3 h 灰
 			);
 			SkyColor.setLevelSkyColorResolver("ba:shittim_chest",
-					TimeBasedColorLinearInterpolation
+					ColorLinearInterpolation
 							.begin(3000, 90, 145, 198)// 9 h 灰蓝
 							.append(9000, 90, 145, 198)// 15 h 灰蓝
 							.append(15000, 67, 130, 195)// 21 h 夜晚蓝
 							.append(18000, 12, 29, 71)// 0 h 深黑蓝
 							.append(21000, 67, 130, 195), // 3 h 夜晚蓝
-					TimeBasedColorLinearInterpolation
+					ColorLinearInterpolation
 							.begin(3000, 16)// 9 h 灰蓝
 							.append(9000, 16)// 15 h 亮白
 							.append(15000, 128)// 21 h 紫
