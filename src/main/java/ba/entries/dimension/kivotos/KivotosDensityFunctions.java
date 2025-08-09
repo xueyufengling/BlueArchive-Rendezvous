@@ -8,7 +8,7 @@ import net.minecraft.world.level.levelgen.synth.BlendedNoise;
 
 public final class KivotosDensityFunctions {
 	static {
-		RegistryDatagen.RegistriesProvider.forDatagen(KivotosDensityFunctions.class);
+		RegistryDatagen.RegistriesProvider.forDatagen();
 	}
 
 	@RegistryDatagen

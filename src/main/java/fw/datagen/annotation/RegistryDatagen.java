@@ -15,6 +15,7 @@ import fw.core.registry.RegistryWalker;
 import fw.datagen.DatagenHolder;
 import lyra.klass.GenericTypes;
 import lyra.klass.KlassWalker;
+import lyra.lang.JavaLang;
 import lyra.lang.Reflection;
 import lyra.object.ObjectManipulator;
 import net.minecraft.core.Holder;
@@ -268,6 +269,11 @@ public @interface RegistryDatagen {
 		public static final void forDatagen(Class<?> registryClass) {
 			if (!registryClasses.contains(registryClass))
 				registryClasses.add(registryClass);
+		}
+
+		public static final void forDatagen() {
+			Class<?> caller = JavaLang.getCallerClass();
+			forDatagen(caller);
 		}
 	}
 }

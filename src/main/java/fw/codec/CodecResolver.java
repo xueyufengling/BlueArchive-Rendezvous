@@ -5,7 +5,6 @@ import java.lang.reflect.Type;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 
-import fw.codec.annotation.CodecAutogen.CodecGenerator;
 import net.minecraft.util.KeyDispatchDataCodec;
 
 /**
@@ -109,7 +108,7 @@ public interface CodecResolver<T> {
 		}
 
 		public final Codec<?> asCodec() {
-			return CodecGenerator.asCodec(codec);
+			return Codecs.asCodec(codec);
 		}
 
 		public static final Entry of(Object codec, Type type) {

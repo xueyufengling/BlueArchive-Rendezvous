@@ -12,6 +12,7 @@ import java.util.Map.Entry;
 import fw.core.Core;
 import fw.datagen.Localizable;
 import lyra.klass.KlassWalker;
+import lyra.lang.JavaLang;
 import net.minecraft.core.Holder;
 import net.minecraft.data.PackOutput;
 import net.neoforged.neoforge.common.data.LanguageProvider;
@@ -67,6 +68,11 @@ public @interface LangDatagen {
 		public static void forDatagen(Class<?> langClass) {
 			if (!langClasses.contains(langClass))
 				langClasses.add(langClass);
+		}
+
+		public static final void forDatagen() {
+			Class<?> caller = JavaLang.getCallerClass();
+			forDatagen(caller);
 		}
 
 		public static void addTranslation(String locale, String key, String value) {

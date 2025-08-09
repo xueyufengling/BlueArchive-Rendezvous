@@ -102,7 +102,7 @@ public class Core {
 	 */
 	@SubscribeEvent(priority = EventPriority.LOWEST)
 	private static final void postinit(FMLConstructModEvent event) {
-		CodecAutogen.CodecGenerator.autoGenerateCodecs();// 生成CODEC
+		CodecAutogen.CodecGenerator.generateCodecs();// 生成CODEC
 		RegistryFactory.registerAll();// 注册所有新添加的注册表及其条目
 		for (Runnable postinit : postinitFuncs)
 			postinit.run();

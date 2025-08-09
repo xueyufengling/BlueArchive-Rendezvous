@@ -13,7 +13,7 @@ public enum TerrainType {
 	CityArea(0),
 
 	/**
-	 * 屋外
+	 * 户外
 	 */
 	DesertArea(1),
 
@@ -23,7 +23,7 @@ public enum TerrainType {
 	IndoorArea(2);
 
 	static {
-		CodecAutogen.CodecGenerator.forCodec(TerrainType.class);
+		CodecAutogen.CodecGenerator.Codec();
 	}
 
 	@CodecAutogen

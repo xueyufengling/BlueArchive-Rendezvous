@@ -7,23 +7,21 @@ import java.util.stream.Stream;
 
 import com.mojang.serialization.MapCodec;
 
-import fw.codec.CodecWalker;
+import fw.codec.CodecHolder;
 import fw.codec.annotation.CodecEntry;
 import lyra.klass.GenericTypes;
 import lyra.klass.KlassWalker;
-import lyra.lang.Reflection;
 import lyra.object.Placeholders;
 import net.minecraft.core.Holder;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeSource;
 
-public abstract class ExtBiomeSource extends BiomeSource {
-
-	/**
-	 * 该派生类的CODEC，可以手动指定，没有手动指定则自动扫描PossibleBiomes
-	 */
-	protected MapCodec<? extends BiomeSource> derivedCodec = null;
+public abstract class ExtBiomeSource extends BiomeSource implements CodecHolder<BiomeSource> {
+	@Override
+	public MapCodec<? extends BiomeSource> codec() {
+		return CodecHolder.super.codec();
+	}
 
 	@CodecEntry
 	protected List<Holder<Biome>> possible_biomes_list;
@@ -35,11 +33,12 @@ public abstract class ExtBiomeSource extends BiomeSource {
 	 * @param possibleBiomeKeys
 	 */
 	public ExtBiomeSource(BootstrapContext<?> context, List<String> possibleBiomeKeys) {
+		CodecHolder.super.construct(BiomeSource.class);
 		resolvePossibleBiomes(context, possibleBiomeKeys);
 	}
 
 	public ExtBiomeSource(BootstrapContext<?> context) {
-		resolvePossibleBiomes(context, null);
+		this(context, null);
 	}
 
 	/**
@@ -48,28 +47,8 @@ public abstract class ExtBiomeSource extends BiomeSource {
 	 * @param possibleBiomesList
 	 */
 	public ExtBiomeSource(List<Holder<Biome>> possibleBiomesList) {
+		CodecHolder.super.construct(BiomeSource.class);
 		this.possible_biomes_list = possibleBiomesList;
-	}
-
-	/**
-	 * 在子类中搜寻MapCodec<br>
-	 * 数据生成和运行时均会调用，需要保证这两个阶段均构建好CODEC。
-	 */
-	@Override
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	protected MapCodec<? extends BiomeSource> codec() {
-		if (derivedCodec == null) {
-			CodecWalker.walkMapCodecs(this.getClass(), (Field f, MapCodec codec, Class<?> codecType) -> {
-				if (codec != null && Reflection.is(codecType, BiomeSource.class)) {
-					derivedCodec = codec;
-					return false;
-				}
-				return true;
-			});
-		}
-		if (derivedCodec == null)
-			throw new NullPointerException("BiomeSource CODEC for " + this.getClass() + " is null, make sure you have specified or generated a correct MapCodec.");
-		return derivedCodec;
 	}
 
 	/**
@@ -96,7 +75,7 @@ public abstract class ExtBiomeSource extends BiomeSource {
 				throw new IllegalStateException("Resolve possible biomes failed indicates that BootstrapContext is null.");
 			else {
 				for (String key : wrapper.value) {
-					possible_biomes_list.add(ExtBiome.datagenHolder(bootstrapContext, key));
+					possible_biomes_list.add(ExtBiome.datagenStageHolder(bootstrapContext, key));
 				}
 			}
 		}

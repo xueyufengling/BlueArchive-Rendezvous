@@ -12,10 +12,10 @@ import net.minecraft.world.level.levelgen.synth.SimplexNoise;
 public class KivotosDf implements DensityFunction.SimpleFunction {
 
 	static {
-		CodecAutogen.CodecGenerator.forCodec(KivotosDf.class);
+		CodecAutogen.CodecGenerator.Codec();
 	}
 
-	@CodecAutogen
+	@CodecAutogen(null_if_empty = true, warn_if_register_failed = true)
 	public static final KeyDispatchDataCodec<KivotosDf> CODEC = null;
 
 	@CodecEntry

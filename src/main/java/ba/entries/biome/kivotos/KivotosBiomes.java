@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.mojang.serialization.MapCodec;
 
+import fw.codec.CodecHolder;
 import fw.codec.annotation.CodecAutogen;
 import fw.terrain.ExtBiomeSource;
 import net.minecraft.core.Holder;
@@ -15,7 +16,7 @@ import net.minecraft.world.level.biome.Climate.Sampler;
 public class KivotosBiomes extends ExtBiomeSource {
 
 	static {
-		CodecAutogen.CodecGenerator.forCodec(KivotosBiomes.class);
+		CodecHolder.CODEC();
 	}
 
 	@CodecAutogen(null_if_empty = true)

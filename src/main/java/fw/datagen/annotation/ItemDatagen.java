@@ -9,6 +9,7 @@ import java.util.ArrayList;
 
 import fw.core.Core;
 import lyra.klass.KlassWalker;
+import lyra.lang.JavaLang;
 import lyra.lang.Reflection;
 import net.minecraft.data.PackOutput;
 import net.neoforged.neoforge.client.model.generators.ItemModelBuilder;
@@ -97,6 +98,11 @@ public @interface ItemDatagen {
 		public static final void forDatagen(Class<?> itemClass) {
 			if (!itemsClasses.contains(itemClass))
 				itemsClasses.add(itemClass);
+		}
+
+		public static final void forDatagen() {
+			Class<?> caller = JavaLang.getCallerClass();
+			forDatagen(caller);
 		}
 	}
 }

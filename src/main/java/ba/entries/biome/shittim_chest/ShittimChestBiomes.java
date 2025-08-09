@@ -4,6 +4,8 @@ import java.util.List;
 
 import com.mojang.serialization.MapCodec;
 
+import fw.client.render.level.MutableBiomeSpecialEffects;
+import fw.codec.CodecHolder;
 import fw.codec.annotation.CodecAutogen;
 import fw.core.ExecuteIn;
 import fw.datagen.DatagenHolder;
@@ -11,7 +13,6 @@ import fw.datagen.annotation.RegistryDatagen;
 import fw.math.ColorLinearInterpolation;
 import fw.terrain.ExtBiome;
 import fw.terrain.ExtBiomeSource;
-import fw.terrain.MutableBiomeSpecialEffects;
 import net.minecraft.core.Holder;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.world.level.biome.Biome;
@@ -25,8 +26,8 @@ public class ShittimChestBiomes extends ExtBiomeSource {
 	private static MutableBiomeSpecialEffects effects;
 
 	static {
-		CodecAutogen.CodecGenerator.forCodec(ShittimChestBiomes.class);
-		RegistryDatagen.RegistriesProvider.forDatagen(ShittimChestBiomes.class);
+		CodecHolder.CODEC();
+		RegistryDatagen.RegistriesProvider.forDatagen();
 		ExecuteIn.Client(() -> {
 			effects = MutableBiomeSpecialEffects.from("ba:shittim_chest");
 			effects.tick(ColorLinearInterpolation
@@ -42,7 +43,7 @@ public class ShittimChestBiomes extends ExtBiomeSource {
 		});
 	}
 
-	@CodecAutogen(null_if_empty = true)
+	@CodecAutogen(null_if_empty = true, warn_if_register_failed = true)
 	public static final MapCodec<? extends BiomeSource> CODEC = null;
 
 	protected static final List<String> biomes = List.of("ba:shittim_chest");
