@@ -9,6 +9,7 @@ import com.mojang.serialization.MapCodec;
 
 import fw.codec.CodecHolder;
 import fw.codec.annotation.CodecEntry;
+import fw.codec.annotation.CodecTarget;
 import lyra.klass.GenericTypes;
 import lyra.klass.KlassWalker;
 import lyra.object.Placeholders;
@@ -46,6 +47,7 @@ public abstract class ExtBiomeSource extends BiomeSource implements CodecHolder<
 	 * 
 	 * @param possibleBiomesList
 	 */
+	@CodecTarget
 	public ExtBiomeSource(List<Holder<Biome>> possibleBiomesList) {
 		CodecHolder.super.construct(BiomeSource.class);
 		this.possible_biomes_list = possibleBiomesList;

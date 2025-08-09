@@ -127,6 +127,9 @@ public @interface CodecAutogen {
 						"Expected constructor form: " + MemberName.constructorDescription(targetClass, __types) + ";");
 			Object CODEC = null;
 			switch (entries.size()) {
+			case 0:
+				CODEC = CodecFactory.emptyCodec(targetClass);
+				break;
 			case 1:
 				try {
 					CODEC = buildMethod.invoke((Function<RecordCodecBuilder.Instance, App>) (ins -> {
@@ -519,7 +522,7 @@ public @interface CodecAutogen {
 				}
 				break;
 			default:
-				throw new IllegalArgumentException("Invalid Codec entries count: " + entries.size() + ", should be in (0, 16]");
+				throw new IllegalArgumentException("Invalid Codec entries count: " + entries.size() + ", should be in [0, 16]");
 			}
 			return CODEC;
 		}
@@ -655,7 +658,7 @@ public @interface CodecAutogen {
 		public static final void forCodec(Class<?> targetClass, Class<?>... ctorTypes) {
 			if (!codecClasses.contains(targetClass)) {
 				codecClasses.add(targetClass);
-				if (ctorTypes.length != 0) {// 手动传入了参数则寻找构造函数，否则就遍历字段时寻找
+				if (CodecTarget.TypeChecker.check(targetClass, ctorTypes) && ctorTypes.length != 0) {// 通过了类型检查，且手动传入了参数则寻找构造函数，否则就遍历字段时寻找
 					MethodHandle ctor = HandleBase.findConstructor(targetClass, ctorTypes);
 					if (ctor == null)
 						throw new NullPointerException("Target CODEC constructor " + MethodType.methodType(targetClass, ctorTypes).toString() + " for class " + targetClass.getName() + " was not found.");
