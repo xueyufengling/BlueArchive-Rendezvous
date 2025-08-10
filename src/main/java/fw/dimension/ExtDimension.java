@@ -35,7 +35,7 @@ public class ExtDimension {
 	 * 地形生成器
 	 */
 	public static class Stem {
-		public static final DatagenHolder<LevelStem> register(String name, DatagenHolder.ValueSource<LevelStem> levelStem) {
+		public static final DatagenHolder<LevelStem> register(String name, DatagenHolder.BootstrapValue<LevelStem> levelStem) {
 			return DatagenHolder.of(Registries.LEVEL_STEM, name, levelStem);
 		}
 
@@ -69,7 +69,7 @@ public class ExtDimension {
 	 * 地形生成噪声
 	 */
 	public static class Noise {
-		public static final DatagenHolder<NoiseGeneratorSettings> register(String name, DatagenHolder.ValueSource<NoiseGeneratorSettings> noiseSettings) {
+		public static final DatagenHolder<NoiseGeneratorSettings> register(String name, DatagenHolder.BootstrapValue<NoiseGeneratorSettings> noiseSettings) {
 			return DatagenHolder.of(Registries.NOISE_SETTINGS, name, noiseSettings);
 		}
 	}

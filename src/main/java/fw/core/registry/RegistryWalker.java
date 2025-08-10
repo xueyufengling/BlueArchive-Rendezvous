@@ -3,6 +3,7 @@ package fw.core.registry;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import com.mojang.serialization.MapCodec;
 
@@ -26,17 +27,132 @@ public class RegistryWalker {
 		 * @param registryKey  注册表的键
 		 * @param registryType 注册表的值类型
 		 */
-		@SuppressWarnings("rawtypes")
-		public boolean operate(Field f, ResourceKey registryKey, Class<?> registryType);
+		public boolean operate(Field f, ResourceKey<? extends Registry<?>> registryKey, Class<?> registryType);
 	}
 
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static final void walkRegistries(RegistryOperation op) {
 		KlassWalker.walkTypeFields(Registries.class, ResourceKey.class, (Field f, boolean isStatic, ResourceKey registryKey) -> {
 			if (isStatic && registryKey != null) {
-				return op.operate(f, (ResourceKey) registryKey, getRegistryKeyType(f));
+				return op.operate(f, registryKey, getRegistryKeyType(f));
 			}
 			return true;
+		});
+	}
+
+	/**
+	 * 过滤掉Registries的ResourceKey字段，只有位于该Set内的字段才会被被添加到数据生成。<br>
+	 * Registries中的部分注册表可以通过数据包加载，这些注册表可以加入过滤器。那些不能通过数据包加载的，例如密度函数DENSITY_FUNCTION，物品ITEM等则不能用于数据生成。<br>
+	 * 见{@link net.minecraft.data.registries.VanillaRegistries}<br>
+	 * 参考runData时{@link net.minecraft.core.registries.BuiltInRegistries}{@code .REGISTRY}存在的注册表：<br>
+	 * minecraft:command_argument_type<br>
+	 * minecraft:decorated_pot_pattern<br>
+	 * minecraft:item<br>
+	 * neoforge:global_loot_modifier_serializers<br>
+	 * minecraft:block_entity_type<br>
+	 * minecraft:custom_stat<br>
+	 * minecraft:worldgen/foliage_placer_type<br>
+	 * minecraft:number_format_type<br>
+	 * minecraft:stat_type<br>
+	 * neoforge:ingredient_serializer<br>
+	 * minecraft:worldgen/material_rule<br>
+	 * minecraft:worldgen/structure_type<br>
+	 * minecraft:attribute<br>
+	 * minecraft:position_source_type<br>
+	 * minecraft:height_provider_type<br>
+	 * minecraft:data_component_type<br>
+	 * neoforge:fluid_ingredient_type<br>
+	 * minecraft:rule_block_entity_modifier<br>
+	 * neoforge:attachment_types<br>
+	 * minecraft:worldgen/density_function_type<br>
+	 * minecraft:fluid<br>
+	 * minecraft:loot_condition_type<br>
+	 * minecraft:worldgen/structure_pool_element<br>
+	 * minecraft:activity<br>
+	 * minecraft:block_type<br>
+	 * minecraft:recipe_serializer<br>
+	 * neoforge:fluid_type<br>
+	 * minecraft:enchantment_provider_type<br>
+	 * neoforge:biome_modifier_serializers<br>
+	 * minecraft:frog_variant<br>
+	 * minecraft:instrument<br>
+	 * neoforge:holder_set_type<br>
+	 * minecraft:worldgen/feature_size_type<br>
+	 * minecraft:point_of_interest_type<br>
+	 * minecraft:mob_effect<br>
+	 * minecraft:loot_pool_entry_type<br>
+	 * minecraft:worldgen/block_state_provider_type<br>
+	 * minecraft:worldgen/chunk_generator<br>
+	 * minecraft:float_provider_type<br>
+	 * minecraft:chunk_status<br>
+	 * minecraft:loot_function_type<br>
+	 * minecraft:worldgen/structure_processor<br>
+	 * minecraft:enchantment_effect_component_type<br>
+	 * minecraft:loot_score_provider_type<br>
+	 * minecraft:worldgen/tree_decorator_type<br>
+	 * minecraft:schedule<br>
+	 * minecraft:worldgen/material_condition<br>
+	 * minecraft:worldgen/pool_alias_binding<br>
+	 * minecraft:item_sub_predicate_type<br>
+	 * minecraft:entity_type<br>
+	 * minecraft:villager_profession<br>
+	 * minecraft:potion<br>
+	 * minecraft:enchantment_entity_effect_type<br>
+	 * minecraft:recipe_type<br>
+	 * minecraft:int_provider_type<br>
+	 * minecraft:worldgen/feature<br>
+	 * minecraft:enchantment_level_based_value_type<br>
+	 * minecraft:cat_variant<br>
+	 * minecraft:pos_rule_test<br>
+	 * minecraft:worldgen/structure_placement<br>
+	 * minecraft:enchantment_value_effect_type<br>
+	 * minecraft:loot_nbt_provider_type<br>
+	 * minecraft:menu<br>
+	 * minecraft:worldgen/trunk_placer_type<br>
+	 * minecraft:creative_mode_tab<br>
+	 * minecraft:entity_sub_predicate_type<br>
+	 * minecraft:enchantment_location_based_effect_type<br>
+	 * minecraft:worldgen/placement_modifier_type<br>
+	 * minecraft:worldgen/carver<br>
+	 * minecraft:loot_number_provider_type<br>
+	 * minecraft:worldgen/structure_piece<br>
+	 * minecraft:sound_event<br>
+	 * minecraft:particle_type<br>
+	 * minecraft:game_event<br>
+	 * minecraft:worldgen/biome_source<br>
+	 * neoforge:entity_data_serializers<br>
+	 * minecraft:worldgen/root_placer_type<br>
+	 * minecraft:villager_type<br>
+	 * minecraft:block_predicate_type<br>
+	 * minecraft:block<br>
+	 * neoforge:structure_modifier_serializers<br>
+	 * minecraft:trigger_type<br>
+	 * minecraft:sensor_type<br>
+	 * minecraft:rule_test<br>
+	 * minecraft:armor_material<br>
+	 * minecraft:map_decoration_type<br>
+	 * minecraft:memory_module_type<br>
+	 * neoforge:condition_codecs<br>
+	 */
+	public static final Set<String> bootstrapRegistryFieldsFilter = Set.of(
+			"DIMENSION_TYPE",
+			"LEVEL_STEM",
+			"DENSITY_FUNCTION",
+			"NOISE_SETTINGS",
+			"BIOME",
+			"STRUCTURE_TYPE");
+
+	/**
+	 * 数据注册阶段安全地遍历所有可用注册表
+	 * 
+	 * @param op
+	 */
+	public static final void walkBootstrapRegistries(RegistryOperation op) {
+		walkRegistries((Field f, ResourceKey<? extends Registry<?>> registryKey, Class<?> registryType) -> {
+			if (bootstrapRegistryFieldsFilter.contains(f.getName()))
+				return op.operate(f, registryKey, registryType);
+			else
+				return true;
 		});
 	}
 
@@ -60,7 +176,7 @@ public class RegistryWalker {
 	 */
 	@SuppressWarnings("rawtypes")
 	public static final void walkMapCodecRegistries(MapCodecRegistryOperation op) {
-		walkRegistries((Field f, ResourceKey registryKey, Class<?> registryType) -> {
+		walkRegistries((Field f, ResourceKey<? extends Registry<?>> registryKey, Class<?> registryType) -> {
 			if (Reflection.is(registryType, MapCodec.class)) {
 				return op.operate(f, (ResourceKey) registryKey, getMapCodecRegistryType(f));
 			}
@@ -92,10 +208,10 @@ public class RegistryWalker {
 		return GenericTypes.classes(registryKeyField, 0, 0)[0].type();
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@SuppressWarnings({ "unchecked" })
 	public static Class<?> getRegistryKeyType(ResourceKey<? extends Registry<?>> regKey) {
 		TypeWrapper<Class<?>> wrapper = TypeWrapper.wrap();
-		RegistryWalker.walkRegistries((Field f, ResourceKey registryKey, Class<?> registryType) -> {// 获取Registry key对应的值类型registryType
+		RegistryWalker.walkRegistries((Field f, ResourceKey<? extends Registry<?>> registryKey, Class<?> registryType) -> {// 获取Registry key对应的值类型registryType
 			if (registryKey == regKey) {
 				wrapper.value = registryType;
 				return false;
@@ -115,10 +231,10 @@ public class RegistryWalker {
 	 * @param regKey
 	 * @return
 	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@SuppressWarnings({ "unchecked" })
 	public static String getRegistryFieldName(ResourceKey<? extends Registry<?>> regKey) {
 		TypeWrapper<String> wrapper = TypeWrapper.wrap();
-		RegistryWalker.walkRegistries((Field f, ResourceKey registryKey, Class<?> registryType) -> {
+		RegistryWalker.walkRegistries((Field f, ResourceKey<? extends Registry<?>> registryKey, Class<?> registryType) -> {
 			if (registryKey == regKey) {
 				wrapper.value = f.getName();
 				return false;
@@ -155,10 +271,10 @@ public class RegistryWalker {
 	 * @param regKey
 	 * @return
 	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@SuppressWarnings({ "unchecked" })
 	public static RegistryInfo getRegistryInfo(ResourceKey<? extends Registry<?>> regKey) {
 		TypeWrapper<RegistryInfo> wrapper = TypeWrapper.wrap();
-		RegistryWalker.walkRegistries((Field f, ResourceKey registryKey, Class<?> registryType) -> {
+		RegistryWalker.walkRegistries((Field f, ResourceKey<? extends Registry<?>> registryKey, Class<?> registryType) -> {
 			if (registryKey == regKey) {
 				wrapper.value = new RegistryInfo(regKey, f.getName(), registryType);
 				return false;

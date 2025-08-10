@@ -30,7 +30,7 @@ public interface CodecHolder<O> extends BaseClass<CodecHolder.DerivedCodec<O>> {
 		 */
 		public MapCodec<? extends O> codec(CodecHolder<O> holder) {
 			if (derivedCodec == null)
-				derivedCodec = CodecFactory.accessMapCodec(holder.getClass(), codecClass);
+				derivedCodec = Codecs.accessMapCodec(holder.getClass(), codecClass);
 			return derivedCodec;
 		}
 	}

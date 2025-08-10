@@ -25,7 +25,7 @@ public class ModEntry {
 
 	static {
 		LangDatagen.LangProvider.genLangs(Translation.EN_US, Translation.ZH_CN);
-		ModInit.Initializer.forInit(ModEntry.class);
+		ModInit.Initializer.forInit();
 	}
 
 	@ModInit
@@ -40,6 +40,6 @@ public class ModEntry {
 		Logger.info("Loaded entries class");
 		Dimensions.removeTheNether(true);
 		Dimensions.removeTheEnd(true);
-		//Dimensions.redirectOverworldMod(ShittimChest.ID);
+		Dimensions.redirectOverworldMod(ShittimChest.ID);
 	}
 }

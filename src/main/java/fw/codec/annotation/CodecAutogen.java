@@ -16,7 +16,6 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
-import fw.codec.CodecFactory;
 import fw.codec.Codecs;
 import fw.core.Core;
 import fw.core.registry.RegistryFactory;
@@ -114,9 +113,9 @@ public @interface CodecAutogen {
 				else {
 					Class<?> ret = buildMethod.type().returnType();
 					if (ret == Codec.class)
-						return CodecFactory.emptyCodec(targetClass);
+						return Codecs.emptyCodec(targetClass);
 					else if (ret == MapCodec.class)
-						return CodecFactory.emptyMapCodec(targetClass);
+						return Codecs.emptyMapCodec(targetClass);
 				}
 			}
 			Class<?>[] __types = new Class<?>[arg_types.size()];
@@ -128,7 +127,7 @@ public @interface CodecAutogen {
 			Object CODEC = null;
 			switch (entries.size()) {
 			case 0:
-				CODEC = CodecFactory.emptyCodec(targetClass);
+				CODEC = Codecs.emptyCodec(targetClass);
 				break;
 			case 1:
 				try {

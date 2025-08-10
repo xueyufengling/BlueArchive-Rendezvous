@@ -9,6 +9,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 
 import lyra.klass.KlassWalker;
+import lyra.lang.JavaLang;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.IEventBus;
@@ -43,7 +44,7 @@ public @interface ModInit {
 			ModContainer mod = Core.Mod;
 			IEventBus bus = Core.ModBus;
 			Dist dist = Core.Env;
-			for (Class<?> modInitClass : modInitClasses)
+			for (Class<?> modInitClass : modInitClasses) {
 				KlassWalker.walkAnnotatedMethods(modInitClass, ModInit.class, (Method m, boolean isStatic, Object obj, ModInit annotation) -> {
 					if (isStatic) {
 						Dist[] env = annotation.env();
@@ -72,6 +73,7 @@ public @interface ModInit {
 					}
 					return true;
 				});
+			}
 		}
 
 		/**
@@ -81,6 +83,11 @@ public @interface ModInit {
 		 */
 		public static final void forInit(Class<?> modInitCls) {
 			modInitClasses.add(modInitCls);
+		}
+
+		public static final void forInit() {
+			Class<?> caller = JavaLang.getOuterCallerClass();
+			forInit(caller);
 		}
 	}
 }

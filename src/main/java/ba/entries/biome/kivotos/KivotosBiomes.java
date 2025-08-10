@@ -6,7 +6,7 @@ import com.mojang.serialization.MapCodec;
 
 import fw.codec.CodecHolder;
 import fw.codec.annotation.CodecAutogen;
-import fw.terrain.ExtBiomeSource;
+import fw.terrain.biome.ExtBiomeSource;
 import net.minecraft.core.Holder;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.world.level.biome.Biome;

@@ -28,7 +28,7 @@ import net.minecraft.world.level.levelgen.NoiseSettings;
 
 public class Kivotos {
 	static {
-		RegistryDatagen.RegistriesProvider.forDatagen(Kivotos.class);
+		RegistryDatagen.RegistriesProvider.forDatagen();
 	}
 
 	public static final String ID = "kivotos";
@@ -63,7 +63,7 @@ public class Kivotos {
 	 * 噪声地形生成器
 	 */
 	@RegistryDatagen
-	public static final DatagenHolder<NoiseGeneratorSettings> NOISE_SETTINGS = ExtDimension.Noise.register(ID, (BootstrapContext<NoiseGeneratorSettings> context) -> {
+	public static final DatagenHolder<NoiseGeneratorSettings> NOISE_SETTINGS = ExtDimension.Noise.register(ID, (BootstrapContext<?> context) -> {
 		Df df = Df.of(context);
 
 		NoiseSettings noise = NoiseSettings.create(
@@ -119,7 +119,7 @@ public class Kivotos {
 	});
 
 	@RegistryDatagen
-	public static final DatagenHolder<LevelStem> LEVEL_STEM = ExtDimension.Stem.register(ID, (BootstrapContext<LevelStem> context) -> {
+	public static final DatagenHolder<LevelStem> LEVEL_STEM = ExtDimension.Stem.register(ID, (BootstrapContext<?> context) -> {
 		HolderGetter<DimensionType> dimensionTypes = context.lookup(Registries.DIMENSION_TYPE);
 		HolderGetter<NoiseGeneratorSettings> noiseSettings = context.lookup(Registries.NOISE_SETTINGS);
 		Holder<DimensionType> dimType = dimensionTypes.getOrThrow(DIMENSION_TYPE.resourceKey);

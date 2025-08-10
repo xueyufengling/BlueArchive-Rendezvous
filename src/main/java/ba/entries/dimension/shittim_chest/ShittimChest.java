@@ -32,7 +32,7 @@ import net.minecraft.world.level.levelgen.NoiseSettings;
 
 public class ShittimChest {
 	static {
-		RegistryDatagen.RegistriesProvider.forDatagen(ShittimChest.class);
+		RegistryDatagen.RegistriesProvider.forDatagen();
 		ExecuteIn.Client(() -> {
 			CloudColor.setLevelCloudColorResolver("ba:shittim_chest", ColorLinearInterpolation
 					.begin(0, 214, 186, 159)// 6 h 灰黄
@@ -93,7 +93,7 @@ public class ShittimChest {
 	 * 噪声地形生成器
 	 */
 	@RegistryDatagen
-	public static final DatagenHolder<NoiseGeneratorSettings> NOISE_SETTINGS = ExtDimension.Noise.register(ID, (BootstrapContext<NoiseGeneratorSettings> context) -> {
+	public static final DatagenHolder<NoiseGeneratorSettings> NOISE_SETTINGS = ExtDimension.Noise.register(ID, (BootstrapContext<?> context) -> {
 		NoiseSettings noise = NoiseSettings.create(
 				MIN_Y,
 				HEIGHT,
@@ -133,7 +133,7 @@ public class ShittimChest {
 	});
 
 	@RegistryDatagen
-	public static final DatagenHolder<LevelStem> LEVEL_STEM = ExtDimension.Stem.register(ID, (BootstrapContext<LevelStem> context) -> {
+	public static final DatagenHolder<LevelStem> LEVEL_STEM = ExtDimension.Stem.register(ID, (BootstrapContext<?> context) -> {
 		HolderGetter<DimensionType> dimensionTypes = context.lookup(Registries.DIMENSION_TYPE);
 		HolderGetter<NoiseGeneratorSettings> noiseSettings = context.lookup(Registries.NOISE_SETTINGS);
 		Holder<DimensionType> dimType = dimensionTypes.getOrThrow(DIMENSION_TYPE.resourceKey);

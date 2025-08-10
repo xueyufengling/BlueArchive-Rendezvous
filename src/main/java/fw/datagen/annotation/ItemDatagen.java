@@ -101,7 +101,7 @@ public @interface ItemDatagen {
 		}
 
 		public static final void forDatagen() {
-			Class<?> caller = JavaLang.getCallerClass();
+			Class<?> caller = JavaLang.getOuterCallerClass();
 			forDatagen(caller);
 		}
 	}

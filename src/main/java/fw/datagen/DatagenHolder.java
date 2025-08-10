@@ -1,22 +1,32 @@
 package fw.datagen;
 
+import java.util.ArrayList;
+import java.util.Optional;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
+
+import com.mojang.datafixers.util.Either;
+
 import fw.core.Core;
 import fw.core.registry.MappedRegistryAccess;
 import fw.resources.ResourceKeyBuilder;
 import net.minecraft.core.Holder;
+import net.minecraft.core.HolderOwner;
 import net.minecraft.core.Registry;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
 import net.neoforged.neoforge.registries.DeferredHolder;
 
-public class DatagenHolder<T> {
+public class DatagenHolder<T> implements Holder<T> {
 	@FunctionalInterface
-	public static interface ValueSource<T> {
-		public T value(BootstrapContext<T> context);
+	public static interface BootstrapValue<T> {
+		public T value(BootstrapContext<?> context);
 	}
 
 	public final String namespace;
@@ -26,17 +36,19 @@ public class DatagenHolder<T> {
 	 */
 	private T value;
 	public final ResourceKey<T> resourceKey;
+
+	public final ArrayList<TagKey<T>> tags = new ArrayList<>();
 	/**
 	 * 仅用于数据生成，需要BootstrapContext。如果value没有直接赋值，那么就在数据生成阶段采用该函数计算value的值。
 	 */
-	private final ValueSource<T> valueSource;
+	private final BootstrapValue<T> valueSource;
 	/**
 	 * 不需要BootstrapContext的值，将直接注册到DeferredRegister
 	 */
 	public final DeferredHolder<T, T> deferredHolder;
 	public final ResourceKey<? extends Registry<T>> registryKey;
 
-	private DatagenHolder(ResourceKey<? extends Registry<T>> registryKey, String namespace, String path, ValueSource<T> valueSource, DeferredHolder<T, T> deferredHolder, T value) {
+	private DatagenHolder(ResourceKey<? extends Registry<T>> registryKey, String namespace, String path, BootstrapValue<T> valueSource, DeferredHolder<T, T> deferredHolder, T value) {
 		this.registryKey = registryKey;
 		this.namespace = namespace;
 		this.path = path;
@@ -124,7 +136,7 @@ public class DatagenHolder<T> {
 	 * @param valueSource
 	 * @return
 	 */
-	public static final <T> DatagenHolder<T> of(ResourceKey<? extends Registry<T>> registryKey, String namespace, String path, ValueSource<T> valueSource) {
+	public static final <T> DatagenHolder<T> of(ResourceKey<? extends Registry<T>> registryKey, String namespace, String path, BootstrapValue<T> valueSource) {
 		return new DatagenHolder<>(registryKey, namespace, path, valueSource, null, null);
 	}
 
@@ -132,12 +144,70 @@ public class DatagenHolder<T> {
 		return of(registryKey, Core.ModId, path, value);
 	}
 
-	public static final <T> DatagenHolder<T> of(ResourceKey<? extends Registry<T>> registryKey, String path, ValueSource<T> valueSource) {
+	public static final <T> DatagenHolder<T> of(ResourceKey<? extends Registry<T>> registryKey, String path, BootstrapValue<T> valueSource) {
 		return of(registryKey, Core.ModId, path, valueSource);
 	}
 
 	@Override
 	public String toString() {
 		return "{key=" + resourceKey + ", value=" + value + ", deferredHolder=" + deferredHolder + ", isBound=" + (deferredHolder == null ? false : deferredHolder.isBound()) + "}";
+	}
+
+	@Override
+	public boolean isBound() {
+		if (deferredHolder != null)
+			return deferredHolder.isBound();
+		else
+			return registry() != null;
+	}
+
+	@Override
+	public boolean is(ResourceLocation location) {
+		return this.resourceKey.location().equals(location);
+	}
+
+	@Override
+	public boolean is(ResourceKey<T> resourceKey) {
+		return this.resourceKey.equals(resourceKey);
+	}
+
+	@Override
+	public boolean is(Predicate<ResourceKey<T>> predicate) {
+		return predicate.test(resourceKey);
+	}
+
+	@Override
+	public boolean is(TagKey<T> tagKey) {
+		return tags.contains(tagKey);
+	}
+
+	@Override
+	public boolean is(Holder<T> holder) {
+		return this.resourceKey.equals(holder.getKey());
+	}
+
+	@Override
+	public Stream<TagKey<T>> tags() {
+		return this.tags.parallelStream();
+	}
+
+	@Override
+	public Either<ResourceKey<T>, T> unwrap() {
+		return Either.left(this.resourceKey);
+	}
+
+	@Override
+	public Optional<ResourceKey<T>> unwrapKey() {
+		return this.resourceKey == null ? Optional.empty() : Optional.of(this.resourceKey);
+	}
+
+	@Override
+	public Kind kind() {
+		return Kind.REFERENCE;
+	}
+
+	@Override
+	public boolean canSerializeIn(HolderOwner<T> owner) {
+		return owner.canSerializeIn(this.registry().holderOwner());
 	}
 }

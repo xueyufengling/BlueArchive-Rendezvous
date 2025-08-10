@@ -35,27 +35,28 @@ public @interface CodecEntry {
 	 * 
 	 * @return
 	 */
-	String key()
-
-	default fieldName;
+	String key() default fieldName;
 
 	/**
 	 * 该键的路径，使用pathSeparator分割，用于创建嵌套
 	 * 
 	 * @return
 	 */
-	String path()
-
-	default "";
+	String path() default "";
 
 	/**
 	 * 是否是可选字段
 	 * 
 	 * @return
 	 */
-	CodecResolver.Entry.Type type()
+	CodecResolver.Entry.Type type() default CodecResolver.Entry.Type.DEFAULT;
 
-	default CodecResolver.Entry.Type.DEFAULT;
+	/**
+	 * 当未找到该注解字段类型的CODEC时，是否采用默认的空MapCodec
+	 * 
+	 * @return
+	 */
+	boolean empty_codec_if_not_exist() default false;
 
 	/**
 	 * 附带参数
@@ -97,7 +98,7 @@ public @interface CodecEntry {
 			String key = params.key();
 			if (key.equals(CodecEntry.fieldName))
 				key = f.getName();
-			CodecResolver.Entry entry = Codecs.getCodec(field_type, f.getGenericType(), params);
+			CodecResolver.Entry entry = Codecs.getCodec(field_type, f.getGenericType(), params.empty_codec_if_not_exist(), params);
 			CodecResolver.Entry.Type fc_type = CodecResolver.Entry.Type.resolve(params.type(), entry.type);// 是否已经绑定了字段名称
 			Codec<?> field_codec = Codecs.asCodec(entry.codec);
 			if (field_codec == null)

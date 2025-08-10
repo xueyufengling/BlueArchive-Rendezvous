@@ -7,12 +7,13 @@ import com.mojang.serialization.MapCodec;
 import fw.client.render.level.MutableBiomeSpecialEffects;
 import fw.codec.CodecHolder;
 import fw.codec.annotation.CodecAutogen;
+import fw.codec.annotation.CodecTarget;
 import fw.core.ExecuteIn;
 import fw.datagen.DatagenHolder;
 import fw.datagen.annotation.RegistryDatagen;
 import fw.math.ColorLinearInterpolation;
-import fw.terrain.ExtBiome;
-import fw.terrain.ExtBiomeSource;
+import fw.terrain.biome.ExtBiome;
+import fw.terrain.biome.ExtBiomeSource;
 import net.minecraft.core.Holder;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.world.level.biome.Biome;
@@ -67,6 +68,7 @@ public class ShittimChestBiomes extends ExtBiomeSource {
 		super(context);
 	}
 
+	@CodecTarget
 	public ShittimChestBiomes(List<Holder<Biome>> possibleBiomesList) {
 		super(possibleBiomesList);
 	}

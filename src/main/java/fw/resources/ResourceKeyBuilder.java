@@ -6,6 +6,9 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 
+/**
+ * 创建ResourceKey，用于注册表条目命名
+ */
 public class ResourceKeyBuilder {
 	/**
 	 * 从一个resource_key生成相同路径的其他registry_key下的值

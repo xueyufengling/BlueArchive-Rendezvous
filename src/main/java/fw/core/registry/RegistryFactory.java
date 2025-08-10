@@ -48,12 +48,13 @@ public class RegistryFactory {
 	 * 如果有注册表已经被注册到ModBus，那么将忽略该注册表。
 	 * 
 	 * @param <T>
-	 * @param registry
+	 * @param registryKey
+	 * @param modId
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T> DeferredRegister<T> deferredRegister(ResourceKey<? extends Registry<T>> resource_key, String modId) {
-		DeferredRegister<T> deferredRegister = (DeferredRegister<T>) registries.computeIfPresent(resource_key, modId, (ResourceKey<?> resKey, String mod_id) -> {
+	public static <T> DeferredRegister<T> deferredRegister(ResourceKey<? extends Registry<T>> registryKey, String modId) {
+		DeferredRegister<T> deferredRegister = (DeferredRegister<T>) registries.computeIfPresent(registryKey, modId, (ResourceKey<?> resKey, String mod_id) -> {
 			if (resKey == Registries.ITEM)
 				return DeferredRegister.createItems(mod_id);
 			else if (resKey == Registries.BLOCK)
@@ -64,8 +65,8 @@ public class RegistryFactory {
 		return deferredRegister;
 	}
 
-	public static <T> DeferredRegister<T> deferredRegister(ResourceKey<? extends Registry<T>> resource_key) {
-		return deferredRegister(resource_key, Core.ModId);
+	public static <T> DeferredRegister<T> deferredRegister(ResourceKey<? extends Registry<T>> registryKey) {
+		return deferredRegister(registryKey, Core.ModId);
 	}
 
 	public static void register(DeferredRegister<?> register, IEventBus modBus) {
@@ -97,7 +98,7 @@ public class RegistryFactory {
 	 */
 	public static void registerAll(IEventBus modBus) {
 		for (DeferredRegister<?> register : registries.values()) {
-			Core.logInfo("Auto registered registry " + register.getRegistryKey());
+			Core.logInfo("Registered registry " + register.getRegistryKey().location());
 			register(register, modBus);
 		}
 	}

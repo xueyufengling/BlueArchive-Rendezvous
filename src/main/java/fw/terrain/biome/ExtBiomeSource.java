@@ -1,4 +1,4 @@
-package fw.terrain;
+package fw.terrain.biome;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;

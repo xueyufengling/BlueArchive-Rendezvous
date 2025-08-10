@@ -50,6 +50,8 @@ public @interface CodecTarget {
 				}
 				return true;
 			});
+			if (target.value == null)// 若目标类没有标记CodecTarget的构造函数，则通过检查
+				return true;
 			CodecTarget anno = info.value;
 			boolean eq = Arrays.equals(ctorTypes, target.value.getParameterTypes());
 			eq = anno.instant_check() ? eq : true;// 如果未启用instant_check，则始终可以通过该类型检查方法

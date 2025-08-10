@@ -116,7 +116,7 @@ public class MappedRegistriesClassFileGenerator {
 		private static void onServerStarted(ServerStartedEvent event) {
 			if (gen_file && !Files.exists(Paths.get(dynamicClassPath())) || override_dynamic) {// 动态注册表java源文件存在则且不覆写则不再生成
 				ArrayList<ResourceKey<? extends Registry<?>>> dynamicRegistries = new ArrayList<>();
-				RegistryWalker.walkRegistries((Field f, ResourceKey registryKey, Class<?> registryType) -> {
+				RegistryWalker.walkRegistries((Field f, ResourceKey<? extends Registry<?>> registryKey, Class<?> registryType) -> {
 					if (!BootstrapGenerator.bootstrapRegistries.contains(registryKey))
 						dynamicRegistries.add(registryKey);
 					return true;
