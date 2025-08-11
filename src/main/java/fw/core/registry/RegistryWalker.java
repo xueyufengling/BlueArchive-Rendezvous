@@ -135,12 +135,53 @@ public class RegistryWalker {
 	 * neoforge:condition_codecs<br>
 	 */
 	public static final Set<String> bootstrapRegistryFieldsFilter = Set.of(
-			"DIMENSION_TYPE",
-			"LEVEL_STEM",
-			"DENSITY_FUNCTION",
-			"NOISE_SETTINGS",
 			"BIOME",
-			"STRUCTURE_TYPE");
+			"CONFIGURED_FEATURE",
+			"DAMAGE_TYPE",
+			"DIMENSION_TYPE",
+			"DENSITY_FUNCTION",
+			"JUKEBOX_SONG",
+			"LEVEL_STEM",
+			"PLACED_FEATURE",
+			"PROCESSOR_LIST",
+			"STRUCTURE_SET",
+			"NOISE",
+			"NOISE_SETTINGS",
+			"STRUCTURE",
+			"TRIM_MATERIAL");
+
+	public static final void walkFilteredRegistries(Set<String> filterMap, RegistryOperation op) {
+		walkRegistries((Field f, ResourceKey<? extends Registry<?>> registryKey, Class<?> registryType) -> {
+			if (filterMap.contains(f.getName()))
+				return op.operate(f, registryKey, registryType);
+			else
+				return true;
+		});
+	}
+
+	/**
+	 * 遍历targetRegistryType类型的注册表，可能不止一个，例如MapCodec类型的注册表就不止一个，靠嵌套泛型参数区分。
+	 * 
+	 * @param targetRegistryType
+	 * @param op
+	 */
+	public static final void walkTypeRegistries(Class<?> targetRegistryType, RegistryOperation op) {
+		walkRegistries((Field f, ResourceKey<? extends Registry<?>> registryKey, Class<?> registryType) -> {
+			if (Reflection.is(registryType, targetRegistryType))
+				return op.operate(f, registryKey, registryType);
+			else
+				return true;
+		});
+	}
+
+	public static final void accessRegistry(Class<?> targetRegistryType, RegistryOperation op) {
+		walkRegistries((Field f, ResourceKey<? extends Registry<?>> registryKey, Class<?> registryType) -> {
+			if (Reflection.is(registryType, targetRegistryType))
+				return op.operate(f, registryKey, registryType);
+			else
+				return true;
+		});
+	}
 
 	/**
 	 * 数据注册阶段安全地遍历所有可用注册表
@@ -148,12 +189,7 @@ public class RegistryWalker {
 	 * @param op
 	 */
 	public static final void walkBootstrapRegistries(RegistryOperation op) {
-		walkRegistries((Field f, ResourceKey<? extends Registry<?>> registryKey, Class<?> registryType) -> {
-			if (bootstrapRegistryFieldsFilter.contains(f.getName()))
-				return op.operate(f, registryKey, registryType);
-			else
-				return true;
-		});
+		walkFilteredRegistries(bootstrapRegistryFieldsFilter, op);
 	}
 
 	@FunctionalInterface

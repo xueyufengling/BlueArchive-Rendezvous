@@ -1,12 +1,15 @@
 package fw.datagen;
 
 import java.util.ArrayList;
+import java.util.concurrent.CompletableFuture;
 
 import fw.core.Core;
 import fw.datagen.annotation.ItemDatagen;
 import fw.datagen.annotation.LangDatagen;
 import fw.datagen.annotation.RegistryDatagen;
+import fw.datagen.internal.ExtTagsProvider;
 import lyra.object.ObjectManipulator;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -23,9 +26,11 @@ public class ExtDataGenerator {
 		DataGenerator generator = event.getGenerator();
 		PackOutput output = generator.getPackOutput();
 		ExistingFileHelper helper = event.getExistingFileHelper();
+		CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();
 		// 注册表内容生成
-		RegistryDatagen.RegistriesProvider registriesProvider = new RegistryDatagen.RegistriesProvider(output, event.getLookupProvider());
-		generator.addProvider(true, registriesProvider);
+		RegistryDatagen.RegistriesProvider registriesProvider = new RegistryDatagen.RegistriesProvider(output, lookupProvider);
+		generator.addProvider(event.includeServer(), registriesProvider);
+		ExtTagsProvider.addProvider(generator, event.includeServer(), output, registriesProvider, helper);
 		// 物品数据生成
 		generator.addProvider(event.includeClient(), new ItemDatagen.ModelProvider(output, helper));
 		ArrayList<String> genLangs = (ArrayList<String>) ObjectManipulator.access(LangDatagen.LangProvider.class, "genLangs");

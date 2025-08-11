@@ -309,22 +309,18 @@ public abstract class ExtStructure extends Structure implements CodecHolder<Stru
 	 * 结构生成的设置。<br>
 	 */
 	public static class Settings {
+
+		public static final HolderSet<Biome> validBiomes(BootstrapContext<?> context, String... biomes) {
+			return HolderSets.build(context, Registries.BIOME, biomes);
+		}
+
 		/**
-		 * 获取或创建指定生物群系，如果tagName已存在则忽略biomes参数；<br>
-		 * 若不存在则以biomes为集合元素创建新的HolderSet。<br>
+		 * 查找指定tag的HolderSet，若该tag不存在则会抛出NullPointerException
 		 * 
+		 * @param context
 		 * @param tagName
-		 * @param biomes
 		 * @return
 		 */
-		public static final HolderSet<Biome> validTagBiomes(String tagName, String... biomes) {
-			return HolderSets.createIfAbsent(tagName, Registries.BIOME, biomes);
-		}
-
-		public static final HolderSet<Biome> validBiomes(String... biomes) {
-			return HolderSets.build(Registries.BIOME, biomes);
-		}
-
 		public static final HolderSet<Biome> validTagBiomes(BootstrapContext<?> context, String tagName) {
 			return HolderSets.get(context, Registries.BIOME, tagName);
 		}

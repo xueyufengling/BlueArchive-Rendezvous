@@ -52,12 +52,12 @@ public class AronaClassRoom extends ExtStructure {
 	}
 
 	public static final String ID = "arona_class_room";
-/*
+
 	@RegistryDatagen
 	public static final DatagenHolder<Structure> ARONA_CLASS_ROOM = ExtStructure.register(ID, (BootstrapContext<?> context) -> {
 		return new AronaClassRoom(context);
 	});
-*/
+
 	@RegistryDatagen
 	public static final DatagenHolder<StructureType<?>> ARONA_CLASS_ROOM_TYPE = ExtStructure.Type.register(ID, (BootstrapContext<?> context) -> {
 		return ExtStructure.Type.build(CODEC);
@@ -65,7 +65,7 @@ public class AronaClassRoom extends ExtStructure {
 
 	public AronaClassRoom(BootstrapContext<?> context) {
 		super(Settings.of(
-				Settings.validTagBiomes(context, "arona_class_room_biomes"),
+				Settings.validTagBiomes(context, "ba:shittim_chest"),
 				Settings.spawnOverrides(),
 				GenerationStep.Decoration.SURFACE_STRUCTURES,
 				TerrainAdjustment.NONE),
