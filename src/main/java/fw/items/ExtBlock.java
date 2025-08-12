@@ -17,6 +17,6 @@ public class ExtBlock extends Block implements Localizable {
 
 	@Override
 	public String localizationKey() {
-		return this.getDescriptionId();
+		return Localizable.stdLocalizationKey(this.getDescriptionId());
 	}
 }

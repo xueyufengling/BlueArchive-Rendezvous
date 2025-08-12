@@ -8,9 +8,11 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 
 import fw.core.Core;
+import fw.core.registry.RegistryMap;
 import lyra.klass.KlassWalker;
 import lyra.lang.JavaLang;
 import lyra.lang.Reflection;
+import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
 import net.neoforged.neoforge.client.model.generators.ItemModelBuilder;
 import net.neoforged.neoforge.client.model.generators.ItemModelProvider;
@@ -50,24 +52,27 @@ public @interface ItemDatagen {
 	public static class ModelProvider extends ItemModelProvider {
 		private static final ArrayList<Class<?>> itemsClasses = new ArrayList<>();
 
-		public ModelProvider(PackOutput output, ExistingFileHelper helper) {
-			super(output, Core.ModId, helper);
+		private ModelProvider(PackOutput output, String namespace, ExistingFileHelper helper) {
+			super(output, namespace, helper);
 		}
 
 		@SuppressWarnings("rawtypes")
 		protected void registerModels(Class<?> itemClass) {
 			KlassWalker.walkAnnotatedFields(itemClass, ItemDatagen.class, (Field f, boolean isStatic, Object value, ItemDatagen annotation) -> {
 				if (isStatic && Reflection.is(f, DeferredItem.class) && value != null) {
-					String tex_name = annotation.tex_name();
-					if (tex_name.equals(registeredName))
-						tex_name = ((DeferredItem) value).getId().getPath();
-					switch (annotation.model_type()) {
-					case "generated":
-						asGeneratedItem(tex_name, annotation.tex_path());
-						break;
-					case "block":
-						asBlockItem(tex_name, annotation.tex_path());
-						break;
+					DeferredItem item = (DeferredItem) value;
+					if (item.getKey().location().getNamespace().equals(this.modid)) {// 物品对应材质文件只在物品注册的命名空间查找
+						String tex_name = annotation.tex_name();
+						if (tex_name.equals(registeredName))
+							tex_name = item.getId().getPath();
+						switch (annotation.model_type()) {
+						case "generated":
+							asGeneratedItem(tex_name, annotation.tex_path());
+							break;
+						case "block":
+							asBlockItem(tex_name, annotation.tex_path());
+							break;
+						}
 					}
 				}
 				return true;
@@ -76,6 +81,7 @@ public @interface ItemDatagen {
 
 		@Override
 		protected void registerModels() {
+			Core.logInfo("ItemDatagen starting to generate item models.");
 			for (Class<?> itemClass : itemsClasses)
 				registerModels(itemClass);
 		}
@@ -103,6 +109,12 @@ public @interface ItemDatagen {
 		public static final void forDatagen() {
 			Class<?> caller = JavaLang.getOuterCallerClass();
 			forDatagen(caller);
+		}
+
+		public static final void addProvider(DataGenerator generator, boolean run, PackOutput output, ExistingFileHelper helper) {
+			for (String namespace : RegistryMap.namespaces()) {
+				generator.addProvider(run, new ModelProvider(output, namespace, helper));
+			}
 		}
 	}
 }

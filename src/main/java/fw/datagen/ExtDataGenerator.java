@@ -1,14 +1,12 @@
 package fw.datagen;
 
-import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
 
 import fw.core.Core;
 import fw.datagen.annotation.ItemDatagen;
 import fw.datagen.annotation.LangDatagen;
-import fw.datagen.annotation.RegistryDatagen;
+import fw.datagen.annotation.RegistryEntry;
 import fw.datagen.internal.ExtTagsProvider;
-import lyra.object.ObjectManipulator;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
@@ -20,7 +18,6 @@ import net.neoforged.neoforge.data.event.GatherDataEvent;
 @EventBusSubscriber(modid = Core.ModId, bus = EventBusSubscriber.Bus.MOD)
 public class ExtDataGenerator {
 	@SubscribeEvent
-	@SuppressWarnings("unchecked")
 	public static void onGatherData(GatherDataEvent event) {
 		Core.logInfo("ExtDataGenerator started datagen.");
 		DataGenerator generator = event.getGenerator();
@@ -28,13 +25,13 @@ public class ExtDataGenerator {
 		ExistingFileHelper helper = event.getExistingFileHelper();
 		CompletableFuture<HolderLookup.Provider> lookupProvider = event.getLookupProvider();
 		// 注册表内容生成
-		RegistryDatagen.RegistriesProvider registriesProvider = new RegistryDatagen.RegistriesProvider(output, lookupProvider);
+		RegistryEntry.RegistriesProvider registriesProvider = new RegistryEntry.RegistriesProvider(output, lookupProvider);
 		generator.addProvider(event.includeServer(), registriesProvider);
+		// Tag及其成员生成
 		ExtTagsProvider.addProvider(generator, event.includeServer(), output, registriesProvider, helper);
 		// 物品数据生成
-		generator.addProvider(event.includeClient(), new ItemDatagen.ModelProvider(output, helper));
-		ArrayList<String> genLangs = (ArrayList<String>) ObjectManipulator.access(LangDatagen.LangProvider.class, "genLangs");
-		for (String lang : genLangs)
-			generator.addProvider(event.includeClient(), new LangDatagen.LangProvider(output, lang));
+		ItemDatagen.ModelProvider.addProvider(generator, event.includeClient(), output, helper);
+		// 语言文件生成
+		LangDatagen.LangProvider.addProvider(generator, event.includeClient(), output);
 	}
 }

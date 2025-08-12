@@ -5,7 +5,7 @@ import fw.core.ServerInstance;
 import fw.core.ServerLevels;
 import fw.core.registry.MutableMappedRegistry;
 import fw.core.registry.registries.server.DynamicRegistries;
-import fw.datagen.DatagenHolder;
+import fw.datagen.EntryHolder;
 import fw.event.ServerLifecycleTrigger;
 import fw.resources.ResourceKeyBuilder;
 import lyra.alpha.reference.FieldReference;
@@ -115,7 +115,7 @@ public class Dimensions {
 		overworldLevelStemKey = levelStem;
 	}
 
-	public static final void redirectOverworld(DatagenHolder<DimensionType> dimensionType, DatagenHolder<LevelStem> levelStem) {
+	public static final void redirectOverworld(EntryHolder<DimensionType> dimensionType, EntryHolder<LevelStem> levelStem) {
 		redirectOverworld(dimensionType.getKey(), levelStem.getKey());
 	}
 

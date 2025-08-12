@@ -15,10 +15,10 @@ public class BaKeyItems {
 		LangDatagen.LangProvider.forDatagen(BaKeyItems.class);
 	}
 
-	public static final String resourcePath = BaCreativeTab.Id.BA_KEY_ITEMS;
+	public static final String resourcePath = BaCreativeTab.TexPath.BA_KEY_ITEMS;
 
 	@LangDatagen(translations = { @Translation(locale = "en_us", text = "Shittim Chest"), @Translation(locale = "zh_cn", text = "什亭之匣") })
 	@ItemDatagen(tex_path = resourcePath)
-	public static final DeferredItem<Item> shittim_chest = ExtItem.register("shittim_chest", BaCreativeTab.BA_KEY_ITEMS);
+	public static final DeferredItem<Item> shittim_chest = ExtItem.registerMod("shittim_chest", BaCreativeTab.BA_KEY_ITEMS);
 
 }

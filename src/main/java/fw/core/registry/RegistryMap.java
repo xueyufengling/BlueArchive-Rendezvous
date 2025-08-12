@@ -1,14 +1,20 @@
 package fw.core.registry;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 import fw.core.Core;
 import fw.items.ExtCreativeTab;
+import fw.items.ExtItem;
+import fw.resources.ResourceLocationBuilder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -18,27 +24,49 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
+/**
+ * DeferredRegister的包装，包含记录功能，应当总是使用该类注册，而非DeferredRegister。
+ * 
+ * @param <R>
+ */
 public class RegistryMap<R> {
-	protected final HashMap<String, DeferredHolder<R, ? extends R>> entriesMap = new HashMap<>();
-	protected final DeferredRegister<R> deferredRegister;
+	/**
+	 * 本mod包含的全部命名空间（通常为ModId）
+	 */
+	private static final HashSet<String> namespaces = new HashSet<>();
 
-	public RegistryMap(String namespace, ResourceKey<? extends Registry<R>> registry_key) {
-		deferredRegister = RegistryFactory.deferredRegister(registry_key);
+	static {
+		namespaces.add(ResourceLocation.DEFAULT_NAMESPACE);
+		namespaces.add(Core.ModId);
 	}
 
+	public static final Set<String> namespaces() {
+		return Collections.unmodifiableSet(namespaces);
+	}
+
+	protected final ResourceKey<? extends Registry<R>> registryKey;
+	protected final HashMap<String, DeferredHolder<R, ? extends R>> entriesMap = new HashMap<>();
+	protected final HashMap<String, DeferredRegister<R>> deferredRegisters = new HashMap<>();
+
 	public RegistryMap(ResourceKey<? extends Registry<R>> registry_key) {
-		this(Core.ModId, registry_key);
+		this.registryKey = registry_key;
+	}
+
+	public final DeferredRegister<R> getDeferredRegister(String namespace) {
+		return deferredRegisters.computeIfAbsent(namespace, (String ns) -> RegistryFactory.deferredRegister(registryKey, ns));
 	}
 
 	/**
 	 * @param <E>
-	 * @param name
+	 * @param name 带modId的名称
 	 * @param sup  由于直接创建E实例需要修改注册表，而在Mod构建刚完成，RegisterEvent之前，注册表是冻结的，无法创建实例，因此只能传入Supplier待到时机正确时再构建E实例
 	 * @param args
 	 * @return
 	 */
 	public <E extends R> DeferredHolder<R, E> register(String name, Supplier<E> sup, Object... args) {
-		DeferredHolder<R, E> entry = (DeferredHolder<R, E>) deferredRegister.register(name, sup);
+		ResourceLocation loc = ResourceLocationBuilder.build(name);
+		namespaces.add(loc.getNamespace());// 将当前注册的元素命名空间加入集合
+		DeferredHolder<R, E> entry = (DeferredHolder<R, E>) getDeferredRegister(loc.getNamespace()).register(loc.getPath(), sup);
 		entriesMap.put(name, entry);
 		this.applyExtraArgs(name, entry, args);
 		return entry;
@@ -80,12 +108,8 @@ public class RegistryMap<R> {
 
 	public static class ItemMap extends RegistryMap<Item> {
 
-		public ItemMap(String namespace) {
-			super(namespace, Registries.ITEM);
-		}
-
 		public ItemMap() {
-			this(Core.ModId);
+			super(Registries.ITEM);
 		}
 
 		public <E extends Item> DeferredItem<E> registerItem(String name, Supplier<E> sup, Object... args) {
@@ -111,18 +135,14 @@ public class RegistryMap<R> {
 
 	public static class BlockMap extends RegistryMap<Block> {
 
-		public BlockMap(String namespace) {
-			super(namespace, Registries.BLOCK);
-		}
-
 		public BlockMap() {
-			this(Core.ModId);
+			super(Registries.BLOCK);
 		}
 
 		public <E extends Block> DeferredBlock<E> registerBlock(String name, Supplier<E> sup, Item.Properties blockitem_props, Object... args) {
 			DeferredBlock<E> block = (DeferredBlock<E>) super.register(name, sup, args);
 			if (blockitem_props != null) {
-				RegistryFactory.ITEM.register(name, () -> new BlockItem(block.get(), blockitem_props));
+				ExtItem.ITEMS.register(name, () -> new BlockItem(block.get(), blockitem_props));
 			}
 			return block;
 		}

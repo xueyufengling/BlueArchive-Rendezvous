@@ -3,10 +3,10 @@ package fw.items;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import fw.core.Core;
-import fw.core.registry.RegistryFactory;
+import fw.core.registry.RegistryMap;
 import fw.datagen.Localizable;
 import lyra.klass.special.BaseClass;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -17,6 +17,7 @@ import net.neoforged.neoforge.registries.DeferredItem;
  * 创造模式物品栏
  */
 public interface ExtCreativeTab extends BaseClass<ExtCreativeTab.Definition>, Localizable {
+	public static final RegistryMap<CreativeModeTab> CREATIVE_TABS = new RegistryMap<>(Registries.CREATIVE_MODE_TAB);
 
 	public static String header = "itemGroup";
 
@@ -33,13 +34,17 @@ public interface ExtCreativeTab extends BaseClass<ExtCreativeTab.Definition>, Lo
 
 		private CreativeModeTab.Builder builder;
 
+		/**
+		 * @param id       带命名空间的ID
+		 * @param iconItem
+		 */
 		private Definition(String id, String iconItem) {
 			this.id = id;
 			this.iconItem = iconItem;
 			builder = new CreativeModeTab.Builder(CreativeModeTab.Row.TOP, 0);
-			deferredHolder = RegistryFactory.CREATIVE_TABS.register(id, () -> {
+			deferredHolder = CREATIVE_TABS.register(id, () -> {
 				return builder
-						.icon(() -> new ItemStack((ExtItem.ITEMS.contains(this.iconItem) ? ExtItem.ITEMS.get(this.iconItem) : ExtItem.register(this.iconItem)).get()))
+						.icon(() -> new ItemStack((ExtItem.ITEMS.contains(this.iconItem) ? ExtItem.ITEMS.get(this.iconItem) : ExtItem.registerMod(this.iconItem)).get()))
 						.title(this_.localizedComponent())
 						.displayItems((featureFlagSet, tabOutput) -> {
 							this.itemsList.forEach(item -> tabOutput.accept(new ItemStack(item.get())));
@@ -84,7 +89,12 @@ public interface ExtCreativeTab extends BaseClass<ExtCreativeTab.Definition>, Lo
 	}
 
 	@Override
-	public default String localizationKey() {
-		return header + "." + Core.ModId + "." + definition().id;
+	public default String localizationType() {
+		return header;
+	}
+
+	@Override
+	public default String localizationPath() {
+		return Localizable.stdLocalizationKey(definition().id);
 	}
 }

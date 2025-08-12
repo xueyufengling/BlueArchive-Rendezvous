@@ -403,11 +403,11 @@
   "item.ba.wolfsegg_1": "Wolfsegg 1",
   "item.ba.wolfsegg_2": "Wolfsegg 2",
   "item.ba.wolfsegg_3": "Wolfsegg 3",
-  "itemGroup.ba.blocks": "BlueArchive Blocks",
-  "itemGroup.ba.currency": "BlueArchive Currency",
-  "itemGroup.ba.equipments": "BlueArchive Equipments",
-  "itemGroup.ba.key_items": "BlueArchive Key Items",
-  "itemGroup.ba.materials": "BlueArchive Materials",
-  "itemGroup.ba.skillbooks": "BlueArchive Skill Books",
-  "itemGroup.ba.weapons": "BlueArchive Weapons"
+  "itemGroup.ba.ba.blocks": "BlueArchive Blocks",
+  "itemGroup.ba.ba.currency": "BlueArchive Currency",
+  "itemGroup.ba.ba.equipments": "BlueArchive Equipments",
+  "itemGroup.ba.ba.key_items": "BlueArchive Key Items",
+  "itemGroup.ba.ba.materials": "BlueArchive Materials",
+  "itemGroup.ba.ba.skillbooks": "BlueArchive Skill Books",
+  "itemGroup.ba.ba.weapons": "BlueArchive Weapons"
 }

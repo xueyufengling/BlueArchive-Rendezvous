@@ -1,32 +1,83 @@
 package fw.datagen;
 
+import fw.core.Core;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 
 public interface Localizable {
+	public static final char NAMESPACE_SEPARATOR = '.';
+	public static final char PATH_SEPARATOR = '.';
 
-	public abstract String localizationKey();
+	public default String localizationType() {
+		return "";
+	}
+
+	public default String localizationNamespace() {
+		return Core.ModId;
+	}
+
+	public default String localizationPath() {
+		return "undefined";
+	}
+
+	/**
+	 * 获取key实际上只基于该方法，覆写该方法则localizationType()、localizationNamespace()、localizationPath()全部无效
+	 * 
+	 * @return
+	 */
+	public default String localizationKey() {
+		return localizationType() + NAMESPACE_SEPARATOR + localizationNamespace() + NAMESPACE_SEPARATOR + localizationPath();
+	}
 
 	public default Component localizedComponent() {
 		return Component.translatable(localizationKey());
 	}
 
 	/**
-	 * 根据注册表名获取本地化key，即类型registryKey.命名空间namespace.路径path
+	 * 注册表类型路径为localizationType
 	 * 
 	 * @param key
 	 * @return
 	 */
-	@SuppressWarnings("rawtypes")
-	public static String localizationKey(ResourceKey key) {
-		ResourceLocation loc = key.location();
-		return key.registryKey().location().getPath() + '.' + loc.getNamespace() + '.' + loc.getPath().replace('/', '.');
+	public static String localizationType(ResourceKey<?> key) {
+		return key.registryKey().location().getPath();
+	}
+
+	/**
+	 * 注册条目类型命名空间为localizationNamespace
+	 * 
+	 * @param key
+	 * @return
+	 */
+	public static String localizationNamespace(ResourceKey<?> key) {
+		return key.location().getNamespace();
+	}
+
+	/**
+	 * 注册条目类型路径为localizationPath
+	 * 
+	 * @param key
+	 * @return
+	 */
+	public static String localizationPath(ResourceKey<?> key) {
+		return key.location().getPath().replace('/', PATH_SEPARATOR);
 	}
 
 	@SuppressWarnings("rawtypes")
 	public static String localizationKey(Holder holder) {
-		return localizationKey(holder.getKey());
+		ResourceKey<?> key = holder.getKey();
+		return localizationType(key) + NAMESPACE_SEPARATOR + localizationNamespace(key) + NAMESPACE_SEPARATOR + localizationPath(key);
+	}
+
+	/**
+	 * localizationNamespace与localizationPath的组合
+	 * 
+	 * @param namespacedId
+	 * @return
+	 */
+	public static String stdLocalizationKey(String namespacedId) {
+		return namespacedId.replace(ResourceLocation.NAMESPACE_SEPARATOR, Localizable.NAMESPACE_SEPARATOR);
 	}
 }

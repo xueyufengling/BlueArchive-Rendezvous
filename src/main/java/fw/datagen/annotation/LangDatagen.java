@@ -10,10 +10,12 @@ import java.util.HashMap;
 import java.util.Map.Entry;
 
 import fw.core.Core;
+import fw.core.registry.RegistryMap;
 import fw.datagen.Localizable;
 import lyra.klass.KlassWalker;
 import lyra.lang.JavaLang;
 import net.minecraft.core.Holder;
+import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
 import net.neoforged.neoforge.common.data.LanguageProvider;
 
@@ -21,22 +23,26 @@ import net.neoforged.neoforge.common.data.LanguageProvider;
 @Target({ ElementType.FIELD })
 public @interface LangDatagen {
 
-	Translation[] translations() default {};
+	Translation[] translations() default {
+	};
 
 	public static class LangProvider extends LanguageProvider {
 		static final HashMap<String, HashMap<String, String>> keyvalsMap = new HashMap<>();
 		static final ArrayList<Class<?>> langClasses = new ArrayList<>();
 		static final ArrayList<String> genLangs = new ArrayList<>();
 
+		String namespace;
 		String locale;
 
-		public LangProvider(PackOutput output, String locale) {
-			super(output, Core.ModId, locale);
+		private LangProvider(PackOutput output, String namespace, String locale) {
+			super(output, namespace, locale);
+			this.namespace = namespace;
 			this.locale = locale;
 		}
 
 		@Override
 		protected void addTranslations() {
+			Core.logInfo("LangDatagen starting to generate lang files.");
 			for (Class<?> langClass : langClasses) {
 				KlassWalker.walkAnnotatedFields(langClass, LangDatagen.class, (Field f, boolean isStatic, Object value, LangDatagen annotation) -> {
 					Translation[] translations = annotation.translations();
@@ -44,19 +50,24 @@ public @interface LangDatagen {
 						if (locale.equals(translation.locale())) {// 当前Translation的语言是LangProvider的语言
 							String final_text = null;
 							if (value instanceof Localizable localizable) {// 优先使用Localizable指定的key
-								final_text = Translation.Resolver.resolveText(translation);
-								if (final_text != null)
-									super.add(localizable.localizationKey(), final_text);
+								if (this.namespace.equals(localizable.localizationNamespace())) {
+									final_text = Translation.Resolver.resolveText(translation);
+									if (final_text != null)
+										super.add(localizable.localizationKey(), final_text);
+								}
 							} else if (value instanceof Holder holder) {
-								final_text = Translation.Resolver.resolveText(translation);
-								if (final_text != null)
-									super.add(Localizable.localizationKey(holder), final_text);
+								if (this.namespace.equals(holder.getKey().location().getNamespace())) {
+									final_text = Translation.Resolver.resolveText(translation);
+									if (final_text != null)
+										super.add(Localizable.localizationKey(holder), final_text);
+								}
 							}
 						}
 					}
 					return true;
 				});
 			}
+
 			HashMap<String, String> map = keyvalsMap.get(locale);
 			if (map != null) {
 				for (Entry<String, String> entry : map.entrySet()) {
@@ -93,6 +104,13 @@ public @interface LangDatagen {
 		public static final void genLangs(String... langs) {
 			for (String lang : langs)
 				genLang(lang);
+		}
+
+		public static final void addProvider(DataGenerator generator, boolean run, PackOutput output) {
+			for (String namespace : RegistryMap.namespaces()) {
+				for (String lang : genLangs)
+					generator.addProvider(run, new LangProvider(output, namespace, lang));
+			}
 		}
 	}
 }

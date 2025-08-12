@@ -7,8 +7,8 @@ import com.mojang.serialization.MapCodec;
 import fw.codec.CodecHolder;
 import fw.codec.annotation.CodecAutogen;
 import fw.codec.annotation.CodecTarget;
-import fw.datagen.DatagenHolder;
-import fw.datagen.annotation.RegistryDatagen;
+import fw.datagen.EntryHolder;
+import fw.datagen.annotation.RegistryEntry;
 import fw.terrain.HeightProviders;
 import fw.terrain.structure.ExtStructure;
 import net.minecraft.core.Holder;
@@ -31,7 +31,7 @@ public class AronaClassRoom extends ExtStructure {
 
 	static {
 		CodecHolder.CODEC();
-		RegistryDatagen.RegistriesProvider.forDatagen();
+		RegistryEntry.RegistriesProvider.forDatagen();
 	}
 
 	@CodecAutogen(null_if_empty = false)
@@ -54,20 +54,18 @@ public class AronaClassRoom extends ExtStructure {
 
 	public static final String ID = "arona_class_room";
 
-	//@RegistryDatagen
-	public static final DatagenHolder<Structure> ARONA_CLASS_ROOM = ExtStructure.register(ID, (BootstrapContext<?> context, RegistryAccess registryAccess) -> {
+	// @RegistryEntry
+	public static final EntryHolder<Structure> ARONA_CLASS_ROOM = ExtStructure.register(ID, (BootstrapContext<?> context, RegistryAccess registryAccess) -> {
 		return new AronaClassRoom(context);
 	});
 
-	//@RegistryDatagen
-	public static final DatagenHolder<StructureType<?>> ARONA_CLASS_ROOM_TYPE = ExtStructure.Type.register(ID, (BootstrapContext<?> context, RegistryAccess registryAccess) -> {
+	public static final EntryHolder<StructureType<?>> ARONA_CLASS_ROOM_TYPE = ExtStructure.Type.register(ID, (BootstrapContext<?> context, RegistryAccess registryAccess) -> {
 		return ExtStructure.Type.build(CODEC);
 	});
 
 	public AronaClassRoom(BootstrapContext<?> context) {
 		super(Settings.of(
-				Settings.validTagBiomes(context, "ba:shittim_chest"),
-				Settings.spawnOverrides(),
+				Settings.validBiomes(context, "ba:shittim_chest"),
 				GenerationStep.Decoration.SURFACE_STRUCTURES,
 				TerrainAdjustment.NONE),
 				ID,

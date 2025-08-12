@@ -599,7 +599,7 @@ public @interface CodecAutogen {
 				if (Reflection.is(registryType, codecType)) {// 当注册表MapCodec的泛型参数和传入的registryType匹配时注册
 					RegistryFactory.deferredRegister(registryKey).register(codecName, () -> CODEC);
 					registered.value = true;
-					Core.logInfo("Registered CODEC " + codecName + " in registry " + registryKey);
+					Core.logInfo("Registered CODEC " + codecName + " in registry [" + registryKey.location() + "].");
 				}
 				return true;
 			});
@@ -642,7 +642,7 @@ public @interface CodecAutogen {
 		}
 
 		public static final void generateCodecs() {
-			Core.logInfo("CodecAutogen start to generate CODEC.");
+			Core.logInfo("CodecAutogen starting to generate CODEC.");
 			for (Class<?> codecClass : codecClasses)
 				generateAndRegisterCodecs(codecClass);
 		}

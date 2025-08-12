@@ -3,9 +3,9 @@ package fw.dimension;
 import com.mojang.serialization.MapCodec;
 
 import fw.core.registry.MappedRegistryAccess;
-import fw.core.registry.RegistryFactory;
+import fw.core.registry.RegistryMap;
 import fw.core.registry.registries.server.DynamicRegistries;
-import fw.datagen.DatagenHolder;
+import fw.datagen.EntryHolder;
 import fw.resources.ResourceKeyBuilder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
@@ -22,8 +22,8 @@ public class ExtDimension {
 	 * DimensionType等价类
 	 */
 	public static class Type {
-		public static final DatagenHolder<DimensionType> register(String name, DimensionType dimType) {
-			return DatagenHolder.of(Registries.DIMENSION_TYPE, name, dimType);
+		public static final EntryHolder<DimensionType> register(String name, DimensionType dimType) {
+			return EntryHolder.of(Registries.DIMENSION_TYPE, name, dimType);
 		}
 
 		public static final DimensionType get(String name) {
@@ -35,8 +35,8 @@ public class ExtDimension {
 	 * 地形生成器
 	 */
 	public static class Stem {
-		public static final DatagenHolder<LevelStem> register(String name, DatagenHolder.BootstrapValue<LevelStem> levelStem) {
-			return DatagenHolder.of(Registries.LEVEL_STEM, name, levelStem);
+		public static final EntryHolder<LevelStem> register(String name, EntryHolder.BootstrapValue<LevelStem> levelStem) {
+			return EntryHolder.of(Registries.LEVEL_STEM, name, levelStem);
 		}
 
 		/**
@@ -46,7 +46,7 @@ public class ExtDimension {
 		 * @param levelStemHolder
 		 * @return
 		 */
-		public static final ResourceKey<Level> levelKey(DatagenHolder<LevelStem> levelStemHolder) {
+		public static final ResourceKey<Level> levelKey(EntryHolder<LevelStem> levelStemHolder) {
 			return levelStemHolder.castKey(Registries.DIMENSION);
 		}
 
@@ -69,8 +69,8 @@ public class ExtDimension {
 	 * 地形生成噪声
 	 */
 	public static class Noise {
-		public static final DatagenHolder<NoiseGeneratorSettings> register(String name, DatagenHolder.BootstrapValue<NoiseGeneratorSettings> noiseSettings) {
-			return DatagenHolder.of(Registries.NOISE_SETTINGS, name, noiseSettings);
+		public static final EntryHolder<NoiseGeneratorSettings> register(String name, EntryHolder.BootstrapValue<NoiseGeneratorSettings> noiseSettings) {
+			return EntryHolder.of(Registries.NOISE_SETTINGS, name, noiseSettings);
 		}
 	}
 
@@ -79,6 +79,8 @@ public class ExtDimension {
 	 * DimensionFunctionType在使用CodecAutogen注解自动生成CODEC时已经自动注册，如果没有使用该注解生成，需要手动使用registerType()将CODEC注册。<br>
 	 */
 	public static class Df {
+		public static final RegistryMap<MapCodec<? extends DensityFunction>> DENSITY_FUNCTION_TYPES = new RegistryMap<>(Registries.DENSITY_FUNCTION_TYPE);
+
 		/**
 		 * 注册自定义密度函数MapCodec，例如末地岛屿密度函数。见DensityFunctions::bootstrap
 		 * 
@@ -88,7 +90,7 @@ public class ExtDimension {
 		 * @return
 		 */
 		public static final <T extends DensityFunction> DeferredHolder<MapCodec<? extends DensityFunction>, MapCodec<T>> registerType(String name, MapCodec<T> dfTypeCodec) {
-			return RegistryFactory.DENSITY_FUNCTION_TYPE.register(name, () -> dfTypeCodec);
+			return DENSITY_FUNCTION_TYPES.register(name, () -> dfTypeCodec);
 		}
 
 		/**
@@ -111,8 +113,8 @@ public class ExtDimension {
 		 * @param func
 		 * @return
 		 */
-		public static final DatagenHolder<DensityFunction> register(String name, DensityFunction func) {
-			return DatagenHolder.of(Registries.DENSITY_FUNCTION, name, func);
+		public static final EntryHolder<DensityFunction> register(String name, DensityFunction func) {
+			return EntryHolder.of(Registries.DENSITY_FUNCTION, name, func);
 		}
 
 	}

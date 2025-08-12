@@ -9,8 +9,8 @@ import fw.codec.CodecHolder;
 import fw.codec.annotation.CodecAutogen;
 import fw.codec.annotation.CodecTarget;
 import fw.core.ExecuteIn;
-import fw.datagen.DatagenHolder;
-import fw.datagen.annotation.RegistryDatagen;
+import fw.datagen.EntryHolder;
+import fw.datagen.annotation.RegistryEntry;
 import fw.math.ColorLinearInterpolation;
 import fw.terrain.biome.ExtBiome;
 import fw.terrain.biome.ExtBiomeSource;
@@ -28,7 +28,7 @@ public class ShittimChestBiomes extends ExtBiomeSource {
 
 	static {
 		CodecHolder.CODEC();
-		RegistryDatagen.RegistriesProvider.forDatagen();
+		RegistryEntry.RegistriesProvider.forDatagen();
 		ExecuteIn.Client(() -> {
 			effects = MutableBiomeSpecialEffects.from("ba:shittim_chest");
 			effects.tick(ColorLinearInterpolation
@@ -49,8 +49,8 @@ public class ShittimChestBiomes extends ExtBiomeSource {
 
 	protected static final List<String> biomes = List.of("ba:shittim_chest");
 
-	@RegistryDatagen
-	public static final DatagenHolder<Biome> shittim_chest = ExtBiome.register("shittim_chest", ExtBiome.build(
+	@RegistryEntry
+	public static final EntryHolder<Biome> shittim_chest = ExtBiome.register("shittim_chest", ExtBiome.build(
 			false,
 			0,
 			Biome.TemperatureModifier.NONE,

@@ -403,11 +403,11 @@
   "item.ba.wolfsegg_1": "",
   "item.ba.wolfsegg_2": "",
   "item.ba.wolfsegg_3": "",
-  "itemGroup.ba.blocks": "蔚蓝档案 方块",
-  "itemGroup.ba.currency": "蔚蓝档案 货币",
-  "itemGroup.ba.equipments": "蔚蓝档案 装备",
-  "itemGroup.ba.key_items": "蔚蓝档案 重要物品",
-  "itemGroup.ba.materials": "蔚蓝档案 材料",
-  "itemGroup.ba.skillbooks": "蔚蓝档案 技能书",
-  "itemGroup.ba.weapons": "蔚蓝档案 武器"
+  "itemGroup.ba.ba.blocks": "蔚蓝档案 方块",
+  "itemGroup.ba.ba.currency": "蔚蓝档案 货币",
+  "itemGroup.ba.ba.equipments": "蔚蓝档案 装备",
+  "itemGroup.ba.ba.key_items": "蔚蓝档案 重要物品",
+  "itemGroup.ba.ba.materials": "蔚蓝档案 材料",
+  "itemGroup.ba.ba.skillbooks": "蔚蓝档案 技能书",
+  "itemGroup.ba.ba.weapons": "蔚蓝档案 武器"
 }

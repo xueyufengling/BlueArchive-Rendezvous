@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import fw.Config;
 import fw.codec.annotation.CodecAutogen;
 import fw.core.registry.RegistryFactory;
+import fw.datagen.annotation.RegistryEntry;
 import fw.resources.ResourceLocationBuilder;
 import lyra.klass.JarKlassLoader;
 import lyra.klass.KlassLoader;
@@ -30,6 +31,7 @@ public class Core {
 	 * 为Core设置ModId，该ID将在其他所有类中使用
 	 */
 	public static final String ModId = Config.ModId;
+	public static final String ModNamespacePrefix = ModId + ResourceLocation.NAMESPACE_SEPARATOR;
 
 	public static final ModContainer Mod = null;
 	public static final IEventBus ModBus = null;
@@ -103,6 +105,7 @@ public class Core {
 	@SubscribeEvent(priority = EventPriority.LOWEST)
 	private static final void postinit(FMLConstructModEvent event) {
 		CodecAutogen.CodecGenerator.generateCodecs();// 生成CODEC
+		RegistryEntry.DeferredEntryHolderRegister.registerAll();
 		RegistryFactory.registerAll();// 注册所有新添加的注册表及其条目
 		for (Runnable postinit : postinitFuncs)
 			postinit.run();
@@ -119,7 +122,7 @@ public class Core {
 	}
 
 	public static String modNamespacedId(String id) {
-		return ModId + ResourceLocation.NAMESPACE_SEPARATOR + id;
+		return ModNamespacePrefix + id;
 	}
 
 	public static void loadPackage(String pkg) {

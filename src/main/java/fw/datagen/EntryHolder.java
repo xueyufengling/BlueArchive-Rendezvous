@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import fw.core.Core;
 import fw.core.registry.MappedRegistryAccess;
+import fw.core.registry.RegistryFactory;
 import fw.resources.ResourceKeyBuilder;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
@@ -19,7 +20,7 @@ import net.minecraft.tags.TagKey;
  * 
  * @param <T>
  */
-public class DatagenHolder<T> {
+public class EntryHolder<T> {
 	private BootstrapContext<T> bootstrapContext;
 
 	public final BootstrapContext<T> getBootstrapContext() {
@@ -43,6 +44,10 @@ public class DatagenHolder<T> {
 			bootstrapContext.register(resourceKey, originalValue());
 		else
 			MappedRegistryAccess.getUnfrozenServerRegistry(registryKey).register(this.resourceKey, this.originalValue(), RegistrationInfo.BUILT_IN);
+	}
+
+	public final void registerDeferred() {
+		RegistryFactory.deferredRegister(registryKey, namespace).register(path, () -> this.originalValue());
 	}
 
 	/**
@@ -72,7 +77,7 @@ public class DatagenHolder<T> {
 	private final BootstrapValue<T> valueSource;
 	private final ResourceKey<? extends Registry<T>> registryKey;
 
-	private DatagenHolder(ResourceKey<? extends Registry<T>> registryKey, String namespace, String path, BootstrapValue<T> valueSource, T value) {
+	private EntryHolder(ResourceKey<? extends Registry<T>> registryKey, String namespace, String path, BootstrapValue<T> valueSource, T value) {
 		this.registryKey = registryKey;
 		this.namespace = namespace;
 		this.path = path;
@@ -150,8 +155,8 @@ public class DatagenHolder<T> {
 	 * @param value
 	 * @return
 	 */
-	public static final <T> DatagenHolder<T> of(ResourceKey<? extends Registry<T>> registryKey, String namespace, String path, T value) {
-		return new DatagenHolder<>(registryKey, namespace, path, null, value);
+	public static final <T> EntryHolder<T> of(ResourceKey<? extends Registry<T>> registryKey, String namespace, String path, T value) {
+		return new EntryHolder<>(registryKey, namespace, path, null, value);
 	}
 
 	/**
@@ -164,15 +169,15 @@ public class DatagenHolder<T> {
 	 * @param valueSource
 	 * @return
 	 */
-	public static final <T> DatagenHolder<T> of(ResourceKey<? extends Registry<T>> registryKey, String namespace, String path, BootstrapValue<T> valueSource) {
-		return new DatagenHolder<>(registryKey, namespace, path, valueSource, null);
+	public static final <T> EntryHolder<T> of(ResourceKey<? extends Registry<T>> registryKey, String namespace, String path, BootstrapValue<T> valueSource) {
+		return new EntryHolder<>(registryKey, namespace, path, valueSource, null);
 	}
 
-	public static final <T> DatagenHolder<T> of(ResourceKey<? extends Registry<T>> registryKey, String path, T value) {
+	public static final <T> EntryHolder<T> of(ResourceKey<? extends Registry<T>> registryKey, String path, T value) {
 		return of(registryKey, Core.ModId, path, value);
 	}
 
-	public static final <T> DatagenHolder<T> of(ResourceKey<? extends Registry<T>> registryKey, String path, BootstrapValue<T> valueSource) {
+	public static final <T> EntryHolder<T> of(ResourceKey<? extends Registry<T>> registryKey, String path, BootstrapValue<T> valueSource) {
 		return of(registryKey, Core.ModId, path, valueSource);
 	}
 

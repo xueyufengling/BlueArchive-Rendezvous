@@ -7,27 +7,27 @@ import net.minecraft.network.chat.contents.TranslatableContents;
  * 用于存放本地化字符串占位符，配合LangDatagen注解使用。
  */
 public class LocalString implements Localizable {
-	private String key;
+	private String path;
 	private String defaultValue;
 	private TranslatableContents translatableContents;
 
-	private LocalString(String key, String defaultValue) {
-		this.key = key;
+	private LocalString(String path, String defaultValue) {
+		this.path = path;
 		this.defaultValue = defaultValue;
-		translatableContents = new TranslatableContents(key, defaultValue, null);
+		translatableContents = new TranslatableContents(path, defaultValue, null);
 	}
 
-	private LocalString(String key) {
-		this(key, key);
+	private LocalString(String path) {
+		this(path, path);
 	}
 
 	@Override
-	public String localizationKey() {
-		return key;
+	public String localizationPath() {
+		return path;
 	}
 
-	public String key() {
-		return key;
+	public String path() {
+		return path;
 	}
 
 	public String defaultValue() {
@@ -35,7 +35,7 @@ public class LocalString implements Localizable {
 	}
 
 	public String value() {
-		return Language.getInstance().getOrDefault(key, defaultValue);
+		return Language.getInstance().getOrDefault(path, defaultValue);
 	}
 
 	public TranslatableContents translatableContents() {
@@ -44,20 +44,20 @@ public class LocalString implements Localizable {
 
 	@Override
 	public String toString() {
-		return "{key=" + key() + ", value=" + value() + "}";
+		return "{path=" + path() + ", value=" + value() + "}";
 	}
 
 	/**
-	 * 返回一个键为key的本地化字符串占位符
+	 * 返回一个键为path的本地化字符串占位符
 	 * 
-	 * @param key
+	 * @param path
 	 * @return
 	 */
-	public static final LocalString forKey(String key) {
-		return new LocalString(key);
+	public static final LocalString forKey(String path) {
+		return new LocalString(path);
 	}
 
-	public static final LocalString forKey(String key, String defaultValue) {
-		return new LocalString(key, defaultValue);
+	public static final LocalString forKey(String path, String defaultValue) {
+		return new LocalString(path, defaultValue);
 	}
 }

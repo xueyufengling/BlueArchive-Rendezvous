@@ -1,5 +1,6 @@
 package fw.items;
 
+import fw.core.Core;
 import fw.core.registry.RegistryMap;
 import fw.datagen.Localizable;
 import net.minecraft.world.item.Item;
@@ -21,14 +22,22 @@ public class ExtItem extends Item implements Localizable {
 
 	@Override
 	public String localizationKey() {
-		return this.getDescriptionId();
+		return Localizable.stdLocalizationKey(this.getDescriptionId());
 	}
 
 	public static final DeferredItem<Item> register(String name, ExtCreativeTab creativeTab) {
 		return ITEMS.registerItem(name, () -> new ExtItem(), creativeTab);
 	}
 
+	public static final DeferredItem<Item> registerMod(String name, ExtCreativeTab creativeTab) {
+		return register(Core.modNamespacedId(name), creativeTab);
+	}
+
 	public static final DeferredItem<Item> register(String name) {
-		return register(name, null);
+		return registerMod(name, null);
+	}
+
+	public static final DeferredItem<Item> registerMod(String name) {
+		return register(Core.modNamespacedId(name));
 	}
 }

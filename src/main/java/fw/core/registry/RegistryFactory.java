@@ -4,8 +4,6 @@ import java.lang.reflect.Field;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import com.mojang.serialization.MapCodec;
-
 import fw.core.Core;
 import lyra.alpha.struct.K2HashMap;
 import lyra.klass.KlassWalker;
@@ -14,9 +12,6 @@ import lyra.object.ObjectManipulator;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.level.biome.BiomeSource;
-import net.minecraft.world.level.levelgen.DensityFunction;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -26,14 +21,6 @@ import net.neoforged.neoforge.registries.DeferredRegister;
  */
 public class RegistryFactory {
 	private static final K2HashMap<ResourceKey<?>, String, DeferredRegister<?>> registries = new K2HashMap<>();
-
-	public static final DeferredRegister.Blocks BLOCK = (DeferredRegister.Blocks) deferredRegister(Registries.BLOCK);
-	public static final DeferredRegister.Items ITEM = (DeferredRegister.Items) deferredRegister(Registries.ITEM);
-	public static final DeferredRegister<CreativeModeTab> CREATIVE_TABS = deferredRegister(Registries.CREATIVE_MODE_TAB);
-
-	public static final DeferredRegister<MapCodec<? extends DensityFunction>> DENSITY_FUNCTION_TYPE = deferredRegister(Registries.DENSITY_FUNCTION_TYPE);
-
-	public static final DeferredRegister<MapCodec<? extends BiomeSource>> BIOME_SOURCE = deferredRegister(Registries.BIOME_SOURCE);
 
 	public static <T> DeferredRegister<T> deferredRegister(Registry<T> registry, String modId) {
 		return deferredRegister(registry.key(), modId);

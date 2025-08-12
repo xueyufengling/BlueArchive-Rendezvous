@@ -12,7 +12,7 @@ import fw.codec.annotation.CodecEntry;
 import fw.codec.annotation.CodecTarget;
 import fw.codec.annotation.IntRange;
 import fw.core.registry.HolderSets;
-import fw.datagen.DatagenHolder;
+import fw.datagen.EntryHolder;
 import fw.resources.ResourceKeyBuilder;
 import fw.resources.ResourceLocationBuilder;
 import lyra.klass.KlassWalker;
@@ -275,6 +275,8 @@ public abstract class ExtStructure extends Structure implements CodecHolder<Stru
 	 * StructureType为函数式接口，只有返回Structure的codec的抽象方法
 	 */
 	public static class Type {
+		
+		
 		@SuppressWarnings("unchecked")
 		public static StructureType<?> build(MapCodec<? extends Structure> structureCodec) {
 			return () -> (MapCodec<Structure>) structureCodec;
@@ -289,8 +291,8 @@ public abstract class ExtStructure extends Structure implements CodecHolder<Stru
 			return ResourceKeyBuilder.build(Registries.STRUCTURE_TYPE, name);
 		}
 
-		public static <S extends Structure> DatagenHolder<StructureType<?>> register(String name, DatagenHolder.BootstrapValue<StructureType<?>> structureType) {
-			return DatagenHolder.of(Registries.STRUCTURE_TYPE, name, structureType);
+		public static <S extends Structure> EntryHolder<StructureType<?>> register(String name, EntryHolder.BootstrapValue<StructureType<?>> structureType) {
+			return EntryHolder.of(Registries.STRUCTURE_TYPE, name, structureType);
 		}
 	}
 
@@ -301,8 +303,8 @@ public abstract class ExtStructure extends Structure implements CodecHolder<Stru
 	 * @param structure
 	 * @return
 	 */
-	public static final DatagenHolder<Structure> register(String name, DatagenHolder.BootstrapValue<Structure> structure) {
-		return DatagenHolder.of(Registries.STRUCTURE, name, structure);
+	public static final EntryHolder<Structure> register(String name, EntryHolder.BootstrapValue<Structure> structure) {
+		return EntryHolder.of(Registries.STRUCTURE, name, structure);
 	}
 
 	/**
@@ -310,6 +312,13 @@ public abstract class ExtStructure extends Structure implements CodecHolder<Stru
 	 */
 	public static class Settings {
 
+		/**
+		 * 直接构建一个Holder列表
+		 * 
+		 * @param context
+		 * @param biomes
+		 * @return
+		 */
 		public static final HolderSet<Biome> validBiomes(BootstrapContext<?> context, String... biomes) {
 			return HolderSets.build(context, Registries.BIOME, biomes);
 		}
@@ -348,6 +357,10 @@ public abstract class ExtStructure extends Structure implements CodecHolder<Stru
 
 		public static final Structure.StructureSettings of(HolderSet<Biome> biomes, Map<MobCategory, StructureSpawnOverride> spawnOverrides, GenerationStep.Decoration step, TerrainAdjustment terrainAdaptation) {
 			return new Structure.StructureSettings(biomes, spawnOverrides, step, terrainAdaptation);
+		}
+
+		public static final Structure.StructureSettings of(HolderSet<Biome> biomes, GenerationStep.Decoration step, TerrainAdjustment terrainAdaptation) {
+			return of(biomes, spawnOverrides(), step, terrainAdaptation);
 		}
 	}
 }

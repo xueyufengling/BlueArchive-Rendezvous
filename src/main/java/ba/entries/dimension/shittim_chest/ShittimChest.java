@@ -7,8 +7,8 @@ import ba.entries.biome.shittim_chest.ShittimChestBiomes;
 import fw.client.render.sky.CloudColor;
 import fw.client.render.sky.SkyColor;
 import fw.core.ExecuteIn;
-import fw.datagen.DatagenHolder;
-import fw.datagen.annotation.RegistryDatagen;
+import fw.datagen.EntryHolder;
+import fw.datagen.annotation.RegistryEntry;
 import fw.dimension.ExtDimension;
 import fw.math.ColorLinearInterpolation;
 import fw.math.Vec3LinearInterpolation;
@@ -33,7 +33,7 @@ import net.minecraft.world.level.levelgen.NoiseSettings;
 
 public class ShittimChest {
 	static {
-		RegistryDatagen.RegistriesProvider.forDatagen();
+		RegistryEntry.RegistriesProvider.forDatagen();
 		ExecuteIn.Client(() -> {
 			CloudColor.setLevelCloudColorResolver("ba:shittim_chest", ColorLinearInterpolation
 					.begin(0, 214, 186, 159)// 6 h 灰黄
@@ -72,8 +72,8 @@ public class ShittimChest {
 	/**
 	 * 维度属性定义
 	 */
-	@RegistryDatagen
-	public static final DatagenHolder<DimensionType> DIMENSION_TYPE = ExtDimension.Type.register(ID, new DimensionType(
+	@RegistryEntry
+	public static final EntryHolder<DimensionType> DIMENSION_TYPE = ExtDimension.Type.register(ID, new DimensionType(
 			OptionalLong.empty(),
 			true,
 			false,
@@ -93,8 +93,8 @@ public class ShittimChest {
 	/**
 	 * 噪声地形生成器
 	 */
-	@RegistryDatagen
-	public static final DatagenHolder<NoiseGeneratorSettings> NOISE_SETTINGS = ExtDimension.Noise.register(ID, (BootstrapContext<?> context, RegistryAccess registryAccess) -> {
+	@RegistryEntry
+	public static final EntryHolder<NoiseGeneratorSettings> NOISE_SETTINGS = ExtDimension.Noise.register(ID, (BootstrapContext<?> context, RegistryAccess registryAccess) -> {
 		NoiseSettings noise = NoiseSettings.create(
 				MIN_Y,
 				HEIGHT,
@@ -133,8 +133,8 @@ public class ShittimChest {
 
 	});
 
-	@RegistryDatagen
-	public static final DatagenHolder<LevelStem> LEVEL_STEM = ExtDimension.Stem.register(ID, (BootstrapContext<?> context, RegistryAccess registryAccess) -> {
+	@RegistryEntry
+	public static final EntryHolder<LevelStem> LEVEL_STEM = ExtDimension.Stem.register(ID, (BootstrapContext<?> context, RegistryAccess registryAccess) -> {
 		HolderGetter<DimensionType> dimensionTypes = context.lookup(Registries.DIMENSION_TYPE);
 		HolderGetter<NoiseGeneratorSettings> noiseSettings = context.lookup(Registries.NOISE_SETTINGS);
 		Holder<DimensionType> dimType = dimensionTypes.getOrThrow(DIMENSION_TYPE.getKey());

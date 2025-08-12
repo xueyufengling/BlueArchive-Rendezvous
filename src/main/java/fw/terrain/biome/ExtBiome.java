@@ -5,7 +5,7 @@ import java.util.Set;
 
 import fw.core.Core;
 import fw.core.registry.registries.server.DynamicRegistries;
-import fw.datagen.DatagenHolder;
+import fw.datagen.EntryHolder;
 import fw.resources.ResourceKeyBuilder;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
@@ -99,8 +99,8 @@ public class ExtBiome {
 	 * @param biome
 	 * @return
 	 */
-	public static final DatagenHolder<Biome> register(String name, Biome biome) {
-		return DatagenHolder.of(Registries.BIOME, name, biome);
+	public static final EntryHolder<Biome> register(String name, Biome biome) {
+		return EntryHolder.of(Registries.BIOME, name, biome);
 	}
 
 	public static BiomeSpecialEffects buildBiomeSpecialEffects(
