@@ -2,7 +2,9 @@ package fw.items;
 
 import fw.core.Core;
 import fw.core.registry.RegistryMap;
+import fw.core.registry.RegistryMap.ItemMap;
 import fw.datagen.Localizable;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.registries.DeferredItem;
 
@@ -10,7 +12,7 @@ import net.neoforged.neoforge.registries.DeferredItem;
  * 没有任何功能的简单物品，通常是材料
  */
 public class ExtItem extends Item implements Localizable {
-	public static final RegistryMap.ItemMap ITEMS = new RegistryMap.ItemMap();
+	public static final RegistryMap.ItemMap ITEMS = (ItemMap) RegistryMap.of(Registries.ITEM);
 
 	public ExtItem(Item.Properties properties) {
 		super(properties);

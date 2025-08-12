@@ -79,7 +79,7 @@ public class ExtDimension {
 	 * DimensionFunctionType在使用CodecAutogen注解自动生成CODEC时已经自动注册，如果没有使用该注解生成，需要手动使用registerType()将CODEC注册。<br>
 	 */
 	public static class Df {
-		public static final RegistryMap<MapCodec<? extends DensityFunction>> DENSITY_FUNCTION_TYPES = new RegistryMap<>(Registries.DENSITY_FUNCTION_TYPE);
+		public static final RegistryMap<MapCodec<? extends DensityFunction>> DENSITY_FUNCTION_TYPES = RegistryMap.of(Registries.DENSITY_FUNCTION_TYPE);
 
 		/**
 		 * 注册自定义密度函数MapCodec，例如末地岛屿密度函数。见DensityFunctions::bootstrap

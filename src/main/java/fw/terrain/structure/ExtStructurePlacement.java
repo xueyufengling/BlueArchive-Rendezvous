@@ -33,7 +33,7 @@ public abstract class ExtStructurePlacement extends StructurePlacement implement
 	 * StructurePlacement的类型，无注册表。，<br>
 	 */
 	public static class Type {
-		public static final RegistryMap<StructurePlacementType<?>> STRUCTURE_PLACEMENT = new RegistryMap<>(Registries.STRUCTURE_PLACEMENT);
+		public static final RegistryMap<StructurePlacementType<?>> STRUCTURE_PLACEMENT = RegistryMap.of(Registries.STRUCTURE_PLACEMENT);
 
 		public static DeferredHolder<StructurePlacementType<?>, StructurePlacementType<?>> register(String name, StructurePlacementType<?> placementType) {
 			return STRUCTURE_PLACEMENT.register(name, () -> placementType);

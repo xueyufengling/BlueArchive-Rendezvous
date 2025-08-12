@@ -48,8 +48,23 @@ public class RegistryMap<R> {
 	protected final HashMap<String, DeferredHolder<R, ? extends R>> entriesMap = new HashMap<>();
 	protected final HashMap<String, DeferredRegister<R>> deferredRegisters = new HashMap<>();
 
-	public RegistryMap(ResourceKey<? extends Registry<R>> registry_key) {
+	private RegistryMap(ResourceKey<? extends Registry<R>> registry_key) {
 		this.registryKey = registry_key;
+	}
+
+	/**
+	 * 保证每个注册类型只有单一RegistryMap<R>实例
+	 */
+	private static final HashMap<ResourceKey<? extends Registry<?>>, RegistryMap<?>> RegistryMaps = new HashMap<>();
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public static final <R> RegistryMap<R> of(ResourceKey<? extends Registry<R>> registry_key) {
+		if (Registries.ITEM.equals(registry_key))
+			return (RegistryMap<R>) RegistryMaps.computeIfAbsent(registry_key, (ResourceKey<? extends Registry<?>> key) -> new RegistryMap.ItemMap());
+		else if (Registries.BLOCK.equals(registry_key))
+			return (RegistryMap<R>) RegistryMaps.computeIfAbsent(registry_key, (ResourceKey<? extends Registry<?>> key) -> new RegistryMap.BlockMap());
+		else
+			return (RegistryMap<R>) RegistryMaps.computeIfAbsent(registry_key, (ResourceKey<? extends Registry<?>> key) -> new RegistryMap(key));
 	}
 
 	public final DeferredRegister<R> getDeferredRegister(String namespace) {
@@ -108,7 +123,7 @@ public class RegistryMap<R> {
 
 	public static class ItemMap extends RegistryMap<Item> {
 
-		public ItemMap() {
+		private ItemMap() {
 			super(Registries.ITEM);
 		}
 
@@ -135,7 +150,7 @@ public class RegistryMap<R> {
 
 	public static class BlockMap extends RegistryMap<Block> {
 
-		public BlockMap() {
+		private BlockMap() {
 			super(Registries.BLOCK);
 		}
 

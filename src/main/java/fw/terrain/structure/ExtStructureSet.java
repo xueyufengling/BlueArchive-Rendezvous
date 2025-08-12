@@ -21,7 +21,7 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 public class ExtStructureSet {
 	public static final int DEFAULT_STRUCTURE_WEIGHT = 1;
 
-	public static final RegistryMap<StructureSet> STRUCTURE_SET = new RegistryMap<>(Registries.STRUCTURE_SET);
+	public static final RegistryMap<StructureSet> STRUCTURE_SET = RegistryMap.of(Registries.STRUCTURE_SET);
 
 	public static DeferredHolder<StructureSet, StructureSet> register(String name, StructureSet set) {
 		return STRUCTURE_SET.register(name, () -> set);

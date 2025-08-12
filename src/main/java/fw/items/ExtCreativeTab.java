@@ -17,7 +17,7 @@ import net.neoforged.neoforge.registries.DeferredItem;
  * 创造模式物品栏
  */
 public interface ExtCreativeTab extends BaseClass<ExtCreativeTab.Definition>, Localizable {
-	public static final RegistryMap<CreativeModeTab> CREATIVE_TABS = new RegistryMap<>(Registries.CREATIVE_MODE_TAB);
+	public static final RegistryMap<CreativeModeTab> CREATIVE_TABS = RegistryMap.of(Registries.CREATIVE_MODE_TAB);
 
 	public static String header = "itemGroup";
 

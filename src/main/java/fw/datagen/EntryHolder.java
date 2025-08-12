@@ -1,11 +1,14 @@
 package fw.datagen;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
-import fw.core.Core;
 import fw.core.registry.MappedRegistryAccess;
 import fw.core.registry.RegistryFactory;
+import fw.core.registry.RegistryMap;
 import fw.resources.ResourceKeyBuilder;
+import fw.resources.ResourceLocationBuilder;
+import lyra.object.ObjectManipulator;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.RegistrationInfo;
@@ -13,6 +16,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 
 /**
@@ -39,15 +43,19 @@ public class EntryHolder<T> {
 	/**
 	 * 数据生成或服务器启动后注册，只能调用一次
 	 */
+	@SuppressWarnings("unchecked")
 	public final void register() {
 		if (bootstrapContext != null)
 			bootstrapContext.register(resourceKey, originalValue());
 		else
 			MappedRegistryAccess.getUnfrozenServerRegistry(registryKey).register(this.resourceKey, this.originalValue(), RegistrationInfo.BUILT_IN);
+		((HashSet<String>) ObjectManipulator.access(RegistryMap.class, "namespaces")).add(this.namespace);// 将本条目的命名空间添加到统计集合
 	}
 
+	@SuppressWarnings("unchecked")
 	public final void registerDeferred() {
 		RegistryFactory.deferredRegister(registryKey, namespace).register(path, () -> this.originalValue());
+		((HashSet<String>) ObjectManipulator.access(RegistryMap.class, "namespaces")).add(this.namespace);// 将本条目的命名空间添加到统计集合
 	}
 
 	/**
@@ -82,6 +90,16 @@ public class EntryHolder<T> {
 		this.namespace = namespace;
 		this.path = path;
 		this.resourceKey = ResourceKeyBuilder.build(registryKey, namespace, path);
+		this.valueSource = valueSource;
+		this.orininalValue = value;
+	}
+
+	private EntryHolder(ResourceKey<? extends Registry<T>> registryKey, String namespacedId, BootstrapValue<T> valueSource, T value) {
+		this.registryKey = registryKey;
+		ResourceLocation loc = ResourceLocationBuilder.build(namespacedId);
+		this.resourceKey = ResourceKeyBuilder.build(registryKey, loc);
+		this.namespace = loc.getNamespace();
+		this.path = loc.getPath();
 		this.valueSource = valueSource;
 		this.orininalValue = value;
 	}
@@ -173,12 +191,12 @@ public class EntryHolder<T> {
 		return new EntryHolder<>(registryKey, namespace, path, valueSource, null);
 	}
 
-	public static final <T> EntryHolder<T> of(ResourceKey<? extends Registry<T>> registryKey, String path, T value) {
-		return of(registryKey, Core.ModId, path, value);
+	public static final <T> EntryHolder<T> of(ResourceKey<? extends Registry<T>> registryKey, String namespacedId, T value) {
+		return new EntryHolder<>(registryKey, namespacedId, null, value);
 	}
 
-	public static final <T> EntryHolder<T> of(ResourceKey<? extends Registry<T>> registryKey, String path, BootstrapValue<T> valueSource) {
-		return of(registryKey, Core.ModId, path, valueSource);
+	public static final <T> EntryHolder<T> of(ResourceKey<? extends Registry<T>> registryKey, String namespacedId, BootstrapValue<T> valueSource) {
+		return new EntryHolder<>(registryKey, namespacedId, valueSource, null);
 	}
 
 	@Override

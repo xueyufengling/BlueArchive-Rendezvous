@@ -24,13 +24,15 @@ import net.minecraft.world.level.biome.MobSpawnSettings;
 
 public class ShittimChestBiomes extends ExtBiomeSource {
 
+	public static final String SHITTIM_CHEST_ID = "ba:shittim_chest";
+
 	private static MutableBiomeSpecialEffects effects;
 
 	static {
 		CodecHolder.CODEC();
 		RegistryEntry.RegistriesProvider.forDatagen();
 		ExecuteIn.Client(() -> {
-			effects = MutableBiomeSpecialEffects.from("ba:shittim_chest");
+			effects = MutableBiomeSpecialEffects.from(SHITTIM_CHEST_ID);
 			effects.tick(ColorLinearInterpolation
 					.begin(0, 254, 229, 166)// 6 h 黄
 					.append(1500, 165, 154, 188)// 7.5 h 淡蓝紫
@@ -48,10 +50,10 @@ public class ShittimChestBiomes extends ExtBiomeSource {
 	@CodecAutogen(null_if_empty = true, warn_if_register_failed = true)
 	public static final MapCodec<? extends BiomeSource> CODEC = null;
 
-	protected static final List<String> biomes = List.of("ba:shittim_chest");
+	protected static final List<String> biomes = List.of(SHITTIM_CHEST_ID);
 
 	@RegistryEntry
-	public static final EntryHolder<Biome> shittim_chest = ExtBiome.register("shittim_chest", ExtBiome.build(
+	public static final EntryHolder<Biome> shittim_chest = ExtBiome.register(SHITTIM_CHEST_ID, ExtBiome.build(
 			false,
 			0,
 			Biome.TemperatureModifier.NONE,
@@ -76,6 +78,6 @@ public class ShittimChestBiomes extends ExtBiomeSource {
 
 	@Override
 	public Holder<Biome> getNoiseBiome(int x, int y, int z, Sampler sampler) {
-		return biome("ba:shittim_chest");
+		return biome(SHITTIM_CHEST_ID);
 	}
 }

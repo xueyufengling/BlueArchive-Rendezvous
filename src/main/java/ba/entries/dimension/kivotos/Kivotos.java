@@ -32,7 +32,7 @@ public class Kivotos {
 		RegistryEntry.RegistriesProvider.forDatagen();
 	}
 
-	public static final String ID = "kivotos";
+	public static final String ID = "ba:kivotos";
 
 	public static final int MIN_Y = -256;
 	public static final int MAX_Y = 0;

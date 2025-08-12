@@ -32,10 +32,13 @@ import net.minecraft.world.level.levelgen.NoiseRouter;
 import net.minecraft.world.level.levelgen.NoiseSettings;
 
 public class ShittimChest {
+
+	public static final String ID = "ba:shittim_chest";
+
 	static {
 		RegistryEntry.RegistriesProvider.forDatagen();
 		ExecuteIn.Client(() -> {
-			CloudColor.setLevelCloudColorResolver("ba:shittim_chest", ColorLinearInterpolation
+			CloudColor.setLevelCloudColorResolver(ID, ColorLinearInterpolation
 					.begin(0, 214, 186, 159)// 6 h 灰黄
 					.append(3000, 208, 228, 243)// 9 h 灰白
 					.append(6000, 246, 242, 243)// 12 h 亮白
@@ -45,7 +48,7 @@ public class ShittimChest {
 					.append(18000, 59, 106, 189)// 0 h 深黑蓝
 					.append(21000, 68, 139, 203)// 3 h 灰
 			);
-			SkyColor.setLevelSkyColorResolver("ba:shittim_chest",
+			SkyColor.setLevelSkyColorResolver(ID,
 					ColorLinearInterpolation
 							.begin(3000, 90, 145, 198)// 9 h 灰蓝
 							.append(9000, 90, 145, 198)// 15 h 灰蓝
@@ -62,8 +65,6 @@ public class ShittimChest {
 			);
 		});
 	}
-
-	public static final String ID = "shittim_chest";
 
 	public static final int MIN_Y = 0;
 	public static final int MAX_Y = 368;

@@ -19,7 +19,7 @@ import net.neoforged.neoforge.data.event.GatherDataEvent;
 public class ExtDataGenerator {
 	@SubscribeEvent
 	public static void onGatherData(GatherDataEvent event) {
-		Core.logInfo("ExtDataGenerator started datagen.");
+		Core.logInfo("ExtDataGenerator starting to datagen.");
 		DataGenerator generator = event.getGenerator();
 		PackOutput output = generator.getPackOutput();
 		ExistingFileHelper helper = event.getExistingFileHelper();

@@ -14,9 +14,9 @@ public class ResourceLocationBuilder {
 		this.path = namespace_id[1];
 	}
 
-	public ResourceLocationBuilder(String namespace, String id) {
+	public ResourceLocationBuilder(String namespace, String path) {
 		this.namespace = namespace;
-		this.path = id;
+		this.path = path;
 	}
 
 	@Override
@@ -52,10 +52,10 @@ public class ResourceLocationBuilder {
 		return build(namespace_path[0], namespace_path[1]);
 	}
 
-	public static ResourceLocation build(String namespace, String id) {
+	public static ResourceLocation build(String namespace, String path) {
 		ResourceLocation resource_location = InternalUnsafe.allocateInstance(ResourceLocation.class);
-		ObjectManipulator.setObject(resource_location, "namespace", namespace);
-		ObjectManipulator.setObject(resource_location, "path", id);
+		ObjectManipulator.setDeclaredMemberObject(resource_location, "namespace", namespace);
+		ObjectManipulator.setDeclaredMemberObject(resource_location, "path", path);
 		return resource_location;
 	}
 
@@ -64,9 +64,6 @@ public class ResourceLocationBuilder {
 	}
 
 	public static String toString(ResourceLocation resloc) {
-		if (resloc == null)
-			return null;
-		else
-			return resloc.toString();
+		return resloc == null ? null : resloc.toString();
 	}
 }
