@@ -14,6 +14,7 @@ import fw.math.ColorLinearInterpolation;
 import fw.math.Vec3LinearInterpolation;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.data.worldgen.SurfaceRuleData;
@@ -93,7 +94,7 @@ public class ShittimChest {
 	 * 噪声地形生成器
 	 */
 	@RegistryDatagen
-	public static final DatagenHolder<NoiseGeneratorSettings> NOISE_SETTINGS = ExtDimension.Noise.register(ID, (BootstrapContext<?> context) -> {
+	public static final DatagenHolder<NoiseGeneratorSettings> NOISE_SETTINGS = ExtDimension.Noise.register(ID, (BootstrapContext<?> context, RegistryAccess registryAccess) -> {
 		NoiseSettings noise = NoiseSettings.create(
 				MIN_Y,
 				HEIGHT,
@@ -133,11 +134,11 @@ public class ShittimChest {
 	});
 
 	@RegistryDatagen
-	public static final DatagenHolder<LevelStem> LEVEL_STEM = ExtDimension.Stem.register(ID, (BootstrapContext<?> context) -> {
+	public static final DatagenHolder<LevelStem> LEVEL_STEM = ExtDimension.Stem.register(ID, (BootstrapContext<?> context, RegistryAccess registryAccess) -> {
 		HolderGetter<DimensionType> dimensionTypes = context.lookup(Registries.DIMENSION_TYPE);
 		HolderGetter<NoiseGeneratorSettings> noiseSettings = context.lookup(Registries.NOISE_SETTINGS);
-		Holder<DimensionType> dimType = dimensionTypes.getOrThrow(DIMENSION_TYPE.resourceKey);
-		Holder<NoiseGeneratorSettings> noise = noiseSettings.getOrThrow(NOISE_SETTINGS.resourceKey);
+		Holder<DimensionType> dimType = dimensionTypes.getOrThrow(DIMENSION_TYPE.getKey());
+		Holder<NoiseGeneratorSettings> noise = noiseSettings.getOrThrow(NOISE_SETTINGS.getKey());
 
 		return new LevelStem(dimType, new NoiseBasedChunkGenerator(
 				new ShittimChestBiomes(context),

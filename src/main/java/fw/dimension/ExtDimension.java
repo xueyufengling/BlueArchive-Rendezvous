@@ -47,7 +47,7 @@ public class ExtDimension {
 		 * @return
 		 */
 		public static final ResourceKey<Level> levelKey(DatagenHolder<LevelStem> levelStemHolder) {
-			return levelStemHolder.resourceKey(Registries.DIMENSION);
+			return levelStemHolder.castKey(Registries.DIMENSION);
 		}
 
 		/**

@@ -10,6 +10,7 @@ import fw.dimension.ExtDimension;
 import fw.terrain.Df;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.data.worldgen.SurfaceRuleData;
@@ -63,7 +64,7 @@ public class Kivotos {
 	 * 噪声地形生成器
 	 */
 	@RegistryDatagen
-	public static final DatagenHolder<NoiseGeneratorSettings> NOISE_SETTINGS = ExtDimension.Noise.register(ID, (BootstrapContext<?> context) -> {
+	public static final DatagenHolder<NoiseGeneratorSettings> NOISE_SETTINGS = ExtDimension.Noise.register(ID, (BootstrapContext<?> context, RegistryAccess registryAccess) -> {
 		Df df = Df.of(context);
 
 		NoiseSettings noise = NoiseSettings.create(
@@ -72,7 +73,7 @@ public class Kivotos {
 				2,
 				2);
 
-		DensityFunction base3dNoise = df.func(KivotosDensityFunctions.KIVOTOS_BASE_3D_NOISE.resourceKey);
+		DensityFunction base3dNoise = df.func(KivotosDensityFunctions.KIVOTOS_BASE_3D_NOISE.getKey());
 
 		DensityFunction continents = new KivotosDf(0L);
 
@@ -119,11 +120,11 @@ public class Kivotos {
 	});
 
 	@RegistryDatagen
-	public static final DatagenHolder<LevelStem> LEVEL_STEM = ExtDimension.Stem.register(ID, (BootstrapContext<?> context) -> {
+	public static final DatagenHolder<LevelStem> LEVEL_STEM = ExtDimension.Stem.register(ID, (BootstrapContext<?> context, RegistryAccess registryAccess) -> {
 		HolderGetter<DimensionType> dimensionTypes = context.lookup(Registries.DIMENSION_TYPE);
 		HolderGetter<NoiseGeneratorSettings> noiseSettings = context.lookup(Registries.NOISE_SETTINGS);
-		Holder<DimensionType> dimType = dimensionTypes.getOrThrow(DIMENSION_TYPE.resourceKey);
-		Holder<NoiseGeneratorSettings> noise = noiseSettings.getOrThrow(NOISE_SETTINGS.resourceKey);
+		Holder<DimensionType> dimType = dimensionTypes.getOrThrow(DIMENSION_TYPE.getKey());
+		Holder<NoiseGeneratorSettings> noise = noiseSettings.getOrThrow(NOISE_SETTINGS.getKey());
 
 		return new LevelStem(dimType, new NoiseBasedChunkGenerator(
 				new KivotosBiomes(context),

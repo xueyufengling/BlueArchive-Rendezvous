@@ -5,7 +5,6 @@ import org.slf4j.Logger;
 import com.mojang.logging.LogUtils;
 
 import ba.entries.dimension.shittim_chest.ShittimChest;
-import ba.entries.dimension.shittim_chest.structure.AronaClassRoom;
 import fw.core.Core;
 import fw.core.ModInit;
 import fw.datagen.annotation.LangDatagen;

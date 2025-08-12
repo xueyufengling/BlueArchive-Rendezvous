@@ -10,7 +10,6 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 import fw.core.Core;
-import fw.core.registry.RegistryFactory;
 import fw.core.registry.RegistryWalker;
 import fw.datagen.DatagenHolder;
 import lyra.klass.GenericTypes;
@@ -30,20 +29,29 @@ import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.EventBusSubscriber.Bus;
-import net.neoforged.fml.event.lifecycle.FMLConstructModEvent;
 import net.neoforged.neoforge.common.data.DatapackBuiltinEntriesProvider;
+import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.FIELD })
 public @interface RegistryDatagen {
+	/**
+	 * 注册的阶段
+	 */
+	public static enum Stage {
+		NONE,
+		DATA_GEN,
+		SERVER_RUNTIME
+	}
 
 	/**
-	 * 是否在运行时注册到DefferedRegister，默认为false。<br>
-	 * 实际上运行时会从生成的数据包中加载这些注册表条目。<br>
+	 * 选择注册该注解字段的时机。<br>
+	 * DATA_GEN则只在数据生成阶段注册并生成json文件；SERVER_RUNTIME则在启动服务器后动态向注册表注册，不会生成json文件。<br>
+	 * 动态注册是立即注册，注册时需要考虑先后顺序，否则注册表中先注册的条目查找不到后注册的值。
 	 * 
 	 * @return
 	 */
-	boolean reg_runtime() default false;
+	Stage reg_stage() default Stage.DATA_GEN;
 
 	public static class RegistryType {
 
@@ -78,21 +86,25 @@ public @interface RegistryDatagen {
 		}
 	}
 
-	@EventBusSubscriber(modid = Core.ModId, bus = Bus.MOD)
+	@EventBusSubscriber(modid = Core.ModId, bus = Bus.GAME)
 	public static class RuntimeDatagenHolderRegister {
 		/**
 		 * 注册给定类中的所有DatagenHolder到运行时的注册表。
 		 * 
 		 * @param registryClass
 		 */
-		@SuppressWarnings({ "rawtypes", "unchecked" })
+		@SuppressWarnings({ "rawtypes" })
 		public static final void registerDatagenHoldersToRegistry(Class<?> registryClass) {
 			KlassWalker.walkAnnotatedFields(registryClass, RegistryDatagen.class, (Field f, boolean isStatic, Object value, RegistryDatagen annotation) -> {
-				if (isStatic && value != null) {
-					if (annotation.reg_runtime() && RegistryType.isDatagenHolder(f)) {
+				if (isStatic && annotation.reg_stage() == Stage.SERVER_RUNTIME) {
+					if (value == null) {
+						Core.logWarn("@RegistryDatagen(SERVER_RUNTIME) field " + f + " is expected to have a non-null value.");
+						return true;
+					}
+					if (RegistryType.isDatagenHolder(f)) {
 						DatagenHolder datagenHolder = (DatagenHolder) value;
-						ObjectManipulator.setObject(value, "deferredHolder", RegistryFactory.deferredRegister(datagenHolder.registryKey, datagenHolder.namespace).register(datagenHolder.path, () -> datagenHolder.value()));
-						Core.logInfo("Registered " + datagenHolder.resourceKey + " with value=" + datagenHolder.value() + " to registry " + datagenHolder.registryKey + " in runtime.");
+						datagenHolder.register();
+						Core.logInfo("Registered [" + datagenHolder.registryKey().location() + "] with original value=" + datagenHolder.originalValue() + " to registry [" + datagenHolder.registryKey().location() + "] in runtime.");
 					}
 				}
 				return true;
@@ -100,12 +112,12 @@ public @interface RegistryDatagen {
 		}
 
 		/**
-		 * mod构建完成以后注册需要注册的DatagenHolder
+		 * 服务器启动时注册需要注册的DatagenHolder
 		 * 
 		 * @param event
 		 */
 		@SubscribeEvent(priority = EventPriority.HIGHEST)
-		public static void onFMLConstructMod(FMLConstructModEvent event) {
+		public static void onFMLConstructMod(ServerAboutToStartEvent event) {
 			for (Class<?> registryClass : RegistriesProvider.registryClasses) {
 				registerDatagenHoldersToRegistry(registryClass);
 			}
@@ -114,6 +126,10 @@ public @interface RegistryDatagen {
 
 	public static class RegistriesProvider extends DatapackBuiltinEntriesProvider {
 		static final ArrayList<Class<?>> registryClasses = new ArrayList<>();
+
+		private static final void setBootstrapContext(DatagenHolder<?> datagenHolder, BootstrapContext<?> bootstrapContext) {
+			ObjectManipulator.setDeclaredMemberObject(datagenHolder, "bootstrapContext", bootstrapContext);
+		}
 
 		/**
 		 * 注册某个类中的全部registryType类型的注解@RegistryDatagen的Holder或DatagenHolder静态字段
@@ -127,27 +143,27 @@ public @interface RegistryDatagen {
 		private static final void registerFields(BootstrapContext<?> context, Class<?> registryClass, Class<?> registryType, boolean allowRegister) {
 			BootstrapContext raw_context = (BootstrapContext) context;
 			KlassWalker.walkAnnotatedFields(registryClass, RegistryDatagen.class, (Field f, boolean isStatic, Object value, RegistryDatagen annotation) -> {
-				if (isStatic) {
+				if (isStatic && annotation.reg_stage() == Stage.DATA_GEN) {
 					if (value == null) {
-						Core.logWarn("@RegistryDatagen field " + f + " is expected to have a non-null value.");
+						Core.logWarn("@RegistryDatagen(DATA_GEN) field " + f + " is expected to have a non-null value.");
 						return true;
 					}
-					if (RegistryType.isHolder(f, registryType)) {
-						Holder holder = (Holder) value;
-						if (holder instanceof DatagenHolder datagenHolder) {
-							if (allowRegister) {
-								raw_context.register(datagenHolder.resourceKey, datagenHolder.value(context));
-								Core.logInfo("Datagen registered [" + datagenHolder.registryKey.location() + "] entry [" + datagenHolder.resourceKey.location() + "] with DatagenHolder value=" + datagenHolder.value());
-							} else {
-								Core.logWarn("DatagenHolder entry [" + datagenHolder.resourceKey.location() + "] with registry type [" + datagenHolder.registryKey.location() + "] is not allowed to register, check if this registry in RegistryDatagen.RegistriesProvider.registryFieldFilter map.");
-							}
+					if (RegistryType.isDatagenHolder(f, registryType)) {
+						DatagenHolder datagenHolder = (DatagenHolder) value;
+						setBootstrapContext(datagenHolder, context);// 为DatagenHolder设置BootstrapContext
+						if (allowRegister) {
+							datagenHolder.register();
+							Core.logInfo("Datagen registered [" + datagenHolder.registryKey().location() + "] entry [" + datagenHolder.getKey().location() + "] with DatagenHolder value=" + datagenHolder.originalValue());
 						} else {
-							if (allowRegister) {
-								raw_context.register(holder.getKey(), holder.value());
-								Core.logInfo("Datagen registered [" + holder.getKey().registryKey().location() + "] entry [" + holder.getKey().location() + "] with Holder value=" + holder.value());
-							} else {
-								Core.logWarn("Holder entry [" + holder.getKey().location() + "] with registry type [" + holder.getKey().registryKey().location() + "] is not allowed to register, check if this registry in RegistryDatagen.RegistriesProvider.registryFieldFilter map.");
-							}
+							Core.logWarn("DatagenHolder entry [" + datagenHolder.getKey().location() + "] with registry type [" + datagenHolder.registryKey().location() + "] is not allowed to register, check if this registry in RegistryDatagen.RegistriesProvider.registryFieldFilter map.");
+						}
+					} else if (RegistryType.isHolder(f, registryType)) {
+						Holder holder = (Holder) value;
+						if (allowRegister) {
+							raw_context.register(holder.getKey(), holder.value());
+							Core.logInfo("Datagen registered [" + holder.getKey().registryKey().location() + "] entry [" + holder.getKey().location() + "] with Holder value=" + holder.value());
+						} else {
+							Core.logWarn("Holder entry [" + holder.getKey().location() + "] with registry type [" + holder.getKey().registryKey().location() + "] is not allowed to register, check if this registry in RegistryDatagen.RegistriesProvider.registryFieldFilter map.");
 						}
 					}
 				} else

@@ -116,7 +116,7 @@ public class Dimensions {
 	}
 
 	public static final void redirectOverworld(DatagenHolder<DimensionType> dimensionType, DatagenHolder<LevelStem> levelStem) {
-		redirectOverworld(dimensionType.resourceKey, levelStem.resourceKey);
+		redirectOverworld(dimensionType.getKey(), levelStem.getKey());
 	}
 
 	public static final void redirectOverworld(String dimensionType, String levelStem) {

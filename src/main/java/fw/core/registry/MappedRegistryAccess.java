@@ -107,6 +107,10 @@ public class MappedRegistryAccess {
 		return unfreezeRegistry(getRegistry(registryAccess, resource_key));
 	}
 
+	public static <T> MappedRegistry<T> getUnfrozenServerRegistry(ResourceKey<? extends Registry<T>> resource_key) {
+		return unfreezeRegistry(getServerRegistry(resource_key));
+	}
+
 	public static <T> void manipulateServer(ResourceKey<? extends Registry<T>> resource_key, Operation<T> op) {
 		MappedRegistry<T> registry = getUnfrozenRegistry(serverRegistryAccess, resource_key);
 		op.operate(registry);

@@ -1,1 +1,9 @@
-// 1.21.1	2025-08-11T23:19:31.9454554	Registries
+// 1.21.1	2025-08-12T15:15:51.8887504	Registries
+08759c62d358ad8325761bddaa1a2e7984ede609 data/ba/dimension/kivotos.json
+69738f91cc44350fed31e19168b09dd70814209a data/ba/dimension/shittim_chest.json
+8b2ce527f541fa71dfea5f28cb7a672015ad7d87 data/ba/dimension_type/kivotos.json
+ec3e7f001ff1c41ec1ce5bfa707ed382ee0b607b data/ba/dimension_type/shittim_chest.json
+0d6163da32e7234996aab790e1851d4c75258adc data/ba/worldgen/biome/shittim_chest.json
+40ed6613c0c4402694c2364ee88d3b9ff203550e data/ba/worldgen/density_function/kivotos/base_3d_noise.json
+fd3597bc284b787cf29d659bcf68dd826a6b306d data/ba/worldgen/noise_settings/kivotos.json
+fe16dd98668aba59ac6aac601149221c8ba60e2e data/ba/worldgen/noise_settings/shittim_chest.json

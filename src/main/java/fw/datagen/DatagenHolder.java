@@ -1,72 +1,84 @@
 package fw.datagen;
 
 import java.util.ArrayList;
-import java.util.Optional;
-import java.util.function.Predicate;
-import java.util.stream.Stream;
-
-import com.mojang.datafixers.util.Either;
 
 import fw.core.Core;
 import fw.core.registry.MappedRegistryAccess;
 import fw.resources.ResourceKeyBuilder;
 import net.minecraft.core.Holder;
-import net.minecraft.core.HolderOwner;
+import net.minecraft.core.HolderGetter;
+import net.minecraft.core.RegistrationInfo;
 import net.minecraft.core.Registry;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
-import net.neoforged.bus.api.EventPriority;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.server.ServerAboutToStartEvent;
-import net.neoforged.neoforge.registries.DeferredHolder;
 
-public class DatagenHolder<T> implements Holder<T> {
+/**
+ * 数据包注册条目，可在数据生成时注册并生成json文件，或服务器启动时动态注册到服务器注册表
+ * 
+ * @param <T>
+ */
+public class DatagenHolder<T> {
+	private BootstrapContext<T> bootstrapContext;
+
+	public final BootstrapContext<T> getBootstrapContext() {
+		return bootstrapContext;
+	}
+
+	/**
+	 * 该条目是否已经数据生成
+	 * 
+	 * @return
+	 */
+	public final boolean isDatagen() {
+		return bootstrapContext != null;
+	}
+
+	/**
+	 * 数据生成或服务器启动后注册，只能调用一次
+	 */
+	public final void register() {
+		if (bootstrapContext != null)
+			bootstrapContext.register(resourceKey, originalValue());
+		else
+			MappedRegistryAccess.getUnfrozenServerRegistry(registryKey).register(this.resourceKey, this.originalValue(), RegistrationInfo.BUILT_IN);
+	}
+
+	/**
+	 * 延迟初始化的条目。<br>
+	 * 数据生成阶段时registryAccess为null，服务器启动注册时BootstrapContext为null，两个只取一个。
+	 * 
+	 * @param <T>
+	 */
 	@FunctionalInterface
 	public static interface BootstrapValue<T> {
-		public T value(BootstrapContext<?> context);
+		public T value(BootstrapContext<?> context, RegistryAccess registryAccess);
 	}
 
 	public final String namespace;
 	public final String path;
 	/**
-	 * 该项对应的值，如果与BootstrapContext无关则可以显示赋值，此时就不需要再给valueSource赋值。
+	 * 该项对应的值，如果与BootstrapContext无关则可以显示赋值，此时就不需要再给valueSource赋值。<br>
+	 * 该值为传入给DatagenHolder的原始值，通过value()方法获取的是注册表中的实时值，有可能被更改过。
 	 */
-	private T value;
-	public final ResourceKey<T> resourceKey;
+	private T orininalValue;
+	private final ResourceKey<T> resourceKey;
 
 	public final ArrayList<TagKey<T>> tags = new ArrayList<>();
 	/**
 	 * 仅用于数据生成，需要BootstrapContext。如果value没有直接赋值，那么就在数据生成阶段采用该函数计算value的值。
 	 */
 	private final BootstrapValue<T> valueSource;
-	/**
-	 * 不需要BootstrapContext的值，将直接注册到DeferredRegister
-	 */
-	public final DeferredHolder<T, T> deferredHolder;
-	public final ResourceKey<? extends Registry<T>> registryKey;
+	private final ResourceKey<? extends Registry<T>> registryKey;
 
-	private DatagenHolder(ResourceKey<? extends Registry<T>> registryKey, String namespace, String path, BootstrapValue<T> valueSource, DeferredHolder<T, T> deferredHolder, T value) {
+	private DatagenHolder(ResourceKey<? extends Registry<T>> registryKey, String namespace, String path, BootstrapValue<T> valueSource, T value) {
 		this.registryKey = registryKey;
 		this.namespace = namespace;
 		this.path = path;
-		this.valueSource = valueSource;
 		this.resourceKey = ResourceKeyBuilder.build(registryKey, namespace, path);
-		this.deferredHolder = deferredHolder;
-		this.value = value;
-		NeoForge.EVENT_BUS.register(this);
-	}
-
-	/**
-	 * 从数据包加载后自动将值引用改为数据包反序列化后的对象，保证对本对象的value修改后将同步应用到服务器运行时
-	 * 
-	 * @param event
-	 */
-	@SubscribeEvent(priority = EventPriority.HIGH)
-	private void onServerAboutToStart(ServerAboutToStartEvent event) {
-		value = registry().get(resourceKey);
+		this.valueSource = valueSource;
+		this.orininalValue = value;
 	}
 
 	/**
@@ -78,29 +90,43 @@ public class DatagenHolder<T> implements Holder<T> {
 		return MappedRegistryAccess.getServerRegistry(registryKey);
 	}
 
-	public final <C> ResourceKey<C> resourceKey(ResourceKey<? extends Registry<C>> registryKey) {
+	public final ResourceKey<? extends Registry<T>> registryKey() {
+		return this.registryKey;
+	}
+
+	public final HolderGetter<T> lookup() {
+		return bootstrapContext.lookup(registryKey);
+	}
+
+	public final ResourceKey<T> getKey() {
+		return this.resourceKey;
+	}
+
+	public final <R> ResourceKey<R> castKey(ResourceKey<? extends Registry<R>> registryKey) {
 		return ResourceKeyBuilder.build(registryKey, namespace, path);
 	}
 
 	/**
-	 * 数据生成、运行时获取注册值。运行时只能获取常量值
+	 * 获取该条目的注册原始值
 	 * 
-	 * @param context
 	 * @return
 	 */
-	public final T value(BootstrapContext<T> context) {
-		if (value == null && context != null)
-			value = valueSource.value(context);
-		return value;
+	public final T originalValue() {
+		if (orininalValue == null)
+			orininalValue = valueSource.value(bootstrapContext, MappedRegistryAccess.serverRegistryAccess);// BootstrapValue，只计算一次
+		return orininalValue;
 	}
 
 	/**
-	 * 获取常量值，不是常量值则返回null
+	 * 数据值，数据生成开始及之后为bootstrap值。其他后时只能获取服务器注册表对应的实际条目值<br>
 	 * 
 	 * @return
 	 */
 	public final T value() {
-		return value;
+		if (orininalValue == null)
+			return originalValue();
+		else
+			return this.getHolder().value();
 	}
 
 	/**
@@ -108,7 +134,9 @@ public class DatagenHolder<T> implements Holder<T> {
 	 * 
 	 * @return
 	 */
-	public final Holder.Reference<T> holderReference() {
+	public final Holder.Reference<T> getHolder() {
+		if (this.isDatagen())
+			this.lookup().getOrThrow(resourceKey);
 		return registry().getHolderOrThrow(resourceKey);
 	}
 
@@ -123,7 +151,7 @@ public class DatagenHolder<T> implements Holder<T> {
 	 * @return
 	 */
 	public static final <T> DatagenHolder<T> of(ResourceKey<? extends Registry<T>> registryKey, String namespace, String path, T value) {
-		return new DatagenHolder<>(registryKey, namespace, path, null, null, value);
+		return new DatagenHolder<>(registryKey, namespace, path, null, value);
 	}
 
 	/**
@@ -137,7 +165,7 @@ public class DatagenHolder<T> implements Holder<T> {
 	 * @return
 	 */
 	public static final <T> DatagenHolder<T> of(ResourceKey<? extends Registry<T>> registryKey, String namespace, String path, BootstrapValue<T> valueSource) {
-		return new DatagenHolder<>(registryKey, namespace, path, valueSource, null, null);
+		return new DatagenHolder<>(registryKey, namespace, path, valueSource, null);
 	}
 
 	public static final <T> DatagenHolder<T> of(ResourceKey<? extends Registry<T>> registryKey, String path, T value) {
@@ -150,64 +178,6 @@ public class DatagenHolder<T> implements Holder<T> {
 
 	@Override
 	public String toString() {
-		return "{key=" + resourceKey + ", value=" + value + ", deferredHolder=" + deferredHolder + ", isBound=" + (deferredHolder == null ? false : deferredHolder.isBound()) + "}";
-	}
-
-	@Override
-	public boolean isBound() {
-		if (deferredHolder != null)
-			return deferredHolder.isBound();
-		else
-			return registry() != null;
-	}
-
-	@Override
-	public boolean is(ResourceLocation location) {
-		return this.resourceKey.location().equals(location);
-	}
-
-	@Override
-	public boolean is(ResourceKey<T> resourceKey) {
-		return this.resourceKey.equals(resourceKey);
-	}
-
-	@Override
-	public boolean is(Predicate<ResourceKey<T>> predicate) {
-		return predicate.test(resourceKey);
-	}
-
-	@Override
-	public boolean is(TagKey<T> tagKey) {
-		return tags.contains(tagKey);
-	}
-
-	@Override
-	public boolean is(Holder<T> holder) {
-		return this.resourceKey.equals(holder.getKey());
-	}
-
-	@Override
-	public Stream<TagKey<T>> tags() {
-		return this.tags.parallelStream();
-	}
-
-	@Override
-	public Either<ResourceKey<T>, T> unwrap() {
-		return Either.left(this.resourceKey);
-	}
-
-	@Override
-	public Optional<ResourceKey<T>> unwrapKey() {
-		return this.resourceKey == null ? Optional.empty() : Optional.of(this.resourceKey);
-	}
-
-	@Override
-	public Kind kind() {
-		return Kind.REFERENCE;
-	}
-
-	@Override
-	public boolean canSerializeIn(HolderOwner<T> owner) {
-		return owner.canSerializeIn(this.registry().holderOwner());
+		return "{key=" + resourceKey + ", value=" + orininalValue + ", isDatagen=" + this.isDatagen() + "}";
 	}
 }

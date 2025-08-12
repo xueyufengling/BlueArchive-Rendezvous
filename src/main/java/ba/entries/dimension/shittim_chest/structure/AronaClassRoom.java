@@ -12,6 +12,7 @@ import fw.datagen.annotation.RegistryDatagen;
 import fw.terrain.HeightProviders;
 import fw.terrain.structure.ExtStructure;
 import net.minecraft.core.Holder;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.levelgen.GenerationStep;
@@ -53,13 +54,13 @@ public class AronaClassRoom extends ExtStructure {
 
 	public static final String ID = "arona_class_room";
 
-	@RegistryDatagen
-	public static final DatagenHolder<Structure> ARONA_CLASS_ROOM = ExtStructure.register(ID, (BootstrapContext<?> context) -> {
+	//@RegistryDatagen
+	public static final DatagenHolder<Structure> ARONA_CLASS_ROOM = ExtStructure.register(ID, (BootstrapContext<?> context, RegistryAccess registryAccess) -> {
 		return new AronaClassRoom(context);
 	});
 
-	@RegistryDatagen
-	public static final DatagenHolder<StructureType<?>> ARONA_CLASS_ROOM_TYPE = ExtStructure.Type.register(ID, (BootstrapContext<?> context) -> {
+	//@RegistryDatagen
+	public static final DatagenHolder<StructureType<?>> ARONA_CLASS_ROOM_TYPE = ExtStructure.Type.register(ID, (BootstrapContext<?> context, RegistryAccess registryAccess) -> {
 		return ExtStructure.Type.build(CODEC);
 	});
 
