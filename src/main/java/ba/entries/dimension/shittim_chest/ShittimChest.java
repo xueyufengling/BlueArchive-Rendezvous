@@ -55,9 +55,10 @@ public class ShittimChest {
 					Vec3LinearInterpolation
 							.begin(3000, 0.1)// 9 h
 							.append(9000, 0.1)// 15 h
-							.append(15000, 0.5)// 21 h
+							.append(15000, 0.3)// 21 h
 							.append(18000, 0.7)// 0 h
-							.append(21000, 0.5) // 3 h
+							.append(21000, 0.3) // 3 h
+							.append(22500, 0.3)// 4.5 h
 			);
 		});
 	}

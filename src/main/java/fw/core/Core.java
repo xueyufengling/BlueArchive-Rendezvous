@@ -1,7 +1,5 @@
 package fw.core;
 
-import java.util.ArrayList;
-
 import org.slf4j.Logger;
 
 import fw.Config;
@@ -89,12 +87,7 @@ public class Core {
 		ObjectManipulator.setObject(Core.class, "Mod", getModContainer(event));
 		ObjectManipulator.setObject(Core.class, "ModBus", getModEventBus(Mod));// 初始化赋值ModBus
 		loadPackage("fw.core.registry.registries");// 加载并初始化注册表的字段初始化器
-	}
-
-	private static ArrayList<Runnable> postinitFuncs = new ArrayList<>();
-
-	public static final void addPostinit(Runnable func) {
-		postinitFuncs.add(func);
+		ModInit.Initializer.executeAllInitFuncs(event, ModInit.Stage.PRE_INIT);
 	}
 
 	/**
@@ -107,8 +100,7 @@ public class Core {
 		CodecAutogen.CodecGenerator.generateCodecs();// 生成CODEC
 		RegistryEntry.DeferredEntryHolderRegister.registerAll();
 		RegistryFactory.registerAll();// 注册所有新添加的注册表及其条目
-		for (Runnable postinit : postinitFuncs)
-			postinit.run();
+		ModInit.Initializer.executeAllInitFuncs(event, ModInit.Stage.POST_INIT);
 	}
 
 	/**

@@ -1,6 +1,8 @@
 package fw.dimension;
 
 import fw.core.Core;
+import fw.core.ModInit;
+import fw.core.ModInit.Stage;
 import fw.core.ServerInstance;
 import fw.core.ServerLevels;
 import fw.core.registry.MutableMappedRegistry;
@@ -55,7 +57,7 @@ public class Dimensions {
 		endDimensionType = FieldReference.of(BuiltinDimensionTypes.class, "END");
 		endLevel = FieldReference.of(Level.class, "END");
 		endLevelStem = FieldReference.of(LevelStem.class, "END");
-		Core.addPostinit(Dimensions::modifyVanillaDimensions);// 修改原版维度
+		ModInit.Initializer.forInit();
 	}
 
 	private static ResourceKey<DimensionType> overworldDimensionTypeKey = null;
@@ -284,6 +286,7 @@ public class Dimensions {
 		}
 	}
 
+	@ModInit(exec_stage = Stage.POST_INIT)
 	public static final void modifyVanillaDimensions() {
 		ServerInstance.addBeforeServerStartCallback(Dimensions::collectMutableMappedRegistry);
 		ServerInstance.addAfterServerLoadLevelCallback(Dimensions::redirectTheNether);

@@ -6,17 +6,14 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import lyra.klass.KlassWalker;
 import lyra.lang.JavaLang;
 import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.common.EventBusSubscriber.Bus;
 import net.neoforged.fml.event.lifecycle.FMLConstructModEvent;
 import net.neoforged.fml.javafmlmod.FMLModContainer;
 
@@ -33,20 +30,38 @@ public @interface ModInit {
 	 * 
 	 * @return
 	 */
-	Dist[] env() default { Dist.CLIENT, Dist.DEDICATED_SERVER };
+	Dist[] env() default { Dist.CLIENT, Dist.DEDICATED_SERVER
+	};
 
-	@EventBusSubscriber(modid = Core.ModId, bus = Bus.MOD)
+	public static enum Stage {
+		PRE_INIT, POST_INIT
+
+	}
+
+	/**
+	 * 执行时机：<br>
+	 * PRE_INIT在加载完类库以及初始化fw.core.registry.registries包注册表后执行；<br>
+	 * POST_INIT在生成CODEC、注册注册表条目后执行。如果需要访问这些内容，需要选择POST_INIT作为运行时机。<br>
+	 * 
+	 * @return
+	 */
+	Stage exec_stage() default Stage.PRE_INIT;
+
 	public static class Initializer {
-		private static ArrayList<Class<?>> modInitClasses = new ArrayList<>();
+		/**
+		 * 防止在PRE_INIT注解函数中添加新的@ModInit注解类时报错并发修改List
+		 */
+		private static CopyOnWriteArrayList<Class<?>> modInitClasses = new CopyOnWriteArrayList<>();
 
-		@SubscribeEvent(priority = EventPriority.HIGH)
-		static final void executeAllInitFuncs(FMLConstructModEvent event) {
+		static final void executeAllInitFuncs(FMLConstructModEvent event, Stage run_stage) {
 			ModContainer mod = Core.Mod;
 			IEventBus bus = Core.ModBus;
 			Dist dist = Core.Env;
-			for (Class<?> modInitClass : modInitClasses) {
+			Iterator<Class<?>> iter = modInitClasses.iterator();
+			while (iter.hasNext()) {
+				Class<?> modInitClass = iter.next();
 				KlassWalker.walkAnnotatedMethods(modInitClass, ModInit.class, (Method m, boolean isStatic, Object obj, ModInit annotation) -> {
-					if (isStatic) {
+					if (isStatic && annotation.exec_stage() == run_stage) {
 						Dist[] env = annotation.env();
 						for (Dist d : env) {
 							if (d == dist) {

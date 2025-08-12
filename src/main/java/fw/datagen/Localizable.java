@@ -18,8 +18,22 @@ public interface Localizable {
 		return Core.ModId;
 	}
 
+	/**
+	 * localizationPath()和localizationKey()至少需要重写其中一个
+	 * 
+	 * @return
+	 */
 	public default String localizationPath() {
-		return "undefined";
+		throw new UnsupportedOperationException("No localizationPath() or localizationKey() overrided in Localizable " + this.getClass());
+	}
+
+	public static String joinKey(String path1, String path2) {
+		if (path1 == null || path1.equals(""))
+			return path2;
+		if (path2 == null || path2.equals(""))
+			return path1;
+		else
+			return path1 + NAMESPACE_SEPARATOR + path2;
 	}
 
 	/**
@@ -28,7 +42,7 @@ public interface Localizable {
 	 * @return
 	 */
 	public default String localizationKey() {
-		return localizationType() + NAMESPACE_SEPARATOR + localizationNamespace() + NAMESPACE_SEPARATOR + localizationPath();
+		return joinKey(localizationType(), joinKey(localizationNamespace(), localizationPath()));
 	}
 
 	public default Component localizedComponent() {
@@ -68,7 +82,7 @@ public interface Localizable {
 	@SuppressWarnings("rawtypes")
 	public static String localizationKey(Holder holder) {
 		ResourceKey<?> key = holder.getKey();
-		return localizationType(key) + NAMESPACE_SEPARATOR + localizationNamespace(key) + NAMESPACE_SEPARATOR + localizationPath(key);
+		return joinKey(localizationType(key), joinKey(localizationNamespace(key), localizationPath(key)));
 	}
 
 	/**
