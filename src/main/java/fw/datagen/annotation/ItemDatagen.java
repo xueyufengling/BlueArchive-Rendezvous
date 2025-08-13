@@ -7,7 +7,6 @@ import java.lang.annotation.Target;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 
-import fw.core.Core;
 import fw.core.registry.RegistryMap;
 import lyra.klass.KlassWalker;
 import lyra.lang.JavaLang;
@@ -81,7 +80,6 @@ public @interface ItemDatagen {
 
 		@Override
 		protected void registerModels() {
-			Core.logInfo("ItemDatagen starting to generate item models.");
 			for (Class<?> itemClass : itemsClasses)
 				registerModels(itemClass);
 		}

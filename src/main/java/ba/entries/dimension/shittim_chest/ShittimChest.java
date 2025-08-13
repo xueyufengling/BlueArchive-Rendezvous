@@ -38,15 +38,16 @@ public class ShittimChest {
 	static {
 		RegistryEntry.RegistriesProvider.forDatagen();
 		ExecuteIn.Client(() -> {
-			CloudColor.setLevelCloudColorResolver(ID, ColorLinearInterpolation
-					.begin(0, 214, 186, 159)// 6 h 灰黄
-					.append(3000, 208, 228, 243)// 9 h 灰白
-					.append(6000, 246, 242, 243)// 12 h 亮白
-					.append(9000, 208, 228, 243)// 15 h 灰白
-					.append(12000, 116, 83, 160)// 18 h 紫
-					.append(15000, 68, 139, 203)// 21 h 灰
-					.append(18000, 59, 106, 189)// 0 h 深黑蓝
-					.append(21000, 68, 139, 203)// 3 h 灰
+			CloudColor.setLevelCloudColorResolver(ID,
+					ColorLinearInterpolation
+							.begin(0, 214, 186, 159)// 6 h 灰黄
+							.append(3000, 208, 228, 243)// 9 h 灰白
+							.append(6000, 246, 242, 243)// 12 h 亮白
+							.append(9000, 208, 228, 243)// 15 h 灰白
+							.append(12000, 116, 83, 160)// 18 h 紫
+							.append(15000, 68, 139, 203)// 21 h 灰
+							.append(18000, 59, 106, 189)// 0 h 深黑蓝
+							.append(21000, 68, 139, 203)// 3 h 灰
 			);
 			SkyColor.setLevelSkyColorResolver(ID,
 					ColorLinearInterpolation

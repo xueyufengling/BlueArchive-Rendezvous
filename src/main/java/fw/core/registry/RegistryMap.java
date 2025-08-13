@@ -155,15 +155,22 @@ public class RegistryMap<R> {
 		}
 
 		public <E extends Block> DeferredBlock<E> registerBlock(String name, Supplier<E> sup, Item.Properties blockitem_props, Object... args) {
-			DeferredBlock<E> block = (DeferredBlock<E>) super.register(name, sup, args);
+			return (DeferredBlock<E>) super.register(name, sup, args);
+		}
+
+		@Override
+		public <E extends Block> void applyExtraArgs(String name, DeferredHolder<Block, E> entry, Object... args) {
+			Item.Properties blockitem_props = fetchArg(0, Item.Properties.class, args);
 			if (blockitem_props != null) {
-				ExtItem.ITEMS.register(name, () -> new BlockItem(block.get(), blockitem_props));
+				DeferredItem<?> block_item = ExtItem.ITEMS.registerItem(name, () -> new BlockItem(entry.get(), blockitem_props));
+				ExtCreativeTab creativeTab = fetchArg(1, ExtCreativeTab.class, args);
+				if (creativeTab != null)
+					creativeTab.append(block_item);// 添加物品进创造物品栏
 			}
-			return block;
 		}
 
 		public <E extends Block> DeferredBlock<E> registerBlock(String name, Supplier<E> sup, Object... args) {
-			return this.registerBlock(name, sup, null, args);
+			return this.registerBlock(name, sup, ExtItem.defaultItemProperties(), args);
 		}
 
 		public <E extends Block> DeferredBlock<E> registerBlock(String name, Function<BlockBehaviour.Properties, E> func, BlockBehaviour.Properties func_arg, Item.Properties blockitem_props, Object... args) {
@@ -171,7 +178,7 @@ public class RegistryMap<R> {
 		}
 
 		public <E extends Block> DeferredBlock<E> registerBlock(String name, Function<BlockBehaviour.Properties, E> func, BlockBehaviour.Properties func_arg, Object... args) {
-			return this.registerBlock(name, func, func_arg, null, args);
+			return this.registerBlock(name, func, func_arg, ExtItem.defaultItemProperties(), args);
 		}
 
 		public DeferredBlock<? extends Block> getBlock(String name) {

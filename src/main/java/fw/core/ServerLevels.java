@@ -45,7 +45,7 @@ public class ServerLevels {
 	}
 
 	public static final WritableLevelData getLevelData(Level level) {
-		return (WritableLevelData) ObjectManipulator.access(level, "levelData");
+		return (WritableLevelData) level.getLevelData();
 	}
 
 	public static final WritableLevelData setLevelData(Level level, WritableLevelData data) {

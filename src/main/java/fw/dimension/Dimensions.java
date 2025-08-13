@@ -1,6 +1,5 @@
 package fw.dimension;
 
-import fw.core.Core;
 import fw.core.ModInit;
 import fw.core.ModInit.Stage;
 import fw.core.ServerInstance;
@@ -125,6 +124,12 @@ public class Dimensions {
 		redirectOverworld(ResourceKeyBuilder.build(Registries.DIMENSION_TYPE, dimensionType), ResourceKeyBuilder.build(Registries.LEVEL_STEM, levelStem));
 	}
 
+	/**
+	 * 将主世界重定向到指定的的维度。<br>
+	 * 必须在@ModInit注解的方法里调用
+	 * 
+	 * @param dimensionId 带命名空间的维度id
+	 */
 	public static final void redirectOverworld(String overworldDimensionId) {
 		redirectOverworld(overworldDimensionId, overworldDimensionId);
 	}
@@ -148,6 +153,9 @@ public class Dimensions {
 		tickTime(ServerLevels.levels.get(overworldLevelKey), tick);
 	}
 
+	/**
+	 * 非主世界的LevelData均为DerivedLevelData
+	 */
 	private static DerivedLevelData targetOverworldOrigData;
 
 	/**
@@ -156,6 +164,8 @@ public class Dimensions {
 	 */
 	private static final void redirectServerLevelDataMain() {
 		ServerLevel targetOverworld = ServerLevels.levels.get(overworldLevelKey);
+		if (targetOverworld == null)
+			throw new IllegalArgumentException("Target overworld level to be redirected to " + overworldLevelKey + " is not found.");
 		if (ServerLevels.setServerLevelData(targetOverworld, ServerLevels.mainData) instanceof DerivedLevelData derivedData)
 			targetOverworldOrigData = derivedData;
 	}
@@ -164,17 +174,6 @@ public class Dimensions {
 		ServerLevel targetOverworld = ServerLevels.levels.get(overworldLevelKey);
 		ServerLevels.setServerLevelData(targetOverworld, targetOverworldOrigData);
 		targetOverworldOrigData = null;
-	}
-
-	/**
-	 * 将主世界重定向到指定的不带modid的维度。<br>
-	 * modid为Core.ModId。<br>
-	 * 必须在@ModInit注解的方法里调用
-	 * 
-	 * @param modDimensionId
-	 */
-	public static final void redirectOverworldMod(String modDimensionId) {
-		redirectOverworld(Core.modNamespacedId(modDimensionId));
 	}
 
 	private static final void collectMutableMappedRegistry(MinecraftServer server) {

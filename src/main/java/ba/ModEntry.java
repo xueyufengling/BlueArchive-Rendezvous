@@ -10,9 +10,6 @@ import fw.core.ModInit;
 import fw.datagen.annotation.LangDatagen;
 import fw.datagen.annotation.Translation;
 import fw.dimension.Dimensions;
-import lyra.filesystem.KlassPath;
-import lyra.internal.oops.markWord;
-import lyra.vm.Vm;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.common.Mod;
 
@@ -30,16 +27,10 @@ public class ModEntry {
 
 	@ModInit
 	public static final void init(Dist env) {
-		// 打印调试信息
-		Logger.info("JVM is " + Vm.NATIVE_JVM_BIT_VERSION + "-bit with flag UseCompressedOops=" + Vm.UseCompressedOops);
-		Logger.info("KlassWord offset is " + markWord.KLASS_WORD_OFFSET + ", lenght is " + markWord.KLASS_WORD_LENGTH);
-		Logger.info("Running on " + env + " environment with PID " + Vm.getProcessId());
-		Logger.info("Mod located at " + KlassPath.getKlassPath());
 		Core.loadPackage("ba.entries");
 		Core.loadClientPackage("ba.client.render");
-		Logger.info("Loaded entries class");
 		Dimensions.removeTheNether(true);
 		Dimensions.removeTheEnd(true);
-		Dimensions.redirectOverworldMod(ShittimChest.ID);
+		Dimensions.redirectOverworld(ShittimChest.ID);
 	}
 }

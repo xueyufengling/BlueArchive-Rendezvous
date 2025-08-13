@@ -7,9 +7,12 @@ import fw.codec.annotation.CodecAutogen;
 import fw.core.registry.RegistryFactory;
 import fw.datagen.annotation.RegistryEntry;
 import fw.resources.ResourceLocationBuilder;
+import lyra.filesystem.KlassPath;
+import lyra.internal.oops.markWord;
 import lyra.klass.JarKlassLoader;
 import lyra.klass.KlassLoader;
 import lyra.object.ObjectManipulator;
+import lyra.vm.Vm;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.EventPriority;
@@ -84,6 +87,11 @@ public class Core {
 	private static final void preinit(FMLConstructModEvent event) {
 		if (Config.loadLibBySelf)
 			loadLibrary();
+		// 打印调试信息
+		Logger.info("JVM bit-version=" + Vm.NATIVE_JVM_BIT_VERSION + ", flag UseCompressedOops=" + Vm.UseCompressedOops);
+		Logger.info("KlassWord offset=" + markWord.KLASS_WORD_OFFSET + ", lenght=" + markWord.KLASS_WORD_LENGTH);
+		Logger.info("Running on " + Core.Env + " environment with PID=" + Vm.getProcessId());
+		Logger.info("Mod classpath=\"" + KlassPath.getKlassPath() + '\"');
 		ObjectManipulator.setObject(Core.class, "Mod", getModContainer(event));
 		ObjectManipulator.setObject(Core.class, "ModBus", getModEventBus(Mod));// 初始化赋值ModBus
 		loadPackage("fw.core.registry.registries");// 加载并初始化注册表的字段初始化器
@@ -119,12 +127,14 @@ public class Core {
 
 	public static void loadPackage(String pkg) {
 		KlassLoader.loadKlass(pkg, true);// 强制加载并初始化未使用的类
+		Logger.info("Loaded package " + pkg);
 	}
 
 	public static void loadClientPackage(String pkg) {
 		ExecuteIn.Client(() -> {
 			KlassLoader.loadKlass(pkg, true);
 		});
+		Logger.info("Loaded client-side package " + pkg);
 	}
 
 	public static final void logDebug(String msg) {

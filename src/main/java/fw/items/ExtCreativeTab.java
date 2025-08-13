@@ -30,7 +30,7 @@ public interface ExtCreativeTab extends BaseClass<ExtCreativeTab.Definition>, Lo
 		public final DeferredHolder<CreativeModeTab, CreativeModeTab> deferredHolder;
 
 		private String iconItem;
-		private ArrayList<DeferredItem<Item>> itemsList = new ArrayList<>();
+		private ArrayList<DeferredItem<?>> itemsList = new ArrayList<>();
 
 		private CreativeModeTab.Builder builder;
 
@@ -83,7 +83,7 @@ public interface ExtCreativeTab extends BaseClass<ExtCreativeTab.Definition>, Lo
 		return derived;
 	}
 
-	public default ExtCreativeTab append(DeferredItem<Item> item) {
+	public default ExtCreativeTab append(DeferredItem<?> item) {
 		definition().itemsList.add(item);
 		return this;
 	}

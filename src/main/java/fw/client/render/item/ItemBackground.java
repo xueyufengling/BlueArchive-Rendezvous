@@ -19,8 +19,31 @@ import net.minecraft.world.level.Level;
 
 public class ItemBackground extends ConditionalRenderable2D {
 	public static abstract class Resolver<K> {
-		private ItemBackground elseValue;
+		private ItemBackground elseValue = null;
 		protected final HashMap<K, ItemBackground> backgrounds = new HashMap<>();
+
+		/**
+		 * 当有先注册的Resolver匹配到背景后，是否继续渲染此Resolver决议出的背景。<br>
+		 * 如果设置为true，则将在先匹配到的背景上二次绘制本背景<br>
+		 */
+		private boolean reserved;
+
+		public Resolver() {
+			this(false);
+		}
+
+		public Resolver(boolean reserved) {
+			this.reserved = reserved;
+		}
+
+		public Resolver<K> setReserved(boolean reserved) {
+			this.reserved = reserved;
+			return this;
+		}
+
+		public boolean getReserved() {
+			return reserved;
+		}
 
 		protected abstract K key(LivingEntity entity, Level level, ItemStack stack, String itemId, int seed);
 
@@ -47,38 +70,83 @@ public class ItemBackground extends ConditionalRenderable2D {
 			return backgrounds.containsKey(key);
 		}
 
-		public final static Resolver<String> ID_START_WITH = new Resolver<String>() {
-			@Override
-			protected String key(LivingEntity entity, Level level, ItemStack stack, String itemId, int seed) {
-				for (String str : backgrounds.keySet()) {
-					if (itemId.startsWith(str))
-						return str;
-				}
-				return null;
-			}
-		};
+		@FunctionalInterface
+		public static interface ItemIdValidation {
+			/**
+			 * 判断当前itemId是否是满足背景渲染条件<br>
+			 * 根据itemId和遍历的background_key判断该itemId是否是有效的key
+			 * 
+			 * @param background_key 注册的key
+			 * @param entity
+			 * @param level
+			 * @param stack
+			 * @param itemId
+			 * @param seed
+			 * @return true则表示当前background_key满足匹配条件，false表示不满足，并且开始匹配下一个background_key
+			 */
+			public boolean validate(String background_key, LivingEntity entity, Level level, ItemStack stack, String itemId, int seed);
 
-		public final static Resolver<String> ID_END_WITH = new Resolver<String>() {
-			@Override
-			protected String key(LivingEntity entity, Level level, ItemStack stack, String itemId, int seed) {
-				for (String str : backgrounds.keySet()) {
-					if (itemId.endsWith(str))
-						return str;
-				}
-				return null;
-			}
-		};
+			public static final ItemIdValidation ALWAYS_TRUE = (String background_key, LivingEntity entity, Level level, ItemStack stack, String itemId, int seed) -> true;
 
-		public final static Resolver<String> ID_EQUALS = new Resolver<String>() {
+			public static final ItemIdValidation STARTS_WITH = (String background_key, LivingEntity entity, Level level, ItemStack stack, String itemId, int seed) -> itemId.startsWith(background_key);
+
+			public static final ItemIdValidation ENDS_WITH = (String background_key, LivingEntity entity, Level level, ItemStack stack, String itemId, int seed) -> itemId.endsWith(background_key);
+
+			public static final ItemIdValidation MATCHES = (String background_key, LivingEntity entity, Level level, ItemStack stack, String itemId, int seed) -> itemId.matches(background_key);
+
+			public static final ItemIdValidation EQUALS = (String background_key, LivingEntity entity, Level level, ItemStack stack, String itemId, int seed) -> itemId.equals(background_key);
+		}
+
+		public static class ItemIdResolver extends Resolver<String> {
+			/**
+			 * 从前往后依次匹配，返回第一次匹配成功的key
+			 */
+			protected ItemIdValidation validation;
+
+			private ItemIdResolver(ItemIdValidation validation) {
+				this.validation = validation;
+			}
+
 			@Override
 			protected String key(LivingEntity entity, Level level, ItemStack stack, String itemId, int seed) {
-				for (String str : backgrounds.keySet()) {
-					if (itemId.equals(str))
-						return str;
+				if (validation == null)
+					return null;
+				for (String background_key : backgrounds.keySet()) {
+					if (validation.validate(background_key, entity, level, stack, itemId, seed))
+						return background_key;
 				}
 				return null;
 			}
-		};
+
+			private static final HashMap<ItemIdValidation, ItemIdResolver> item_id_resolvers = new HashMap<>();
+
+			/**
+			 * 一种ItemIdValidation只有一个ItemIdResolver实例。<br>
+			 * 如果对同一个key注册多次背景，则只取最后一次为有效值。
+			 * 
+			 * @param id_validation
+			 * @return
+			 */
+			public static final ItemIdResolver of(ItemIdValidation id_validation) {
+				return item_id_resolvers.computeIfAbsent(id_validation, (ItemIdValidation v) -> new ItemIdResolver(v));
+			}
+
+			public static final ItemIdResolver startsWith() {
+				return of(ItemIdValidation.STARTS_WITH);
+			}
+
+			public static final ItemIdResolver endsWith() {
+				return of(ItemIdValidation.ENDS_WITH);
+			}
+
+			public static final ItemIdResolver matches() {
+				return of(ItemIdValidation.MATCHES);
+			}
+
+			public static final ItemIdResolver equals() {
+				return of(ItemIdValidation.EQUALS);
+			}
+		}
 	}
 
 	private static final ArrayList<Resolver<?>> resolvers = new ArrayList<>();
@@ -88,14 +156,25 @@ public class ItemBackground extends ConditionalRenderable2D {
 			resolvers.add(resolver);
 	}
 
+	/**
+	 * 单一线程使用
+	 */
+	private static final ArrayList<ItemBackground> render_bgs = new ArrayList<>();
+
 	static {
 		GuiGraphicsInternal.RenderItem.Callbacks.addBeforePosePushPoseCallback((GuiGraphics this_, LivingEntity entity, Level level, ItemStack stack, int x, int y, int seed, int guiOffset, CallbackInfo ci) -> {
 			String id = Items.getID(stack.getItem());
 			for (Resolver<?> resolver : resolvers) {
-				ItemBackground bg = resolver.resolve(entity, level, stack, id, seed);
-				if (bg != null)
-					bg.render(this_.pose(), x, y);
+				if (render_bgs.isEmpty() || resolver.getReserved()) {
+					ItemBackground bg = resolver.resolve(entity, level, stack, id, seed);
+					if (bg != null)
+						render_bgs.add(bg);
+				}
 			}
+			for (ItemBackground bg : render_bgs) {
+				bg.render(this_.pose(), x, y);
+			}
+			render_bgs.clear();
 		});
 	}
 

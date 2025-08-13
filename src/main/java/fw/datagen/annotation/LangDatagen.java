@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
-import fw.core.Core;
 import fw.core.registry.RegistryMap;
 import fw.datagen.Localizable;
 import lyra.klass.KlassWalker;
@@ -42,7 +41,6 @@ public @interface LangDatagen {
 
 		@Override
 		protected void addTranslations() {
-			Core.logInfo("LangDatagen starting to generate lang files.");
 			for (Class<?> langClass : langClasses) {
 				KlassWalker.walkAnnotatedFields(langClass, LangDatagen.class, (Field f, boolean isStatic, Object value, LangDatagen annotation) -> {
 					Translation[] translations = annotation.translations();

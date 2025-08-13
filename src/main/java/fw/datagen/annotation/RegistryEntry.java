@@ -221,7 +221,6 @@ public @interface RegistryEntry {
 
 		@SuppressWarnings({ "rawtypes", "unchecked" })
 		private static final RegistrySetBuilder allRegistrySetBuilder() {
-			Core.logInfo("Starting to register datagen RegistryEntry holders");
 			RegistrySetBuilder registrySetBuilder = new RegistrySetBuilder();
 			// 遍历net.minecraft.core.registries.Registries的所有静态字段并添加对应的数据生成器
 			RegistryWalker.walkBootstrapRegistries((Field f, ResourceKey<? extends Registry<?>> registryKey, Class<?> registryType) -> {

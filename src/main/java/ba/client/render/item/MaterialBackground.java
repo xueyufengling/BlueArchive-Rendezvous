@@ -9,7 +9,9 @@ public class MaterialBackground {
 	private static final ItemBackground T3 = ItemBackground.of("ba:textures/bg/item/item_t3.png");
 
 	static {
-		ItemBackground.registerResolver(ItemBackground.Resolver.ID_END_WITH
+		ItemBackground.registerResolver(ItemBackground.Resolver.ItemIdResolver.equals()
+				.register("ba:shittim_chest", T3));
+		ItemBackground.registerResolver(ItemBackground.Resolver.ItemIdResolver.endsWith()
 				.register("_0", T0)
 				.register("_1", T1)
 				.register("_2", T2)

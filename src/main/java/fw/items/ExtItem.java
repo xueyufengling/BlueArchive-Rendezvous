@@ -18,8 +18,12 @@ public class ExtItem extends Item implements Localizable {
 		super(properties);
 	}
 
+	public static Item.Properties defaultItemProperties() {
+		return new Item.Properties();
+	}
+
 	public ExtItem() {
-		this(new Item.Properties());
+		this(defaultItemProperties());
 	}
 
 	@Override
@@ -36,10 +40,10 @@ public class ExtItem extends Item implements Localizable {
 	}
 
 	public static final DeferredItem<Item> register(String name) {
-		return registerMod(name, null);
+		return register(name, null);
 	}
 
 	public static final DeferredItem<Item> registerMod(String name) {
-		return register(Core.modNamespacedId(name));
+		return registerMod(name);
 	}
 }

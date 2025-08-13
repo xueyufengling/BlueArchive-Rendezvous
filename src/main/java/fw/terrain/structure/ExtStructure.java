@@ -145,7 +145,6 @@ public abstract class ExtStructure extends Structure implements CodecHolder<Stru
 			HeightProvider start_height,
 			Heightmap.Types project_start_to_heightmap,
 			int max_distance_from_center,
-			PoolAliasLookup alias_lookup,
 			int dimension_padding_bottom,
 			int dimension_padding_top,
 			LiquidSettings liquid_settings) {
@@ -183,7 +182,6 @@ public abstract class ExtStructure extends Structure implements CodecHolder<Stru
 				start_height,
 				project_start_to_heightmap,
 				max_distance_from_center,
-				PoolAliasLookup.EMPTY,
 				dimension_padding_bottom,
 				dimension_padding_top,
 				liquid_settings);
@@ -275,8 +273,7 @@ public abstract class ExtStructure extends Structure implements CodecHolder<Stru
 	 * StructureType为函数式接口，只有返回Structure的codec的抽象方法
 	 */
 	public static class Type {
-		
-		
+
 		@SuppressWarnings("unchecked")
 		public static StructureType<?> build(MapCodec<? extends Structure> structureCodec) {
 			return () -> (MapCodec<Structure>) structureCodec;
