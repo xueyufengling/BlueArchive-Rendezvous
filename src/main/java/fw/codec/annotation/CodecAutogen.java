@@ -20,6 +20,7 @@ import fw.codec.Codecs;
 import fw.core.Core;
 import fw.core.registry.RegistryFactory;
 import fw.core.registry.RegistryWalker;
+import lyra.alpha.struct.DynamicConcurrentArrayList;
 import lyra.klass.GenericTypes;
 import lyra.klass.KlassWalker;
 import lyra.lang.Handles;
@@ -76,10 +77,7 @@ public @interface CodecAutogen {
 
 	public static class CodecGenerator {
 
-		/**
-		 * 目标CODEC所在类的列表
-		 */
-		private static final ArrayList<Class<?>> codecClasses = new ArrayList<>();
+		private static final DynamicConcurrentArrayList<Class<?>> codecClasses = new DynamicConcurrentArrayList<Class<?>>();
 
 		/**
 		 * 目标类的构造函数。自动寻找构造函数需要与{@code @CodecEntry}注解字段的顺序和类型完全一致，如果不一致则需要手动指定构造函数。
@@ -643,8 +641,13 @@ public @interface CodecAutogen {
 
 		public static final void generateCodecs() {
 			Core.logInfo("CodecAutogen starting to generate CODEC.");
-			for (Class<?> codecClass : codecClasses)
-				generateAndRegisterCodecs(codecClass);
+			try {
+				codecClasses.forEach((Class<?> codecClass) -> {
+					generateAndRegisterCodecs(codecClass);
+				});
+			} catch (Throwable ex) {
+				Core.logError("Generate CODEC failed.", ex);
+			}
 		}
 
 		/**
@@ -655,14 +658,12 @@ public @interface CodecAutogen {
 		 * @param targetClass
 		 */
 		public static final void forCodec(Class<?> targetClass, Class<?>... ctorTypes) {
-			if (!codecClasses.contains(targetClass)) {
-				codecClasses.add(targetClass);
-				if (CodecTarget.TypeChecker.check(targetClass, ctorTypes) && ctorTypes.length != 0) {// 通过了类型检查，且手动传入了参数则寻找构造函数，否则就遍历字段时寻找
-					MethodHandle ctor = HandleBase.findConstructor(targetClass, ctorTypes);
-					if (ctor == null)
-						throw new NullPointerException("Target CODEC constructor " + MethodType.methodType(targetClass, ctorTypes).toString() + " for class " + targetClass.getName() + " was not found.");
-					codecCtors.put(targetClass, ctor);
-				}
+			codecClasses.add(targetClass);
+			if (CodecTarget.TypeChecker.check(targetClass, ctorTypes) && ctorTypes.length != 0) {// 通过了类型检查，且手动传入了参数则寻找构造函数，否则就遍历字段时寻找
+				MethodHandle ctor = HandleBase.findConstructor(targetClass, ctorTypes);
+				if (ctor == null)
+					throw new NullPointerException("Target CODEC constructor " + MethodType.methodType(targetClass, ctorTypes).toString() + " for class " + targetClass.getName() + " was not found.");
+				codecCtors.put(targetClass, ctor);
 			}
 		}
 

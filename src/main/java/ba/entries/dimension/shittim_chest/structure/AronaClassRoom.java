@@ -1,9 +1,8 @@
 package ba.entries.dimension.shittim_chest.structure;
 
-import java.util.Optional;
-
 import com.mojang.serialization.MapCodec;
 
+import ba.entries.biome.shittim_chest.ShittimChestBiomes;
 import fw.codec.CodecHolder;
 import fw.codec.annotation.CodecAutogen;
 import fw.codec.annotation.CodecTarget;
@@ -11,20 +10,15 @@ import fw.datagen.EntryHolder;
 import fw.datagen.annotation.RegistryEntry;
 import fw.terrain.HeightProviders;
 import fw.terrain.structure.ExtStructure;
-import net.minecraft.core.Holder;
+import fw.terrain.structure.JigsawPlacementContext;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.data.worldgen.BootstrapContext;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.VerticalAnchor;
-import net.minecraft.world.level.levelgen.heightproviders.HeightProvider;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructureType;
 import net.minecraft.world.level.levelgen.structure.TerrainAdjustment;
-import net.minecraft.world.level.levelgen.structure.pools.DimensionPadding;
-import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
-import net.minecraft.world.level.levelgen.structure.pools.alias.PoolAliasLookup;
 import net.minecraft.world.level.levelgen.structure.templatesystem.LiquidSettings;
 
 public class AronaClassRoom extends ExtStructure {
@@ -40,19 +34,11 @@ public class AronaClassRoom extends ExtStructure {
 	@CodecTarget
 	public AronaClassRoom(String name,
 			Structure.StructureSettings settings,
-			Holder<StructureTemplatePool> template_pool,
-			Optional<ResourceLocation> start_jigsaw_name,
-			int max_depth,
-			HeightProvider start_height,
-			Optional<Heightmap.Types> project_start_to_heightmap,
-			int max_distance_from_center,
-			PoolAliasLookup alias_lookup,
-			DimensionPadding dimension_padding,
-			LiquidSettings liquid_settings) {
-		super(name, settings, template_pool, start_jigsaw_name, max_depth, start_height, project_start_to_heightmap, max_distance_from_center, alias_lookup, dimension_padding, liquid_settings);
+			JigsawPlacementContext jigsaw_placement_settings) {
+		super(name, settings, jigsaw_placement_settings);
 	}
 
-	public static final String ID = "arona_class_room";
+	public static final String ID = "ba:arona_class_room";
 
 	// @RegistryEntry
 	public static final EntryHolder<Structure> ARONA_CLASS_ROOM = ExtStructure.register(ID, (BootstrapContext<?> context, RegistryAccess registryAccess) -> {
@@ -65,7 +51,7 @@ public class AronaClassRoom extends ExtStructure {
 
 	public AronaClassRoom(BootstrapContext<?> context) {
 		super(Settings.of(
-				Settings.validBiomes(context, "ba:shittim_chest"),
+				Settings.validBiomes(context, ShittimChestBiomes.SHITTIM_CHEST_ID),
 				GenerationStep.Decoration.SURFACE_STRUCTURES,
 				TerrainAdjustment.NONE),
 				ID,

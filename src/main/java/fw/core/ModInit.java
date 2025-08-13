@@ -6,9 +6,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Iterator;
-import java.util.concurrent.CopyOnWriteArrayList;
 
+import lyra.alpha.struct.DynamicConcurrentArrayList;
 import lyra.klass.KlassWalker;
 import lyra.lang.JavaLang;
 import net.neoforged.api.distmarker.Dist;
@@ -51,43 +50,46 @@ public @interface ModInit {
 		/**
 		 * 防止在PRE_INIT注解函数中添加新的@ModInit注解类时报错并发修改List
 		 */
-		private static CopyOnWriteArrayList<Class<?>> modInitClasses = new CopyOnWriteArrayList<>();
+		private static final DynamicConcurrentArrayList<Class<?>> modInitClasses = new DynamicConcurrentArrayList<>();
 
 		static final void executeAllInitFuncs(FMLConstructModEvent event, Stage run_stage) {
 			ModContainer mod = Core.Mod;
 			IEventBus bus = Core.ModBus;
 			Dist dist = Core.Env;
-			Iterator<Class<?>> iter = modInitClasses.iterator();
-			while (iter.hasNext()) {
-				Class<?> modInitClass = iter.next();
-				KlassWalker.walkAnnotatedMethods(modInitClass, ModInit.class, (Method m, boolean isStatic, Object obj, ModInit annotation) -> {
-					if (isStatic && annotation.exec_stage() == run_stage) {
-						Dist[] env = annotation.env();
-						for (Dist d : env) {
-							if (d == dist) {
-								Class<?>[] paramTypes = m.getParameterTypes();
-								Object[] args = new Object[paramTypes.length];
-								for (int i = 0; i < paramTypes.length; ++i) {
-									if (paramTypes[i] == ModContainer.class || paramTypes[i] == FMLModContainer.class)
-										args[i] = mod;
-									else if (paramTypes[i] == IEventBus.class)
-										args[i] = bus;
-									else if (paramTypes[i] == Dist.class)
-										args[i] = dist;
-									else if (paramTypes[i] == FMLConstructModEvent.class)
-										args[i] = event;
+			try {
+				modInitClasses.forEach(
+						(Class<?> modInitClass) -> {
+							KlassWalker.walkAnnotatedMethods(modInitClass, ModInit.class, (Method m, boolean isStatic, Object obj, ModInit annotation) -> {
+								if (isStatic && annotation.exec_stage() == run_stage) {
+									Dist[] env = annotation.env();
+									for (Dist d : env) {
+										if (d == dist) {
+											Class<?>[] paramTypes = m.getParameterTypes();
+											Object[] args = new Object[paramTypes.length];
+											for (int i = 0; i < paramTypes.length; ++i) {
+												if (paramTypes[i] == ModContainer.class || paramTypes[i] == FMLModContainer.class)
+													args[i] = mod;
+												else if (paramTypes[i] == IEventBus.class)
+													args[i] = bus;
+												else if (paramTypes[i] == Dist.class)
+													args[i] = dist;
+												else if (paramTypes[i] == FMLConstructModEvent.class)
+													args[i] = event;
+											}
+											try {
+												m.invoke(obj, args);
+											} catch (IllegalAccessException | InvocationTargetException e) {
+												Core.logError("@CoreInit method " + m + " execute failed.", e);
+											}
+											break;// 只要匹配任意一个env指定的运行环境，则执行该静态方法并退出循环转而判定下一个静态方法
+										}
+									}
 								}
-								try {
-									m.invoke(obj, args);
-								} catch (IllegalAccessException | InvocationTargetException e) {
-									Core.logError("@CoreInit method " + m + " execute failed.", e);
-								}
-								break;// 只要匹配任意一个env指定的运行环境，则执行该静态方法并退出循环转而判定下一个静态方法
-							}
-						}
-					}
-					return true;
-				});
+								return true;
+							});
+						});
+			} catch (Throwable ex) {
+				Core.logError("@ModInit methdos execute faield.", ex);
 			}
 		}
 

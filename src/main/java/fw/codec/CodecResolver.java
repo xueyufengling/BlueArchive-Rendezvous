@@ -68,6 +68,8 @@ public interface CodecResolver<T> {
 		public final Type type;
 
 		private Entry(Object codec, Type type) {
+			if (codec == null)
+				throw new IllegalStateException("Null value found for CODEC type " + type);
 			this.codec = codec;
 			this.codecType = codec.getClass();
 			this.type = type;

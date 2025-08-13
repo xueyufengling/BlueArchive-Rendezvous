@@ -10,13 +10,11 @@ import com.mojang.serialization.MapCodec;
 import fw.codec.CodecHolder;
 import fw.codec.annotation.CodecEntry;
 import fw.codec.annotation.CodecTarget;
-import fw.codec.annotation.IntRange;
 import fw.core.registry.HolderSets;
 import fw.datagen.EntryHolder;
 import fw.resources.ResourceKeyBuilder;
 import fw.resources.ResourceLocationBuilder;
 import lyra.klass.KlassWalker;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.Registries;
@@ -28,15 +26,12 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.Heightmap;
-import net.minecraft.world.level.levelgen.WorldGenerationContext;
-import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.levelgen.heightproviders.HeightProvider;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructureSpawnOverride;
 import net.minecraft.world.level.levelgen.structure.StructureType;
 import net.minecraft.world.level.levelgen.structure.TerrainAdjustment;
 import net.minecraft.world.level.levelgen.structure.pools.DimensionPadding;
-import net.minecraft.world.level.levelgen.structure.pools.JigsawPlacement;
 import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
 import net.minecraft.world.level.levelgen.structure.pools.alias.PoolAliasLookup;
 import net.minecraft.world.level.levelgen.structure.templatesystem.LiquidSettings;
@@ -56,37 +51,20 @@ public abstract class ExtStructure extends Structure implements CodecHolder<Stru
 	@CodecEntry
 	protected final Structure.StructureSettings settings;
 
-	/**
-	 * 模板池
-	 */
 	@CodecEntry
-	protected final Holder<StructureTemplatePool> template_pool;
-
-	@CodecEntry
-	protected final Optional<ResourceLocation> start_jigsaw_name;
-
-	@CodecEntry(int_range = { @IntRange(min = 0, max = 30) })
-	protected final int max_depth;
-
-	@CodecEntry
-	protected final HeightProvider start_height;
-
-	@CodecEntry
-	protected final Optional<Heightmap.Types> project_start_to_heightmap;
-
-	@CodecEntry(int_range = { @IntRange(min = 1, max = 128) })
-	protected final int max_distance_from_center;
-
-	@CodecEntry(empty_codec_if_not_exist = true)
-	protected final PoolAliasLookup alias_lookup;
-
-	@CodecEntry
-	protected final DimensionPadding dimension_padding;
-
-	@CodecEntry
-	protected final LiquidSettings liquid_settings;
+	protected final JigsawPlacementContext jigsaw_placement_settings;
 
 	@CodecTarget
+	protected ExtStructure(String name,
+			Structure.StructureSettings settings,
+			JigsawPlacementContext jigsaw_placement_settings) {
+		super(settings);
+		CodecHolder.super.construct(Structure.class);
+		this.name = name;
+		this.settings = settings;
+		this.jigsaw_placement_settings = jigsaw_placement_settings;
+	}
+
 	protected ExtStructure(String name,
 			Structure.StructureSettings settings,
 			Holder<StructureTemplatePool> template_pool,
@@ -98,19 +76,18 @@ public abstract class ExtStructure extends Structure implements CodecHolder<Stru
 			PoolAliasLookup alias_lookup,
 			DimensionPadding dimension_padding,
 			LiquidSettings liquid_settings) {
-		super(settings);
-		CodecHolder.super.construct(Structure.class);
-		this.name = name;
-		this.settings = settings;
-		this.template_pool = template_pool;
-		this.start_jigsaw_name = start_jigsaw_name;
-		this.max_depth = max_depth;
-		this.start_height = start_height;
-		this.project_start_to_heightmap = project_start_to_heightmap;
-		this.max_distance_from_center = max_distance_from_center;
-		this.alias_lookup = alias_lookup;
-		this.dimension_padding = dimension_padding;
-		this.liquid_settings = liquid_settings;
+		this(name,
+				settings,
+				new JigsawPlacementContext(
+						template_pool,
+						start_jigsaw_name,
+						max_depth,
+						start_height,
+						project_start_to_heightmap,
+						max_distance_from_center,
+						alias_lookup,
+						dimension_padding,
+						liquid_settings));
 	}
 
 	protected ExtStructure(String name,
@@ -216,35 +193,10 @@ public abstract class ExtStructure extends Structure implements CodecHolder<Stru
 		return true;
 	}
 
-	/**
-	 * 结构生成的方块坐标
-	 * 
-	 * @param chunkPos
-	 * @param random
-	 * @param worldGenerationContext
-	 * @return
-	 */
-	public BlockPos generateStartPos(ChunkPos chunkPos, WorldgenRandom random, WorldGenerationContext worldGenerationContext) {
-		return new BlockPos(chunkPos.getMinBlockX(),
-				this.start_height.sample(random, worldGenerationContext),
-				chunkPos.getMinBlockZ());
-	}
-
 	@Override
 	protected Optional<Structure.GenerationStub> findGenerationPoint(Structure.GenerationContext context) {
 		if (this.validate(context))
-			return JigsawPlacement.addPieces(
-					context,
-					this.template_pool,
-					this.start_jigsaw_name,
-					this.max_depth,
-					this.generateStartPos(context.chunkPos(), context.random(), new WorldGenerationContext(context.chunkGenerator(), context.heightAccessor())),
-					false,
-					this.project_start_to_heightmap,
-					this.max_distance_from_center,
-					this.alias_lookup,
-					this.dimension_padding,
-					this.liquid_settings);
+			return this.jigsaw_placement_settings.findJigsawPlacementGenerationPoint(context);
 		else
 			return Optional.empty();
 	}
