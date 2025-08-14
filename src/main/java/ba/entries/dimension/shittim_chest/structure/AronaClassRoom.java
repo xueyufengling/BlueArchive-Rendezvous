@@ -10,7 +10,9 @@ import fw.datagen.EntryHolder;
 import fw.datagen.annotation.RegistryEntry;
 import fw.terrain.HeightProviders;
 import fw.terrain.structure.ExtStructure;
-import fw.terrain.structure.JigsawPlacementContext;
+import fw.terrain.structure.template.ExtStructureProcessor;
+import fw.terrain.structure.template.JigsawPlacementContext;
+import fw.terrain.structure.template.TemplatePool;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.world.level.levelgen.GenerationStep;
@@ -19,7 +21,10 @@ import net.minecraft.world.level.levelgen.VerticalAnchor;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructureType;
 import net.minecraft.world.level.levelgen.structure.TerrainAdjustment;
+import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
 import net.minecraft.world.level.levelgen.structure.templatesystem.LiquidSettings;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorList;
+import net.neoforged.neoforge.registries.DeferredHolder;
 
 public class AronaClassRoom extends ExtStructure {
 
@@ -40,14 +45,26 @@ public class AronaClassRoom extends ExtStructure {
 
 	public static final String ID = "ba:arona_class_room";
 
-	// @RegistryEntry
+	@RegistryEntry
+	public static final EntryHolder<StructureProcessorList> ARONA_CLASS_ROOM_PROCESSOR_LIST = ExtStructureProcessor.registerList(ID, (BootstrapContext<?> context, RegistryAccess registryAccess) -> {
+		return ExtStructureProcessor.listOf(
+				ExtStructureProcessor.JigsawReplacementProcessor());
+	});
+
+	@RegistryEntry
+	public static final EntryHolder<StructureTemplatePool> ARONA_CLASS_ROOM_TEMPLATE_POOL = TemplatePool.register(ID, (BootstrapContext<?> context, RegistryAccess registryAccess) -> {
+		System.err.println("arona tp");
+		TemplatePool pool = new TemplatePool(context);
+		pool.singleEntry(ID, ID, StructureTemplatePool.Projection.TERRAIN_MATCHING);
+		return pool.build();
+	});
+
+	@RegistryEntry
 	public static final EntryHolder<Structure> ARONA_CLASS_ROOM = ExtStructure.register(ID, (BootstrapContext<?> context, RegistryAccess registryAccess) -> {
 		return new AronaClassRoom(context);
 	});
 
-	public static final EntryHolder<StructureType<?>> ARONA_CLASS_ROOM_TYPE = ExtStructure.Type.register(ID, (BootstrapContext<?> context, RegistryAccess registryAccess) -> {
-		return ExtStructure.Type.build(CODEC);
-	});
+	public static final DeferredHolder<StructureType<?>, StructureType<?>> ARONA_CLASS_ROOM_TYPE = ExtStructure.Type.register(ID, CODEC);
 
 	public AronaClassRoom(BootstrapContext<?> context) {
 		super(Settings.of(

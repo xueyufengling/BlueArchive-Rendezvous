@@ -98,7 +98,7 @@ public class Codecs {
 		};
 		setCodec(Holder.class, HOLDER);
 		setCodec(Holder.Reference.class, HOLDER);
-
+		// 列表/数组编解码器
 		CodecResolver<CodecEntry> LIST = (Type type, CodecEntry params) -> {
 			Class<?> listType = Arrays.getListType(type);
 			Codec<?> codec = getCodec(listType, GenericTypes.type(type, 0), params).asCodec();
@@ -111,6 +111,7 @@ public class Codecs {
 				return CodecResolver.Entry.of(codec.listOf(ls.min(), ls.max()));
 		};
 		setCodec(List.class, LIST);
+		// Map编解码器
 		CodecResolver<CodecEntry> MAP = (Type type, CodecEntry params) -> {
 			Class<?> keyType = GenericTypes.classes(type)[0].type();
 			Codec<?> keyCodec = getCodec(keyType, GenericTypes.type(type, 0), params).asCodec();
@@ -123,7 +124,7 @@ public class Codecs {
 			return CodecResolver.Entry.of(Codec.unboundedMap(keyCodec, valueCodec));
 		};
 		setCodec(Map.class, MAP);
-
+		// 可选值编解码器
 		CodecResolver<CodecEntry> OPTIONAL_LONG = (Type type, CodecEntry params) -> {
 			return CodecResolver.Entry.of(Codec.LONG, CodecResolver.Entry.Type.OPTIONAL);
 		};

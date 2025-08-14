@@ -7,8 +7,8 @@ import java.lang.annotation.Target;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import lyra.alpha.struct.DynamicConcurrentArrayList;
 import lyra.klass.KlassWalker;
+import lyra.lang.DynamicConcurrentArrayList;
 import lyra.lang.JavaLang;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
@@ -34,7 +34,6 @@ public @interface ModInit {
 
 	public static enum Stage {
 		PRE_INIT, POST_INIT
-
 	}
 
 	/**

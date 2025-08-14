@@ -11,8 +11,13 @@ public class Holders {
 		return GenericTypes.getFirstGenericType(holderField);
 	}
 
-	public static final <T> Holder.Reference<T> bindValue(Holder.Reference<T> holder, T value) {
+	public static final <T, H extends Holder<T>> H bindValue(H holder, T value) {
 		ObjectManipulator.setDeclaredMemberObject(holder, "value", value);
 		return holder;
+	}
+
+	@SuppressWarnings("unchecked")
+	public static final <T> T getValue(Holder<T> holder) {
+		return (T) ObjectManipulator.getDeclaredMemberObject(holder, "value");
 	}
 }

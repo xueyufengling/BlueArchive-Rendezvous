@@ -2,6 +2,7 @@ package fw.terrain.structure;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -11,9 +12,10 @@ import fw.codec.CodecHolder;
 import fw.codec.annotation.CodecEntry;
 import fw.codec.annotation.CodecTarget;
 import fw.core.registry.HolderSets;
+import fw.core.registry.RegistryMap;
 import fw.datagen.EntryHolder;
 import fw.resources.ResourceKeyBuilder;
-import fw.resources.ResourceLocationBuilder;
+import fw.terrain.structure.template.JigsawPlacementContext;
 import lyra.klass.KlassWalker;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
@@ -33,8 +35,9 @@ import net.minecraft.world.level.levelgen.structure.StructureType;
 import net.minecraft.world.level.levelgen.structure.TerrainAdjustment;
 import net.minecraft.world.level.levelgen.structure.pools.DimensionPadding;
 import net.minecraft.world.level.levelgen.structure.pools.StructureTemplatePool;
-import net.minecraft.world.level.levelgen.structure.pools.alias.PoolAliasLookup;
+import net.minecraft.world.level.levelgen.structure.pools.alias.PoolAliasBinding;
 import net.minecraft.world.level.levelgen.structure.templatesystem.LiquidSettings;
+import net.neoforged.neoforge.registries.DeferredHolder;
 
 /**
  * 采用拼图模板的结构，自动创建对应的StructureType。<br>
@@ -65,6 +68,21 @@ public abstract class ExtStructure extends Structure implements CodecHolder<Stru
 		this.jigsaw_placement_settings = jigsaw_placement_settings;
 	}
 
+	/**
+	 * 拼图结构完整定义
+	 * 
+	 * @param name
+	 * @param settings
+	 * @param template_pool
+	 * @param start_jigsaw_name
+	 * @param max_depth
+	 * @param start_height
+	 * @param project_start_to_heightmap
+	 * @param max_distance_from_center
+	 * @param alias
+	 * @param dimension_padding
+	 * @param liquid_settings
+	 */
 	protected ExtStructure(String name,
 			Structure.StructureSettings settings,
 			Holder<StructureTemplatePool> template_pool,
@@ -73,7 +91,7 @@ public abstract class ExtStructure extends Structure implements CodecHolder<Stru
 			HeightProvider start_height,
 			Optional<Heightmap.Types> project_start_to_heightmap,
 			int max_distance_from_center,
-			PoolAliasLookup alias_lookup,
+			List<PoolAliasBinding> alias,
 			DimensionPadding dimension_padding,
 			LiquidSettings liquid_settings) {
 		this(name,
@@ -85,7 +103,7 @@ public abstract class ExtStructure extends Structure implements CodecHolder<Stru
 						start_height,
 						project_start_to_heightmap,
 						max_distance_from_center,
-						alias_lookup,
+						alias,
 						dimension_padding,
 						liquid_settings));
 	}
@@ -108,7 +126,7 @@ public abstract class ExtStructure extends Structure implements CodecHolder<Stru
 				start_height,
 				project_start_to_heightmap,
 				max_distance_from_center,
-				PoolAliasLookup.EMPTY,
+				List.of(),
 				dimension_padding,
 				liquid_settings);
 	}
@@ -122,20 +140,24 @@ public abstract class ExtStructure extends Structure implements CodecHolder<Stru
 			HeightProvider start_height,
 			Heightmap.Types project_start_to_heightmap,
 			int max_distance_from_center,
+			List<PoolAliasBinding> alias,
 			int dimension_padding_bottom,
 			int dimension_padding_top,
 			LiquidSettings liquid_settings) {
 		this(name,
 				settings,
-				context.lookup(Registries.TEMPLATE_POOL).getOrThrow(ResourceKeyBuilder.build(Registries.TEMPLATE_POOL, template_pool)),
-				start_jigsaw_name == null ? Optional.empty() : Optional.of(ResourceLocationBuilder.build(start_jigsaw_name)),
-				max_depth,
-				start_height,
-				project_start_to_heightmap == null ? Optional.empty() : Optional.of(project_start_to_heightmap),
-				max_distance_from_center,
-				PoolAliasLookup.EMPTY,
-				new DimensionPadding(dimension_padding_bottom, dimension_padding_top),
-				liquid_settings);
+				new JigsawPlacementContext(
+						context,
+						template_pool,
+						start_jigsaw_name,
+						max_depth,
+						start_height,
+						project_start_to_heightmap,
+						max_distance_from_center,
+						alias,
+						dimension_padding_bottom,
+						dimension_padding_top,
+						liquid_settings));
 	}
 
 	protected ExtStructure(Structure.StructureSettings settings,
@@ -159,6 +181,7 @@ public abstract class ExtStructure extends Structure implements CodecHolder<Stru
 				start_height,
 				project_start_to_heightmap,
 				max_distance_from_center,
+				List.of(),
 				dimension_padding_bottom,
 				dimension_padding_top,
 				liquid_settings);
@@ -196,7 +219,7 @@ public abstract class ExtStructure extends Structure implements CodecHolder<Stru
 	@Override
 	protected Optional<Structure.GenerationStub> findGenerationPoint(Structure.GenerationContext context) {
 		if (this.validate(context))
-			return this.jigsaw_placement_settings.findJigsawPlacementGenerationPoint(context);
+			return this.jigsaw_placement_settings.findGenerationPoint(context);
 		else
 			return Optional.empty();
 	}
@@ -213,7 +236,7 @@ public abstract class ExtStructure extends Structure implements CodecHolder<Stru
 	@SuppressWarnings("rawtypes")
 	public StructureType<?> type() {
 		if (type == null) {
-			KlassWalker.walkGenericFields(this.getClass(), Holder.class, StructureType.class, (Field f, boolean isStatic, Holder holder) -> {
+			KlassWalker.walkGenericFields(this.getClass(), EntryHolder.class, StructureType.class, (Field f, boolean isStatic, EntryHolder holder) -> {
 				type = (StructureType<?>) holder.value();
 				return false;
 			});
@@ -225,23 +248,23 @@ public abstract class ExtStructure extends Structure implements CodecHolder<Stru
 	 * StructureType为函数式接口，只有返回Structure的codec的抽象方法
 	 */
 	public static class Type {
+		public static final RegistryMap<StructureType<?>> STRUCTURE_TYPES = RegistryMap.of(Registries.STRUCTURE_TYPE);
 
 		@SuppressWarnings("unchecked")
 		public static StructureType<?> build(MapCodec<? extends Structure> structureCodec) {
 			return () -> (MapCodec<Structure>) structureCodec;
 		}
 
-		@SuppressWarnings("unchecked")
-		public static <S extends Structure> StructureType<?> get(ExtStructure structure) {
-			return build((MapCodec<Structure>) structure.codec());
-		}
-
 		public static final ResourceKey<StructureType<?>> typeKey(String name) {
 			return ResourceKeyBuilder.build(Registries.STRUCTURE_TYPE, name);
 		}
 
-		public static <S extends Structure> EntryHolder<StructureType<?>> register(String name, EntryHolder.BootstrapValue<StructureType<?>> structureType) {
-			return EntryHolder.of(Registries.STRUCTURE_TYPE, name, structureType);
+		public static <S extends Structure> DeferredHolder<StructureType<?>, StructureType<?>> register(String name, StructureType<S> structureType) {
+			return STRUCTURE_TYPES.register(name, () -> structureType);
+		}
+
+		public static <S extends Structure> DeferredHolder<StructureType<?>, StructureType<?>> register(String name, MapCodec<S> structureCodec) {
+			return register(name, build(structureCodec));
 		}
 	}
 

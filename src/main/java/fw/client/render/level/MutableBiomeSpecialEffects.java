@@ -8,6 +8,7 @@ import fw.event.LevelTickTrigger;
 import fw.event.LevelTrigger;
 import fw.math.ColorLinearInterpolation;
 import fw.resources.ResourceKeyBuilder;
+import lyra.alpha.reference.FieldRecoverable;
 import lyra.object.ObjectManipulator;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
@@ -22,7 +23,7 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeSpecialEffects;
 import net.neoforged.bus.api.EventPriority;
 
-public class MutableBiomeSpecialEffects {
+public class MutableBiomeSpecialEffects implements FieldRecoverable<MutableBiomeSpecialEffects> {
 	@FunctionalInterface
 	public static interface TickOperation {
 		public void operate(Level level, long dayTime, MutableBiomeSpecialEffects effects);

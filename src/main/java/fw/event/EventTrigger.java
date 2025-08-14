@@ -97,7 +97,7 @@ public interface EventTrigger<O> extends BaseClass<EventTrigger.Definition<O>> {
 		}
 
 		public final Executor priority(EventPriority p) {
-			return executors.computeIfAbsent(p, (EventPriority) -> new Executor());
+			return executors.computeIfAbsent(p, (EventPriority ep) -> new Executor());
 		}
 
 		public final Executor priority() {
