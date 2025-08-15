@@ -26,6 +26,10 @@ public class ExtDimension {
 			return EntryHolder.of(Registries.DIMENSION_TYPE, name, dimType);
 		}
 
+		public static final ResourceKey<DimensionType> key(String name) {
+			return ResourceKeyBuilder.build(Registries.DIMENSION_TYPE, name);
+		}
+
 		public static final DimensionType get(String name) {
 			return MappedRegistryAccess.getValue(DynamicRegistries.DIMENSION_TYPE, name);
 		}
@@ -37,6 +41,10 @@ public class ExtDimension {
 	public static class Stem {
 		public static final EntryHolder<LevelStem> register(String name, EntryHolder.BootstrapValue<LevelStem> levelStem) {
 			return EntryHolder.of(Registries.LEVEL_STEM, name, levelStem);
+		}
+
+		public static final ResourceKey<LevelStem> key(String name) {
+			return ResourceKeyBuilder.build(Registries.LEVEL_STEM, name);
 		}
 
 		/**
@@ -72,6 +80,10 @@ public class ExtDimension {
 		public static final EntryHolder<NoiseGeneratorSettings> register(String name, EntryHolder.BootstrapValue<NoiseGeneratorSettings> noiseSettings) {
 			return EntryHolder.of(Registries.NOISE_SETTINGS, name, noiseSettings);
 		}
+
+		public static final ResourceKey<NoiseGeneratorSettings> key(String name) {
+			return ResourceKeyBuilder.build(Registries.NOISE_SETTINGS, name);
+		}
 	}
 
 	/**
@@ -80,6 +92,14 @@ public class ExtDimension {
 	 */
 	public static class Df {
 		public static final RegistryMap<MapCodec<? extends DensityFunction>> DENSITY_FUNCTION_TYPES = RegistryMap.of(Registries.DENSITY_FUNCTION_TYPE);
+
+		public static final ResourceKey<DensityFunction> key(String name) {
+			return ResourceKeyBuilder.build(Registries.DENSITY_FUNCTION, name);
+		}
+
+		public static final ResourceKey<MapCodec<? extends DensityFunction>> typeKey(String name) {
+			return ResourceKeyBuilder.build(Registries.DENSITY_FUNCTION_TYPE, name);
+		}
 
 		/**
 		 * 注册自定义密度函数MapCodec，例如末地岛屿密度函数。见DensityFunctions::bootstrap

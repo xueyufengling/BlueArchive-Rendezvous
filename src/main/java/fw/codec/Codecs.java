@@ -89,6 +89,7 @@ public class Codecs {
 				return CodecResolver.Entry.of(Codec.string(sl.min(), sl.max()));
 		};
 		setCodec(String.class, STRING);
+		// Holder的CODEC从其泛型参数类中寻找
 		CodecResolver<Object> HOLDER = (Type type, Object params) -> {
 			Class<?> holderType = Holders.getHolderType(type);
 			Codec<?> codec = getCodec(holderType, GenericTypes.type(type, 0), params).asCodec();

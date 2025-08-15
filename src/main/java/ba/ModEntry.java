@@ -4,8 +4,10 @@ import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
 
+import ba.entries.dimension.kivotos.Kivotos;
 import ba.entries.dimension.shittim_chest.ShittimChest;
 import fw.core.Core;
+import fw.core.ExecuteIn;
 import fw.core.ModInit;
 import fw.datagen.annotation.LangDatagen;
 import fw.datagen.annotation.Translation;
@@ -31,6 +33,13 @@ public class ModEntry {
 		Core.loadClientPackage("ba.client.render");
 		Dimensions.removeTheNether(true);
 		Dimensions.removeTheEnd(true);
-		Dimensions.redirectOverworld(ShittimChest.ID);
+		ExecuteIn.Server(() -> {
+			Dimensions.redirectOverworld(Kivotos.ID);
+			Logger.info("Running on server-side, overworld redirected to Kivotos");
+		});
+		ExecuteIn.Client(() -> {
+			Dimensions.redirectOverworld(ShittimChest.ID);
+			Logger.info("Running on client-side, overworld redirected to Shittim Chest");
+		});
 	}
 }

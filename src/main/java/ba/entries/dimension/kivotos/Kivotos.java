@@ -64,7 +64,7 @@ public class Kivotos {
 	 * 噪声地形生成器
 	 */
 	@RegistryEntry
-	public static final EntryHolder<NoiseGeneratorSettings> NOISE_SETTINGS = ExtDimension.Noise.register(ID, (BootstrapContext<?> context, RegistryAccess registryAccess) -> {
+	public static final EntryHolder<NoiseGeneratorSettings> NOISE_SETTINGS = ExtDimension.Noise.register(ID, (BootstrapContext<NoiseGeneratorSettings> context, RegistryAccess registryAccess) -> {
 		Df df = Df.of(context);
 
 		NoiseSettings noise = NoiseSettings.create(
@@ -120,7 +120,7 @@ public class Kivotos {
 	});
 
 	@RegistryEntry
-	public static final EntryHolder<LevelStem> LEVEL_STEM = ExtDimension.Stem.register(ID, (BootstrapContext<?> context, RegistryAccess registryAccess) -> {
+	public static final EntryHolder<LevelStem> LEVEL_STEM = ExtDimension.Stem.register(ID, (BootstrapContext<LevelStem> context, RegistryAccess registryAccess) -> {
 		HolderGetter<DimensionType> dimensionTypes = context.lookup(Registries.DIMENSION_TYPE);
 		HolderGetter<NoiseGeneratorSettings> noiseSettings = context.lookup(Registries.NOISE_SETTINGS);
 		Holder<DimensionType> dimType = dimensionTypes.getOrThrow(DIMENSION_TYPE.getKey());

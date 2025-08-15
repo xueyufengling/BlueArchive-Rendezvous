@@ -629,7 +629,7 @@ public @interface CodecAutogen {
 					String registerName = annotation.name();
 					if (classSimpleName.equals(registerName))
 						registerName = Codecs.defaultCodecRegisterName(codecClass);
-					Core.logInfo("Starting to generate CODEC for field " + f);
+					Core.logInfo("Starting to generate CODEC for @CodecAutogen " + f);
 					Object CODEC = generateAndRegister(registerName, codecClass, internalBuildMethod, GenericTypes.getFirstGenericType(f), annotation.null_if_empty(), annotation.warn_if_register_failed(), annotation.include_base());
 					if (isKeyDispatchDataCodec)
 						CODEC = KeyDispatchDataCodec.of((MapCodec) CODEC);

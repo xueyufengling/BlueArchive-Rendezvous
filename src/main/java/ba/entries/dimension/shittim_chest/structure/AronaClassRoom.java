@@ -46,27 +46,26 @@ public class AronaClassRoom extends ExtStructure {
 	public static final String ID = "ba:arona_class_room";
 
 	@RegistryEntry
-	public static final EntryHolder<StructureProcessorList> ARONA_CLASS_ROOM_PROCESSOR_LIST = ExtStructureProcessor.registerList(ID, (BootstrapContext<?> context, RegistryAccess registryAccess) -> {
+	public static final EntryHolder<StructureProcessorList> ARONA_CLASS_ROOM_PROCESSOR_LIST = ExtStructureProcessor.registerList(ID, (BootstrapContext<StructureProcessorList> context, RegistryAccess registryAccess) -> {
 		return ExtStructureProcessor.listOf(
 				ExtStructureProcessor.JigsawReplacementProcessor());
 	});
 
 	@RegistryEntry
-	public static final EntryHolder<StructureTemplatePool> ARONA_CLASS_ROOM_TEMPLATE_POOL = TemplatePool.register(ID, (BootstrapContext<?> context, RegistryAccess registryAccess) -> {
-		System.err.println("arona tp");
+	public static final EntryHolder<StructureTemplatePool> ARONA_CLASS_ROOM_TEMPLATE_POOL = TemplatePool.register(ID, (BootstrapContext<StructureTemplatePool> context, RegistryAccess registryAccess) -> {
 		TemplatePool pool = new TemplatePool(context);
 		pool.singleEntry(ID, ID, StructureTemplatePool.Projection.TERRAIN_MATCHING);
 		return pool.build();
 	});
 
 	@RegistryEntry
-	public static final EntryHolder<Structure> ARONA_CLASS_ROOM = ExtStructure.register(ID, (BootstrapContext<?> context, RegistryAccess registryAccess) -> {
+	public static final EntryHolder<Structure> ARONA_CLASS_ROOM = ExtStructure.register(ID, (BootstrapContext<Structure> context, RegistryAccess registryAccess) -> {
 		return new AronaClassRoom(context);
 	});
 
-	public static final DeferredHolder<StructureType<?>, StructureType<?>> ARONA_CLASS_ROOM_TYPE = ExtStructure.Type.register(ID, CODEC);
+	public static final DeferredHolder<StructureType<?>, StructureType<?>> ARONA_CLASS_ROOM_TYPE = ExtStructure.Type.register(ID, () -> CODEC);
 
-	public AronaClassRoom(BootstrapContext<?> context) {
+	public AronaClassRoom(BootstrapContext<Structure> context) {
 		super(Settings.of(
 				Settings.validBiomes(context, ShittimChestBiomes.SHITTIM_CHEST_ID),
 				GenerationStep.Decoration.SURFACE_STRUCTURES,

@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 import com.mojang.serialization.MapCodec;
 
@@ -16,6 +17,7 @@ import fw.core.registry.RegistryMap;
 import fw.datagen.EntryHolder;
 import fw.resources.ResourceKeyBuilder;
 import fw.terrain.structure.template.JigsawPlacementContext;
+import fw.terrain.structure.template.JigsawPlacementContext.StartPosResolver;
 import lyra.klass.KlassWalker;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
@@ -55,7 +57,7 @@ public abstract class ExtStructure extends Structure implements CodecHolder<Stru
 	protected final Structure.StructureSettings settings;
 
 	@CodecEntry
-	protected final JigsawPlacementContext jigsaw_placement_settings;
+	protected JigsawPlacementContext jigsaw_placement_settings;
 
 	@CodecTarget
 	protected ExtStructure(String name,
@@ -66,6 +68,11 @@ public abstract class ExtStructure extends Structure implements CodecHolder<Stru
 		this.name = name;
 		this.settings = settings;
 		this.jigsaw_placement_settings = jigsaw_placement_settings;
+	}
+
+	public final ExtStructure setStartPosResolver(StartPosResolver generateStartPos) {
+		this.jigsaw_placement_settings.setStartPosResolver(generateStartPos);
+		return this;
 	}
 
 	/**
@@ -236,11 +243,13 @@ public abstract class ExtStructure extends Structure implements CodecHolder<Stru
 	@SuppressWarnings("rawtypes")
 	public StructureType<?> type() {
 		if (type == null) {
-			KlassWalker.walkGenericFields(this.getClass(), EntryHolder.class, StructureType.class, (Field f, boolean isStatic, EntryHolder holder) -> {
+			KlassWalker.walkGenericFields(this.getClass(), DeferredHolder.class, StructureType.class, (Field f, boolean isStatic, DeferredHolder holder) -> {
 				type = (StructureType<?>) holder.value();
 				return false;
 			});
 		}
+		if (type == null)
+			throw new IllegalStateException("Static DeferredHolder<StructureType<" + this.getClass().getSimpleName() + ">> field was not found in " + this.getClass());
 		return type;
 	}
 
@@ -250,21 +259,41 @@ public abstract class ExtStructure extends Structure implements CodecHolder<Stru
 	public static class Type {
 		public static final RegistryMap<StructureType<?>> STRUCTURE_TYPES = RegistryMap.of(Registries.STRUCTURE_TYPE);
 
-		@SuppressWarnings("unchecked")
-		public static StructureType<?> build(MapCodec<? extends Structure> structureCodec) {
-			return () -> (MapCodec<Structure>) structureCodec;
+		public static <S extends Structure> StructureType<S> build(MapCodec<S> structureCodec) {
+			if (structureCodec == null)
+				throw new IllegalArgumentException("Cannot build a StructureType<?> from null CODEC.");
+			return () -> structureCodec;
 		}
 
-		public static final ResourceKey<StructureType<?>> typeKey(String name) {
+		public static final ResourceKey<StructureType<?>> key(String name) {
 			return ResourceKeyBuilder.build(Registries.STRUCTURE_TYPE, name);
 		}
 
-		public static <S extends Structure> DeferredHolder<StructureType<?>, StructureType<?>> register(String name, StructureType<S> structureType) {
-			return STRUCTURE_TYPES.register(name, () -> structureType);
+		/**
+		 * 立即初始化延迟注册
+		 * 
+		 * @param <S>
+		 * @param name
+		 * @param structureCodec
+		 * @return
+		 */
+		public static <S extends Structure> DeferredHolder<StructureType<?>, StructureType<?>> register(String name, MapCodec<S> structureCodec) {
+			if (structureCodec == null)
+				throw new IllegalArgumentException("Cannot register a StructureType<?> from null CODEC.");
+			return STRUCTURE_TYPES.register(name, () -> build(structureCodec));
 		}
 
-		public static <S extends Structure> DeferredHolder<StructureType<?>, StructureType<?>> register(String name, MapCodec<S> structureCodec) {
-			return register(name, build(structureCodec));
+		/**
+		 * 延迟初始化和注册，当使用CodecAutogen注解生成Structure的CODEC字段时，需要使用采用本方法注册。<br>
+		 * StructureType必须后于CODEC初始化并注册，但CodecAutogen自动生成CODEC是先于RegisterEvent的，因此必须使用Supplier获取CODEC。<nr>
+		 * 
+		 * @param <S>
+		 * @param name
+		 * @param structureCodec
+		 * @return
+		 */
+		public static <S extends Structure> DeferredHolder<StructureType<?>, StructureType<?>> register(String name, Supplier<MapCodec<S>> structureCodec) {
+			return STRUCTURE_TYPES.register(name, () -> build(structureCodec.get()));
 		}
 	}
 
@@ -291,7 +320,7 @@ public abstract class ExtStructure extends Structure implements CodecHolder<Stru
 		 * @param biomes
 		 * @return
 		 */
-		public static final HolderSet<Biome> validBiomes(BootstrapContext<?> context, String... biomes) {
+		public static final HolderSet<Biome> validBiomes(BootstrapContext<Structure> context, String... biomes) {
 			return HolderSets.build(context, Registries.BIOME, biomes);
 		}
 
@@ -302,7 +331,7 @@ public abstract class ExtStructure extends Structure implements CodecHolder<Stru
 		 * @param tagName
 		 * @return
 		 */
-		public static final HolderSet<Biome> validTagBiomes(BootstrapContext<?> context, String tagName) {
+		public static final HolderSet<Biome> validTagBiomes(BootstrapContext<Structure> context, String tagName) {
 			return HolderSets.get(context, Registries.BIOME, tagName);
 		}
 

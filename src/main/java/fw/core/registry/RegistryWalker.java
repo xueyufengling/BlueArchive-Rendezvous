@@ -3,7 +3,6 @@ package fw.core.registry;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import com.mojang.serialization.MapCodec;
 
@@ -134,29 +133,44 @@ public class RegistryWalker {
 	 * minecraft:memory_module_type<br>
 	 * neoforge:condition_codecs<br>
 	 */
-	public static final Set<String> bootstrapRegistryFieldsFilter = Set.of(
-			"BIOME",
-			"CONFIGURED_FEATURE",
-			"DAMAGE_TYPE",
+	public static final List<String> bootstrapRegistryFieldsFilter = List.of(
+			// 维度
 			"DIMENSION_TYPE",
-			"DENSITY_FUNCTION",
-			"JUKEBOX_SONG",
-			"LEVEL_STEM",
+			// 生物群系和地物
+			"BIOME",
 			"PLACED_FEATURE",
-			"PROCESSOR_LIST",
-			"STRUCTURE_SET",
+			"CONFIGURED_FEATURE",
+			// 地形生成
+			"DENSITY_FUNCTION",
 			"NOISE",
 			"NOISE_SETTINGS",
+			"CONFIGURED_CARVER",
+			"LEVEL_STEM",
+			// 结构生成
+			"PROCESSOR_LIST",
+			"TEMPLATE_POOL",
 			"STRUCTURE",
+			"STRUCTURE_SET",
+			// 伤害类型
+			"DAMAGE_TYPE",
+			// 附魔
+			"ENCHANTMENT",
+			"JUKEBOX_SONG",
 			"TRIM_MATERIAL");
 
-	public static final void walkFilteredRegistries(Set<String> filterMap, RegistryOperation op) {
-		walkRegistries((Field f, ResourceKey<? extends Registry<?>> registryKey, Class<?> registryType) -> {
-			if (filterMap.contains(f.getName()))
+	/**
+	 * 按照指定顺序遍历注册表，逐个字符串在整个Registries中无序查找，效率低。<br>
+	 * 除非不同注册项存在先后注册依赖关系，否则不使用<br>
+	 * 
+	 * @param filterMap
+	 * @param op
+	 */
+	public static final void walkFilteredRegistries(List<String> filterMap, RegistryOperation op) {
+		for (String reg : filterMap) {
+			accessRegistry(reg, (Field f, ResourceKey<? extends Registry<?>> registryKey, Class<?> registryType) -> {
 				return op.operate(f, registryKey, registryType);
-			else
-				return true;
-		});
+			});
+		}
 	}
 
 	/**
@@ -174,9 +188,32 @@ public class RegistryWalker {
 		});
 	}
 
+	/**
+	 * 访问指定注册类型的注册表
+	 * 
+	 * @param targetRegistryType
+	 * @param op
+	 */
 	public static final void accessRegistry(Class<?> targetRegistryType, RegistryOperation op) {
 		walkRegistries((Field f, ResourceKey<? extends Registry<?>> registryKey, Class<?> registryType) -> {
 			if (Reflection.is(registryType, targetRegistryType))
+				return op.operate(f, registryKey, registryType);
+			else
+				return true;
+		});
+	}
+
+	/**
+	 * 访问指定字段名称的注册表
+	 * 
+	 * @param targetRegistryType
+	 * @param op
+	 */
+	public static final void accessRegistry(String targetRegistryField, RegistryOperation op) {
+		if (targetRegistryField == null)
+			return;
+		walkRegistries((Field f, ResourceKey<? extends Registry<?>> registryKey, Class<?> registryType) -> {
+			if (f.getName().equals(targetRegistryField))
 				return op.operate(f, registryKey, registryType);
 			else
 				return true;

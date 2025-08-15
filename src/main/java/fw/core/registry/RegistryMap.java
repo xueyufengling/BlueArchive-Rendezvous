@@ -7,7 +7,6 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import fw.core.Core;
 import fw.items.ExtCreativeTab;
 import fw.items.ExtItem;
 import fw.resources.ResourceLocationBuilder;
@@ -35,13 +34,12 @@ public class RegistryMap<R> {
 	 */
 	private static final HashSet<String> namespaces = new HashSet<>();
 
-	static {
-		namespaces.add(ResourceLocation.DEFAULT_NAMESPACE);
-		namespaces.add(Core.ModId);
-	}
-
 	public static final Set<String> namespaces() {
 		return Collections.unmodifiableSet(namespaces);
+	}
+
+	public static final HashSet<String> mutableNamespaces() {
+		return namespaces;
 	}
 
 	protected final ResourceKey<? extends Registry<R>> registryKey;

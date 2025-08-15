@@ -172,8 +172,8 @@ public @interface RegistryEntry {
 	public static class RegistriesProvider extends DatapackBuiltinEntriesProvider {
 		static final ArrayList<Class<?>> registryClasses = new ArrayList<>();
 
-		private static final void setBootstrapContext(EntryHolder<?> datagenHolder, BootstrapContext<?> bootstrapContext) {
-			ObjectManipulator.setDeclaredMemberObject(datagenHolder, "bootstrapContext", bootstrapContext);
+		private static final void setBootstrapContexts(EntryHolder<?> datagenHolder, BootstrapContext<?> context) {
+			ObjectManipulator.setDeclaredMemberObject(datagenHolder, "bootstrapContext", context);
 		}
 
 		/**
@@ -186,7 +186,7 @@ public @interface RegistryEntry {
 		 */
 		@SuppressWarnings({ "rawtypes", "unchecked" })
 		private static final void registerFields(BootstrapContext<?> context, Class<?> registryClass, Class<?> registryType, boolean allowRegister) {
-			BootstrapContext raw_context = (BootstrapContext) context;
+			BootstrapContext this_reg_context = (BootstrapContext) context;
 			KlassWalker.walkAnnotatedFields(registryClass, RegistryEntry.class, (Field f, boolean isStatic, Object value, RegistryEntry annotation) -> {
 				if (isStatic) {
 					if (annotation.reg_stage() == Stage.DATA_GEN) {
@@ -196,20 +196,20 @@ public @interface RegistryEntry {
 						}
 						if (RegistryType.isEntryHolder(f, registryType)) {
 							EntryHolder datagenHolder = (EntryHolder) value;
-							setBootstrapContext(datagenHolder, context);// 为EntryHolder设置BootstrapContext
+							setBootstrapContexts(datagenHolder, context);// 为EntryHolder设置BootstrapContext
 							if (allowRegister) {
 								datagenHolder.register();
-								Core.logInfo("Datagen registered [" + datagenHolder.registryKey().location() + "] entry [" + datagenHolder.getKey().location() + "] with EntryHolder value=" + datagenHolder.originalValue());
+								Core.logInfo("Datagen BootstrapContext<" + registryType.getSimpleName() + "> registered [" + datagenHolder.registryKey().location() + "] entry [" + datagenHolder.getKey().location() + "] with EntryHolder value=" + datagenHolder.originalValue());
 							} else {
-								Core.logWarn("EntryHolder entry [" + datagenHolder.getKey().location() + "] with registry type [" + datagenHolder.registryKey().location() + "] is not allowed to register, check if this registry in RegistryEntry.RegistriesProvider.registryFieldFilter map.");
+								Core.logWarn("Datagen BootstrapContext<" + registryType.getSimpleName() + "> EntryHolder entry [" + datagenHolder.getKey().location() + "] with registry type [" + datagenHolder.registryKey().location() + "] is not allowed to register, check if this registry in RegistryEntry.RegistriesProvider.registryFieldFilter map.");
 							}
 						} else if (RegistryType.isHolder(f, registryType)) {
 							Holder holder = (Holder) value;
 							if (allowRegister) {
-								raw_context.register(holder.getKey(), holder.value());
-								Core.logInfo("Datagen registered [" + holder.getKey().registryKey().location() + "] entry [" + holder.getKey().location() + "] with Holder value=" + holder.value());
+								this_reg_context.register(holder.getKey(), holder.value());
+								Core.logInfo("Datagen BootstrapContext<" + registryType.getSimpleName() + "> registered [" + holder.getKey().registryKey().location() + "] entry [" + holder.getKey().location() + "] with Holder value=" + holder.value());
 							} else {
-								Core.logWarn("Holder entry [" + holder.getKey().location() + "] with registry type [" + holder.getKey().registryKey().location() + "] is not allowed to register, check if this registry in RegistryEntry.RegistriesProvider.registryFieldFilter map.");
+								Core.logWarn("Datagen BootstrapContext<" + registryType.getSimpleName() + "> Holder entry [" + holder.getKey().location() + "] with registry type [" + holder.getKey().registryKey().location() + "] is not allowed to register, check if this registry in RegistryEntry.RegistriesProvider.registryFieldFilter map.");
 							}
 						}
 					}
@@ -227,11 +227,12 @@ public @interface RegistryEntry {
 				RegistrySetBuilder.RegistryBootstrap bootstrap = (BootstrapContext context) -> {
 					for (Class<?> registryClass : registryClasses)
 						registerFields(context, registryClass, RegistryWalker.getRegistryKeyType(f), true);
-				};
+				};// 每个注册表都有对应的BootstrapContext，该context只能获取本注册表的lookup和注册条目
 				registrySetBuilder.add((ResourceKey) registryKey, bootstrap);
+				Core.logInfo("Complete collecting bootstrap values for registry " + registryKey.location());
 				return true;
 			});
-			Core.logInfo("All bootstrap entries will be registered soon, if any entry was not registered, check if its registry is in RegistryWalker.bootstrapRegistryFieldsFilter map.");
+			Core.logInfo("All bootstrap entries will be registered soon, if any entry was not registered, and no file generated while no error or exception was thrown, check if its registry is in RegistryWalker.bootstrapRegistryFieldsFilter map.");
 			return registrySetBuilder;
 		}
 

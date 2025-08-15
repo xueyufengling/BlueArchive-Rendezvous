@@ -5,7 +5,6 @@ import java.util.function.Function;
 
 import com.mojang.datafixers.util.Pair;
 
-import fw.core.registry.RegistryMap;
 import fw.datagen.EntryHolder;
 import fw.resources.ResourceKeyBuilder;
 import net.minecraft.core.Holder;
@@ -23,8 +22,6 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProc
  * 用于储存同一个结构类型的多个拼图
  */
 public class TemplatePool {
-	public static final RegistryMap<StructureTemplatePool> TEMPLATE_POOLS = RegistryMap.of(Registries.TEMPLATE_POOL);
-
 	public static final Holder<StructureTemplatePool> empty(BootstrapContext<?> context) {
 		return context.lookup(Registries.TEMPLATE_POOL).getOrThrow(Pools.EMPTY);
 	}
@@ -37,62 +34,114 @@ public class TemplatePool {
 		return EntryHolder.of(Registries.TEMPLATE_POOL, name, pool);
 	}
 
-	private BootstrapContext<?> context;
+	private BootstrapContext<StructureTemplatePool> context;
 	private Holder<StructureTemplatePool> fallback;
+	private StructureTemplatePool.Projection proj;
 
 	private ArrayList<Pair<StructurePoolElement, Integer>> templates = new ArrayList<>();
 
-	public TemplatePool(BootstrapContext<?> context, String fallback) {
+	public TemplatePool(BootstrapContext<StructureTemplatePool> context, String fallback, StructureTemplatePool.Projection proj) {
+		this.context = context;
+		ResourceKey<StructureTemplatePool> fallbackKey = fallback == null ? Pools.EMPTY : key(fallback);
+		this.fallback = context.lookup(Registries.TEMPLATE_POOL).getOrThrow(fallbackKey);
+		this.proj = proj;
+	}
+
+	public TemplatePool(BootstrapContext<StructureTemplatePool> context, String fallback) {
 		this.context = context;
 		ResourceKey<StructureTemplatePool> fallbackKey = fallback == null ? Pools.EMPTY : key(fallback);
 		this.fallback = context.lookup(Registries.TEMPLATE_POOL).getOrThrow(fallbackKey);
 	}
 
-	public TemplatePool(BootstrapContext<?> context) {
-		this(context, null);
+	public TemplatePool(BootstrapContext<StructureTemplatePool> context, StructureTemplatePool.Projection proj) {
+		this(context, null, proj);
+	}
+
+	public TemplatePool(BootstrapContext<StructureTemplatePool> context) {
+		this(context, null, null);
 	}
 
 	public StructureTemplatePool build() {
 		return new StructureTemplatePool(fallback, templates);
 	}
 
-	public final TemplatePool entry(StructurePoolElement element, int repeatCount) {
-		templates.add(Pair.of(element, repeatCount));
+	public final TemplatePool projection(StructureTemplatePool.Projection proj) {
+		this.proj = proj;
+		return this;
+	}
+
+	public final TemplatePool entry(StructurePoolElement element, int weight) {
+		templates.add(Pair.of(element, weight));
 		return this;
 	}
 
 	/**
 	 * @param elementFunc
 	 * @param proj
-	 * @param repeatCount 重复次数
+	 * @param weight      重复次数
 	 * @return
 	 */
-	public final TemplatePool entry(Function<StructureTemplatePool.Projection, ? extends StructurePoolElement> elementFunc, StructureTemplatePool.Projection proj, int repeatCount) {
-		return entry(elementFunc.apply(proj), repeatCount);
+	public final TemplatePool entry(Function<StructureTemplatePool.Projection, ? extends StructurePoolElement> elementFunc, StructureTemplatePool.Projection proj, int weight) {
+		return entry(elementFunc.apply(proj), weight);
 	}
 
-	public final TemplatePool singleEntry(String id, Holder<StructureProcessorList> processors, LiquidSettings liquidSettings, StructureTemplatePool.Projection proj, int repeatCount) {
-		return entry(StructurePoolElement.single(id, processors, liquidSettings), proj, repeatCount);
+	public final TemplatePool singleEntry(String id, Holder<StructureProcessorList> processors, LiquidSettings liquidSettings, StructureTemplatePool.Projection proj, int weight) {
+		return entry(StructurePoolElement.single(id, processors, liquidSettings), proj, weight);
 	}
 
-	public final TemplatePool singleEntry(String id, Holder<StructureProcessorList> processors, StructureTemplatePool.Projection proj, int repeatCount) {
-		return entry(StructurePoolElement.single(id, processors), proj, repeatCount);
+	public final TemplatePool singleEntry(String id, Holder<StructureProcessorList> processors, StructureTemplatePool.Projection proj, int weight) {
+		return entry(StructurePoolElement.single(id, processors), proj, weight);
 	}
 
-	public final TemplatePool singleEntry(String id, LiquidSettings liquidSettings, StructureTemplatePool.Projection proj, int repeatCount) {
-		return entry(StructurePoolElement.single(id, liquidSettings), proj, repeatCount);
+	public final TemplatePool singleEntry(String id, LiquidSettings liquidSettings, StructureTemplatePool.Projection proj, int weight) {
+		return entry(StructurePoolElement.single(id, liquidSettings), proj, weight);
 	}
 
-	public final TemplatePool singleEntry(String id, StructureTemplatePool.Projection proj, int repeatCount) {
-		return entry(StructurePoolElement.single(id), proj, repeatCount);
+	public final TemplatePool singleEntry(String id, StructureTemplatePool.Projection proj, int weight) {
+		return entry(StructurePoolElement.single(id), proj, weight);
 	}
 
-	public final TemplatePool singleEntry(String id, String processors, LiquidSettings liquidSettings, StructureTemplatePool.Projection proj, int repeatCount) {
-		return singleEntry(id, ExtStructureProcessor.list(context, processors), liquidSettings, proj, repeatCount);
+	public final TemplatePool singleEntry(String id, String processors, LiquidSettings liquidSettings, StructureTemplatePool.Projection proj, int weight) {
+		return singleEntry(id, ExtStructureProcessor.list(context, processors), liquidSettings, proj, weight);
 	}
 
-	public final TemplatePool singleEntry(String id, String processors, StructureTemplatePool.Projection proj, int repeatCount) {
-		return singleEntry(id, ExtStructureProcessor.list(context, processors), proj, repeatCount);
+	public final TemplatePool singleEntry(String id, String processors, StructureTemplatePool.Projection proj, int weight) {
+		return singleEntry(id, ExtStructureProcessor.list(context, processors), proj, weight);
+	}
+
+	/**
+	 * 使用本对象的proj计算
+	 * 
+	 * @param elementFunc
+	 * @param weight      权重
+	 * @return
+	 */
+	public final TemplatePool entry(Function<StructureTemplatePool.Projection, ? extends StructurePoolElement> elementFunc, int weight) {
+		return entry(elementFunc, proj, weight);
+	}
+
+	public final TemplatePool singleEntry(String id, Holder<StructureProcessorList> processors, LiquidSettings liquidSettings, int weight) {
+		return singleEntry(id, processors, liquidSettings, proj, weight);
+	}
+
+	public final TemplatePool singleEntry(String id, Holder<StructureProcessorList> processors, int weight) {
+		return singleEntry(id, processors, proj, weight);
+	}
+
+	public final TemplatePool singleEntry(String id, LiquidSettings liquidSettings, int weight) {
+		return singleEntry(id, liquidSettings, proj, weight);
+	}
+
+	public final TemplatePool singleEntry(String id, int weight) {
+		return singleEntry(id, proj, weight);
+	}
+
+	public final TemplatePool singleEntry(String id, String processors, LiquidSettings liquidSettings, int weight) {
+		return singleEntry(id, processors, liquidSettings, proj, weight);
+	}
+
+	public final TemplatePool singleEntry(String id, String processors, int weight) {
+		return singleEntry(id, processors, proj, weight);
 	}
 
 	/**
@@ -117,5 +166,28 @@ public class TemplatePool {
 
 	public final TemplatePool singleEntry(String id, String processors, StructureTemplatePool.Projection proj) {
 		return singleEntry(id, processors, proj, 1);
+	}
+
+	/**
+	 * 使用本对象的proj计算
+	 * 
+	 * @param elementFunc
+	 * @param weight
+	 * @return
+	 */
+	public final TemplatePool singleEntry(String id, LiquidSettings liquidSettings) {
+		return singleEntry(id, liquidSettings, proj);
+	}
+
+	public final TemplatePool singleEntry(String id) {
+		return singleEntry(id, proj);
+	}
+
+	public final TemplatePool singleEntry(String id, String processors, LiquidSettings liquidSettings) {
+		return singleEntry(id, processors, liquidSettings, proj);
+	}
+
+	public final TemplatePool singleEntry(String id, String processors) {
+		return singleEntry(id, processors, proj);
 	}
 }

@@ -14,6 +14,7 @@ import com.mojang.serialization.MapCodec;
 
 import fw.codec.CodecResolver;
 import fw.codec.Codecs;
+import fw.core.Core;
 import lyra.klass.KlassWalker;
 import lyra.object.ObjectManipulator;
 
@@ -147,6 +148,7 @@ public @interface CodecEntry {
 					Class<?> field_type = f.getType();
 					arg_types.add(field_type);// 储存该字段的类型，该类型必须和构造函数的参数类型和顺序严格匹配
 					MapCodec final_codec = CodecEntry.Resolver.resolveFieldFinalCodec(f, annotation);
+					Core.logInfo("Found CODEC for @CodecEntry " + field_type.getSimpleName() + " " + f.getName() + " -> " + final_codec);
 					entries.add(final_codec.forGetter((Object targetObj) -> {
 						return ObjectManipulator.access(targetObj, f);
 					}));

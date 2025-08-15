@@ -27,7 +27,7 @@ public class KivotosBiomes extends ExtBiomeSource {
 	/**
 	 * 仅数据生成阶段使用
 	 * 
-	 * @param context
+	 * @param contexts
 	 */
 	public KivotosBiomes(BootstrapContext<?> context) {
 		super(context);

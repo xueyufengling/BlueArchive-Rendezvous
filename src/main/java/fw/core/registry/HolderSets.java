@@ -44,6 +44,13 @@ public class HolderSets {
 		return HolderSet.direct(holders);
 	}
 
+	public static final <T> HolderSet.Direct<T> build(Registry<T> registry, String... elements) {
+		ArrayList<Holder<T>> holders = new ArrayList<>();
+		for (String id : elements)
+			holders.add(registry.getHolderOrThrow(ResourceKeyBuilder.build(registry.key(), id)));
+		return HolderSet.direct(holders);
+	}
+
 	/**
 	 * 数据注册阶段使用
 	 * 
@@ -57,13 +64,6 @@ public class HolderSets {
 		ArrayList<Holder<T>> holders = new ArrayList<>();
 		for (String id : elements)
 			holders.add(holderGetter.getOrThrow(ResourceKeyBuilder.build(registryKey, id)));
-		return HolderSet.direct(holders);
-	}
-
-	public static final <T> HolderSet.Direct<T> build(Registry<T> registry, String... elements) {
-		ArrayList<Holder<T>> holders = new ArrayList<>();
-		for (String id : elements)
-			holders.add(registry.getHolderOrThrow(ResourceKeyBuilder.build(registry.key(), id)));
 		return HolderSet.direct(holders);
 	}
 

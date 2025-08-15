@@ -8,8 +8,6 @@ import com.mojang.serialization.MapCodec;
 import fw.codec.annotation.CodecAutogen;
 import fw.codec.annotation.CodecEntry;
 import fw.codec.annotation.CodecTarget;
-import fw.core.registry.Holders;
-import fw.resources.ResourceKeyBuilder;
 import fw.resources.ResourceLocationBuilder;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
@@ -79,8 +77,6 @@ public class JigsawPlacementContext {
 			List<PoolAliasBinding> alias,
 			DimensionPadding dimension_padding,
 			LiquidSettings liquid_settings) {
-		if (Holders.getValue(template_pool) == null)
-			throw new IllegalArgumentException("Error creating JigsawPlacementContext: template_pool [" + template_pool.getKey().location() + "] not found, and cannot be null.");
 		this.template_pool = template_pool;
 		this.start_jigsaw_name = start_jigsaw_name;
 		this.max_depth = max_depth;
@@ -131,6 +127,21 @@ public class JigsawPlacementContext {
 				liquid_settings);
 	}
 
+	/**
+	 * 数据生成阶段使用
+	 * 
+	 * @param context
+	 * @param template_pool
+	 * @param start_jigsaw_name
+	 * @param max_depth
+	 * @param start_height
+	 * @param project_start_to_heightmap
+	 * @param max_distance_from_center
+	 * @param alias
+	 * @param dimension_padding_bottom
+	 * @param dimension_padding_top
+	 * @param liquid_settings
+	 */
 	public JigsawPlacementContext(
 			BootstrapContext<?> context,
 			String template_pool,
@@ -143,7 +154,7 @@ public class JigsawPlacementContext {
 			int dimension_padding_bottom,
 			int dimension_padding_top,
 			LiquidSettings liquid_settings) {
-		this(context.lookup(Registries.TEMPLATE_POOL).getOrThrow(ResourceKeyBuilder.build(Registries.TEMPLATE_POOL, template_pool)),
+		this(context.lookup(Registries.TEMPLATE_POOL).getOrThrow(TemplatePool.key(template_pool)),
 				start_jigsaw_name == null ? Optional.empty() : Optional.of(ResourceLocationBuilder.build(start_jigsaw_name)),
 				max_depth,
 				start_height,
