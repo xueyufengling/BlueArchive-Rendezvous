@@ -3,8 +3,8 @@
   "generator": {
     "type": "minecraft:noise",
     "biome_source": {
-      "type": "ba:kivotos_biomes",
-      "possible_biomes_list": []
+      "type": "minecraft:fixed",
+      "biome": "minecraft:forest"
     },
     "settings": "ba:kivotos"
   }

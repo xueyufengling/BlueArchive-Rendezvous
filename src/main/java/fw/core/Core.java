@@ -1,5 +1,7 @@
 package fw.core;
 
+import java.util.List;
+
 import org.slf4j.Logger;
 
 import fw.Config;
@@ -79,6 +81,14 @@ public class Core {
 	}
 
 	/**
+	 * 本库需要预先强制加载初始化的包
+	 */
+	private static final List<String> internalPackages = List.of(
+			"fw.core.registry.registries", // 加载并初始化注册表的字段初始化器
+			"fw.terrain.algorithm"// 加载地形生成算法包以生成对应的CODEC
+	);
+
+	/**
 	 * Mod构造函数调用后，ModInit注解方法执行前调用
 	 * 
 	 * @param event
@@ -94,7 +104,7 @@ public class Core {
 		Logger.info("Mod classpath=\"" + KlassPath.getKlassPath() + '\"');
 		ObjectManipulator.setObject(Core.class, "Mod", getModContainer(event));
 		ObjectManipulator.setObject(Core.class, "ModBus", getModEventBus(Mod));// 初始化赋值ModBus
-		loadPackage("fw.core.registry.registries");// 加载并初始化注册表的字段初始化器
+		loadPackage(internalPackages);
 		ModInit.Initializer.executeAllInitFuncs(event, ModInit.Stage.PRE_INIT);
 	}
 
@@ -130,11 +140,21 @@ public class Core {
 		Logger.info("Loaded package " + pkg);
 	}
 
+	public static void loadPackage(List<String> pkgs) {
+		for (String pkg : pkgs)
+			loadPackage(pkg);
+	}
+
 	public static void loadClientPackage(String pkg) {
 		ExecuteIn.Client(() -> {
 			KlassLoader.loadKlass(pkg, true);
 		});
 		Logger.info("Loaded client-side package " + pkg);
+	}
+
+	public static void loadClientPackage(List<String> pkgs) {
+		for (String pkg : pkgs)
+			loadClientPackage(pkg);
 	}
 
 	public static final void logDebug(String msg) {

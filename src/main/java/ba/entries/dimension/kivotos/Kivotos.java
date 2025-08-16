@@ -8,6 +8,8 @@ import fw.datagen.EntryHolder;
 import fw.datagen.annotation.RegistryEntry;
 import fw.dimension.ExtDimension;
 import fw.terrain.Df;
+import fw.terrain.algorithm.OctaveSimplexNoiseHeightMap;
+import fw.terrain.biome.ExtBiome;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.RegistryAccess;
@@ -16,6 +18,7 @@ import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.data.worldgen.SurfaceRuleData;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.valueproviders.UniformInt;
+import net.minecraft.world.level.biome.FixedBiomeSource;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
 import net.minecraft.world.level.dimension.DimensionType;
@@ -37,7 +40,7 @@ public class Kivotos {
 	public static final int MIN_Y = -256;
 	public static final int MAX_Y = 384;
 	public static final int HEIGHT = MAX_Y - MIN_Y;
-	public static final int SEALEVEL = 0;
+	public static final int SEALEVEL = 63;
 
 	/**
 	 * 维度属性定义
@@ -77,12 +80,10 @@ public class Kivotos {
 
 		DensityFunction continents = df.func("minecraft:overworld/continents");
 
-		KivotosHeightMap heightMap = new KivotosHeightMap(0L);
-
 		return new NoiseGeneratorSettings(
 				noise,
 				Blocks.STONE.defaultBlockState(), // 世界生成时填充的默认方块
-				Blocks.AIR.defaultBlockState(),
+				Blocks.WATER.defaultBlockState(),
 				// Blocks.WATER.defaultBlockState(), // 海平面处的默认流体
 				new NoiseRouter(
 						DensityFunctions.zero(), // barrier
@@ -96,15 +97,15 @@ public class Kivotos {
 						DensityFunctions.zero(), // depth
 						DensityFunctions.zero(), // ridges
 						DensityFunctions.zero(), // initial_density_without_jaggedness
-						heightMap.apply(base3dNoise), // final_density
+						new KivotosHeightMap(-50, 400, 0.0002, 0L, true, 10, 5, 2, 1), // final_density
 						DensityFunctions.zero(), // vein_toggle
 						DensityFunctions.zero(), // vein_ridged
 						DensityFunctions.zero()), // vein_gap
-				SurfaceRuleData.overworld(),
+				SurfaceRuleData.overworld(), // -54生成岩浆
 				List.of(),
 				SEALEVEL,
 				false,
-				false,
+				true,
 				true,
 				false);
 
@@ -118,8 +119,8 @@ public class Kivotos {
 		Holder<NoiseGeneratorSettings> noise = noiseSettings.getOrThrow(NOISE_SETTINGS.getKey());
 
 		return new LevelStem(dimType, new NoiseBasedChunkGenerator(
-				new KivotosBiomes(context),
-				// new FixedBiomeSource(ExtBiome.datagenHolder(context, "minecraft:forest")),
+				// new KivotosBiomes(context),
+				new FixedBiomeSource(ExtBiome.datagenStageHolder(context, "minecraft:forest")),
 				noise));
 	});
 }
