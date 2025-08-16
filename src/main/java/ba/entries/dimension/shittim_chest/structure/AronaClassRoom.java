@@ -3,9 +3,9 @@ package ba.entries.dimension.shittim_chest.structure;
 import com.mojang.serialization.MapCodec;
 
 import ba.entries.biome.shittim_chest.ShittimChestBiomes;
-import fw.codec.CodecHolder;
 import fw.codec.annotation.CodecAutogen;
 import fw.codec.annotation.CodecTarget;
+import fw.codec.derived.DerivedCodecHolder;
 import fw.datagen.EntryHolder;
 import fw.datagen.annotation.RegistryEntry;
 import fw.terrain.HeightProviders;
@@ -29,7 +29,7 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 public class AronaClassRoom extends ExtStructure {
 
 	static {
-		CodecHolder.CODEC();
+		DerivedCodecHolder.CODEC();
 		RegistryEntry.RegistriesProvider.forDatagen();
 	}
 

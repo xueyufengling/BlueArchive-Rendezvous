@@ -5,9 +5,9 @@ import java.util.List;
 import com.mojang.serialization.MapCodec;
 
 import fw.client.render.level.MutableBiomeSpecialEffects;
-import fw.codec.CodecHolder;
 import fw.codec.annotation.CodecAutogen;
 import fw.codec.annotation.CodecTarget;
+import fw.codec.derived.DerivedCodecHolder;
 import fw.core.ExecuteIn;
 import fw.datagen.EntryHolder;
 import fw.datagen.annotation.RegistryEntry;
@@ -29,7 +29,7 @@ public class ShittimChestBiomes extends ExtBiomeSource {
 	private static MutableBiomeSpecialEffects effects;
 
 	static {
-		CodecHolder.CODEC();
+		DerivedCodecHolder.CODEC();
 		RegistryEntry.RegistriesProvider.forDatagen();
 		ExecuteIn.Client(() -> {
 			effects = MutableBiomeSpecialEffects.from(SHITTIM_CHEST_ID);

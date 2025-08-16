@@ -41,5 +41,6 @@ public class ModEntry {
 			Dimensions.redirectOverworld(ShittimChest.ID);
 			Logger.info("Running on client-side, overworld redirected to Shittim Chest");
 		});
+		Dimensions.redirectOverworld(Kivotos.ID);
 	}
 }

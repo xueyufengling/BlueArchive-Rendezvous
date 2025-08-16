@@ -35,7 +35,7 @@ public class Kivotos {
 	public static final String ID = "ba:kivotos";
 
 	public static final int MIN_Y = -256;
-	public static final int MAX_Y = 0;
+	public static final int MAX_Y = 384;
 	public static final int HEIGHT = MAX_Y - MIN_Y;
 	public static final int SEALEVEL = 0;
 
@@ -75,16 +75,9 @@ public class Kivotos {
 
 		DensityFunction base3dNoise = df.func(KivotosDensityFunctions.KIVOTOS_BASE_3D_NOISE.getKey());
 
-		DensityFunction continents = new KivotosDf(0L);
+		DensityFunction continents = df.func("minecraft:overworld/continents");
 
-		// 4. 细节噪声 (侵蚀效果)
-		DensityFunction detailNoise = DensityFunctions.mul(
-				DensityFunctions.constant(0.8),
-				base3dNoise);
-
-		DensityFunction finalDensity = DensityFunctions.add(
-				continents,
-				detailNoise);
+		KivotosHeightMap heightMap = new KivotosHeightMap(0L);
 
 		return new NoiseGeneratorSettings(
 				noise,
@@ -100,12 +93,10 @@ public class Kivotos {
 						DensityFunctions.zero(), // vegetation
 						continents, // continents
 						DensityFunctions.zero(), // erosion
-						DensityFunctions.add(
-								DensityFunctions.yClampedGradient(MIN_Y, MAX_Y, 1.5, -1.5),
-								finalDensity), // depth
+						DensityFunctions.zero(), // depth
 						DensityFunctions.zero(), // ridges
-						finalDensity, // initial_density_without_jaggedness
-						finalDensity, // final_density
+						DensityFunctions.zero(), // initial_density_without_jaggedness
+						heightMap.apply(base3dNoise), // final_density
 						DensityFunctions.zero(), // vein_toggle
 						DensityFunctions.zero(), // vein_ridged
 						DensityFunctions.zero()), // vein_gap

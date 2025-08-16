@@ -6,20 +6,21 @@ import java.util.stream.Stream;
 
 import com.mojang.serialization.MapCodec;
 
-import fw.codec.CodecHolder;
 import fw.codec.annotation.AsDataField;
 import fw.codec.annotation.CodecEntry;
 import fw.codec.annotation.CodecTarget;
+import fw.codec.derived.MapCodecHolder;
 import net.minecraft.core.Holder;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeSource;
 
 @AsDataField
-public abstract class ExtBiomeSource extends BiomeSource implements CodecHolder<BiomeSource> {
+public abstract class ExtBiomeSource extends BiomeSource implements MapCodecHolder<BiomeSource> {
 	@Override
+	@SuppressWarnings({ "unchecked" })
 	public MapCodec<? extends BiomeSource> codec() {
-		return CodecHolder.super.codec();
+		return MapCodecHolder.super.codec();
 	}
 
 	@CodecEntry
@@ -32,7 +33,7 @@ public abstract class ExtBiomeSource extends BiomeSource implements CodecHolder<
 	 * @param possibleBiomeKeys
 	 */
 	public ExtBiomeSource(BootstrapContext<?> context, List<String> possibleBiomeKeys) {
-		CodecHolder.super.construct(BiomeSource.class);
+		MapCodecHolder.super.construct(BiomeSource.class);
 		resolvePossibleBiomes(context, possibleBiomeKeys);
 	}
 
@@ -46,8 +47,8 @@ public abstract class ExtBiomeSource extends BiomeSource implements CodecHolder<
 	 * @param possibleBiomesList
 	 */
 	@CodecTarget
-	public ExtBiomeSource(@AsDataField List<Holder<Biome>> possibleBiomesList) {
-		CodecHolder.super.construct(BiomeSource.class);
+	public ExtBiomeSource(List<Holder<Biome>> possibleBiomesList) {
+		MapCodecHolder.super.construct(BiomeSource.class);
 		this.possible_biomes_list = possibleBiomesList;
 	}
 

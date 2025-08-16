@@ -9,10 +9,10 @@ import java.util.function.Supplier;
 
 import com.mojang.serialization.MapCodec;
 
-import fw.codec.CodecHolder;
 import fw.codec.annotation.AsDataField;
 import fw.codec.annotation.CodecEntry;
 import fw.codec.annotation.CodecTarget;
+import fw.codec.derived.MapCodecHolder;
 import fw.core.registry.HolderSets;
 import fw.core.registry.RegistryMap;
 import fw.datagen.EntryHolder;
@@ -45,7 +45,7 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 /**
  * 采用拼图模板的结构，自动创建对应的StructureType。<br>
  */
-public abstract class ExtStructure extends Structure implements CodecHolder<Structure> {
+public abstract class ExtStructure extends Structure implements MapCodecHolder<Structure> {
 	/**
 	 * 所有构造函数传入且在实例方法中使用的字段需要全部作为CODEC字段。<br>
 	 * 若构造函数传入了，但实例方法中未使用该参数（即仅构造函数内部使用的参数）则不需要序列化。
@@ -61,11 +61,11 @@ public abstract class ExtStructure extends Structure implements CodecHolder<Stru
 	protected JigsawPlacementContext jigsaw_placement_settings;
 
 	@CodecTarget
-	protected ExtStructure(@AsDataField String name,
-			@AsDataField Structure.StructureSettings settings,
+	protected ExtStructure(String name,
+			Structure.StructureSettings settings,
 			@AsDataField JigsawPlacementContext jigsaw_placement_settings) {
 		super(settings);
-		CodecHolder.super.construct(Structure.class);
+		MapCodecHolder.super.construct(Structure.class);
 		this.name = name;
 		this.settings = settings;
 		this.jigsaw_placement_settings = jigsaw_placement_settings;

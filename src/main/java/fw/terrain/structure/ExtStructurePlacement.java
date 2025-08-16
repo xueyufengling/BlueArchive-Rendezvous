@@ -4,7 +4,7 @@ import java.util.Optional;
 
 import com.mojang.serialization.MapCodec;
 
-import fw.codec.CodecHolder;
+import fw.codec.derived.MapCodecHolder;
 import fw.core.registry.RegistryMap;
 import net.minecraft.core.Vec3i;
 import net.minecraft.core.registries.Registries;
@@ -18,11 +18,11 @@ import net.neoforged.neoforge.registries.DeferredHolder;
  * 类结构同ExtStructure和ExtStructure.Type<br>
  * 自动创建对应的StructurePlacementType
  */
-public abstract class ExtStructurePlacement extends StructurePlacement implements CodecHolder<StructurePlacement> {
+public abstract class ExtStructurePlacement extends StructurePlacement implements MapCodecHolder<StructurePlacement> {
 	@SuppressWarnings("deprecation")
 	protected ExtStructurePlacement(Vec3i locateOffset, StructurePlacement.FrequencyReductionMethod frequencyReductionMethod, float frequency, int salt, Optional<StructurePlacement.ExclusionZone> exclusionZone, String type) {
 		super(locateOffset, frequencyReductionMethod, frequency, salt, exclusionZone);
-		CodecHolder.super.construct(StructurePlacement.class);
+		MapCodecHolder.super.construct(StructurePlacement.class);
 		this.structurePlacementType = Type.register(type, this);
 	}
 

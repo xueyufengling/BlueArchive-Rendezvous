@@ -1,6 +1,5 @@
 package fw.codec;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.List;
@@ -27,10 +26,8 @@ import fw.core.registry.Holders;
 import lyra.klass.GenericTypes;
 import lyra.lang.Arrays;
 import lyra.lang.JavaLang;
-import lyra.lang.Reflection;
 import lyra.lang.internal.HandleBase;
 import lyra.object.ObjectManipulator;
-import lyra.object.Placeholders;
 import net.minecraft.core.Holder;
 import net.minecraft.util.KeyDispatchDataCodec;
 
@@ -165,64 +162,6 @@ public class Codecs {
 		CODEC_RESOLVERS.put(targetClass, resolver);
 	}
 
-	/**
-	 * 访问匹配的MapCodec
-	 * 
-	 * @param obj
-	 * @param defaultValue
-	 * @return
-	 */
-	@SuppressWarnings("unchecked")
-	public static final <T> MapCodec<?> accessMapCodecOrDefault(Object obj, MapCodec<?> defaultValue) {
-		Class<T> cls;
-		if (obj instanceof Class c)
-			cls = c;
-		else
-			cls = (Class<T>) obj.getClass();
-		Placeholders.TypeWrapper<MapCodec<T>> mc = Placeholders.TypeWrapper.wrap();
-		CodecWalker.walkMapCodecs(cls, cls, (Field f, MapCodec<T> codec) -> {
-			mc.value = codec;
-			return false;
-		});
-		if (mc.value != null)
-			return mc.value;
-		return defaultValue;
-	}
-
-	@SuppressWarnings("unchecked")
-	public static final <T> Codec<?> accessCodecOrDefault(Object obj, Codec<?> defaultValue) {
-		Class<T> cls;
-		if (obj instanceof Class c)
-			cls = c;
-		else
-			cls = (Class<T>) obj.getClass();
-		Placeholders.TypeWrapper<Codec<T>> c = Placeholders.TypeWrapper.wrap();
-		CodecWalker.walkCodecs(cls, cls, (Field f, Codec<T> codec) -> {
-			c.value = codec;
-			return false;
-		});
-		if (c.value != null)
-			return c.value;
-		return defaultValue;
-	}
-
-	@SuppressWarnings("unchecked")
-	public static final <T> KeyDispatchDataCodec<?> accessKeyDispatchDataCodecOrDefault(Object obj, KeyDispatchDataCodec<?> defaultValue) {
-		Class<T> cls;
-		if (obj instanceof Class c)
-			cls = c;
-		else
-			cls = (Class<T>) obj.getClass();
-		Placeholders.TypeWrapper<KeyDispatchDataCodec<T>> kddc = Placeholders.TypeWrapper.wrap();
-		CodecWalker.walkKeyDispatchDataCodecs(cls, cls, (Field f, KeyDispatchDataCodec<T> codec) -> {
-			kddc.value = codec;
-			return false;
-		});
-		if (kddc.value != null)
-			return kddc.value;
-		return defaultValue;
-	}
-
 	@SuppressWarnings("unchecked")
 	public static final CodecResolver.Entry getCodec(Class<?> targetClass, Type fieldType, CodecType codecType, Codec<?> default_codec_if_not_exist, Object param) {
 		return CODEC_RESOLVERS.computeIfAbsent(targetClass, (Class<?> t) -> CodecResolver.findInRawClass(targetClass, default_codec_if_not_exist)).resolve(fieldType, codecType, param);
@@ -254,17 +193,6 @@ public class Codecs {
 
 	public static String defaultCodecRegisterName(Class<?> codecClass) {
 		return defaultCodecRegisterName(codecClass.getSimpleName());
-	}
-
-	/**
-	 * 访问目标类的CODEC字段
-	 * 
-	 * @param <T>
-	 * @param targetClass
-	 * @return
-	 */
-	public static final <T> Codec<T> accessCodec(Class<T> targetClass, CodecType codecType) {
-		return asCodec(getCodec(targetClass, codecType));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -327,34 +255,5 @@ public class Codecs {
 
 	public static final <O> Codec<O> emptyCodec(Class<O> target) {
 		return (Codec<O>) emptyMapCodec(target).codec();
-	}
-
-	/**
-	 * 访问targetClass中的静态字段fieldName，并将其解释为codecTypeClass的MapCodec<br>
-	 * 可用于在父类中访问子类的静态CODEC字段<br>
-	 * 
-	 * @param <O>
-	 * @param targetClass
-	 * @param codecTypeClass
-	 * @param fieldName
-	 * @return
-	 */
-	@SuppressWarnings({ "unchecked" })
-	public static final <O> MapCodec<O> accessMapCodec(Class<?> targetClass, Class<O> codecTypeClass, String fieldName) {
-		Placeholders.TypeWrapper<MapCodec<O>> derivedCodec = Placeholders.TypeWrapper.wrap();
-		CodecWalker.walkMapCodecs(targetClass, (Field f, MapCodec<?> codec, Class<?> codecType) -> {
-			if (codec != null && Reflection.is(codecType, codecTypeClass)) {
-				derivedCodec.value = (MapCodec<O>) codec;
-				return false;
-			}
-			return true;
-		});
-		if (derivedCodec.value == null)
-			throw new NullPointerException("Accessed type " + codecTypeClass.getName() + " CODEC for class " + targetClass.getName() + " is null, make sure you have specified or generated a correct MapCodec.");
-		return derivedCodec.value;
-	}
-
-	public static final <O> MapCodec<O> accessMapCodec(Class<?> targetClass, Class<O> codecTypeClass) {
-		return accessMapCodec(targetClass, codecTypeClass, CodecResolver.DEFAULT_HOLDER_CODEC_FIELD);
 	}
 }
