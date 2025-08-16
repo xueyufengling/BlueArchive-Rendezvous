@@ -1,6 +1,5 @@
 package fw.terrain.biome;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
@@ -8,16 +7,15 @@ import java.util.stream.Stream;
 import com.mojang.serialization.MapCodec;
 
 import fw.codec.CodecHolder;
+import fw.codec.annotation.AsDataField;
 import fw.codec.annotation.CodecEntry;
 import fw.codec.annotation.CodecTarget;
-import lyra.klass.GenericTypes;
-import lyra.klass.KlassWalker;
-import lyra.object.Placeholders;
 import net.minecraft.core.Holder;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeSource;
 
+@AsDataField
 public abstract class ExtBiomeSource extends BiomeSource implements CodecHolder<BiomeSource> {
 	@Override
 	public MapCodec<? extends BiomeSource> codec() {
@@ -38,8 +36,8 @@ public abstract class ExtBiomeSource extends BiomeSource implements CodecHolder<
 		resolvePossibleBiomes(context, possibleBiomeKeys);
 	}
 
-	public ExtBiomeSource(BootstrapContext<?> context) {
-		this(context, null);
+	public ExtBiomeSource(BootstrapContext<?> context, String... possibleBiomeKeys) {
+		this(context, List.of(possibleBiomeKeys));
 	}
 
 	/**
@@ -48,7 +46,7 @@ public abstract class ExtBiomeSource extends BiomeSource implements CodecHolder<
 	 * @param possibleBiomesList
 	 */
 	@CodecTarget
-	public ExtBiomeSource(List<Holder<Biome>> possibleBiomesList) {
+	public ExtBiomeSource(@AsDataField List<Holder<Biome>> possibleBiomesList) {
 		CodecHolder.super.construct(BiomeSource.class);
 		this.possible_biomes_list = possibleBiomesList;
 	}
@@ -59,26 +57,11 @@ public abstract class ExtBiomeSource extends BiomeSource implements CodecHolder<
 	 * @param bootstrapContext
 	 * @param possibleBiomeKeys 可能的生物群系的key列表，如果为null则扫描目标对象的静态List<String>字段
 	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private void resolvePossibleBiomes(BootstrapContext<?> bootstrapContext, List<String> possibleBiomeKeys) {
 		if (possible_biomes_list == null) {
-			Placeholders.TypeWrapper<List<String>> wrapper = Placeholders.TypeWrapper.wrap(possibleBiomeKeys);
-			if (possibleBiomeKeys == null) {// 扫描生物群系的注册key
-				KlassWalker.walkTypeFields(this.getClass(), List.class, (Field f, boolean isStatic, List biomes) -> {
-					if (isStatic && GenericTypes.getFirstGenericType(f) == String.class) {
-						wrapper.value = biomes;
-						return false;
-					}
-					return true;
-				});
-			}
 			possible_biomes_list = new ArrayList<>();
-			if (bootstrapContext == null)
-				throw new IllegalStateException("Resolve possible biomes failed indicates that BootstrapContext is null.");
-			else {
-				for (String key : wrapper.value) {
-					possible_biomes_list.add(ExtBiome.datagenStageHolder(bootstrapContext, key));
-				}
+			for (String key : possibleBiomeKeys) {
+				possible_biomes_list.add(ExtBiome.datagenStageHolder(bootstrapContext, key));
 			}
 		}
 	}

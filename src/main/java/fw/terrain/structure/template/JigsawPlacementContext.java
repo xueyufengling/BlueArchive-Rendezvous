@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import com.mojang.serialization.MapCodec;
 
+import fw.codec.annotation.AsDataField;
 import fw.codec.annotation.CodecAutogen;
 import fw.codec.annotation.CodecEntry;
 import fw.codec.annotation.CodecTarget;
@@ -27,6 +28,7 @@ import net.minecraft.world.level.levelgen.structure.pools.alias.PoolAliasBinding
 import net.minecraft.world.level.levelgen.structure.pools.alias.PoolAliasLookup;
 import net.minecraft.world.level.levelgen.structure.templatesystem.LiquidSettings;
 
+@AsDataField
 public class JigsawPlacementContext {
 
 	@CodecAutogen(null_if_empty = false)

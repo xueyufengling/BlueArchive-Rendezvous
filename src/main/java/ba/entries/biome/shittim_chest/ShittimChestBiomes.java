@@ -50,8 +50,6 @@ public class ShittimChestBiomes extends ExtBiomeSource {
 	@CodecAutogen(null_if_empty = true, warn_if_register_failed = true)
 	public static final MapCodec<? extends BiomeSource> CODEC = null;
 
-	protected static final List<String> biomes = List.of(SHITTIM_CHEST_ID);
-
 	@RegistryEntry
 	public static final EntryHolder<Biome> shittim_chest = ExtBiome.register(SHITTIM_CHEST_ID, ExtBiome.build(
 			false,
@@ -68,7 +66,8 @@ public class ShittimChestBiomes extends ExtBiomeSource {
 	 * @param context
 	 */
 	public ShittimChestBiomes(BootstrapContext<?> context) {
-		super(context);
+		super(context,
+				SHITTIM_CHEST_ID);
 	}
 
 	@CodecTarget

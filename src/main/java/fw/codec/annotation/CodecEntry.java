@@ -50,7 +50,7 @@ public @interface CodecEntry {
 	 * 
 	 * @return
 	 */
-	CodecResolver.Entry.Type type() default CodecResolver.Entry.Type.DEFAULT;
+	CodecResolver.Entry.RequirementType type() default CodecResolver.Entry.RequirementType.DEFAULT;
 
 	/**
 	 * 当未找到该注解字段类型的CODEC时，是否采用默认的空MapCodec
@@ -99,8 +99,8 @@ public @interface CodecEntry {
 			String key = params.key();
 			if (key.equals(CodecEntry.fieldName))
 				key = f.getName();
-			CodecResolver.Entry entry = Codecs.getCodec(field_type, f.getGenericType(), params.empty_codec_if_not_exist(), params);
-			CodecResolver.Entry.Type fc_type = CodecResolver.Entry.Type.resolve(params.type(), entry.type);// 是否已经绑定了字段名称
+			CodecResolver.Entry entry = Codecs.getCodec(field_type, f.getGenericType(), CodecResolver.CodecType.DEFAULT, params.empty_codec_if_not_exist(), params);
+			CodecResolver.Entry.RequirementType fc_type = CodecResolver.Entry.RequirementType.resolve(params.type(), entry.type);// 是否已经绑定了字段名称
 			Codec<?> field_codec = Codecs.asCodec(entry.codec);
 			if (field_codec == null)
 				throw new IllegalArgumentException("No CODEC found for type " + field_type + " in field " + f);

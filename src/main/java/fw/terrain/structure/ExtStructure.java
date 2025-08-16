@@ -10,6 +10,7 @@ import java.util.function.Supplier;
 import com.mojang.serialization.MapCodec;
 
 import fw.codec.CodecHolder;
+import fw.codec.annotation.AsDataField;
 import fw.codec.annotation.CodecEntry;
 import fw.codec.annotation.CodecTarget;
 import fw.core.registry.HolderSets;
@@ -60,9 +61,9 @@ public abstract class ExtStructure extends Structure implements CodecHolder<Stru
 	protected JigsawPlacementContext jigsaw_placement_settings;
 
 	@CodecTarget
-	protected ExtStructure(String name,
-			Structure.StructureSettings settings,
-			JigsawPlacementContext jigsaw_placement_settings) {
+	protected ExtStructure(@AsDataField String name,
+			@AsDataField Structure.StructureSettings settings,
+			@AsDataField JigsawPlacementContext jigsaw_placement_settings) {
 		super(settings);
 		CodecHolder.super.construct(Structure.class);
 		this.name = name;

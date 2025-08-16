@@ -16,6 +16,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.MapLike;
 import com.mojang.serialization.RecordBuilder;
 
+import fw.codec.CodecResolver.CodecType;
 import fw.codec.annotation.CodecEntry;
 import fw.codec.annotation.DoubleRange;
 import fw.codec.annotation.FloatRange;
@@ -34,16 +35,12 @@ import net.minecraft.core.Holder;
 import net.minecraft.util.KeyDispatchDataCodec;
 
 public class Codecs {
-	/**
-	 * CODEC字段默认的名称
-	 */
-	public static final String DEFAULT_CODEC_FIELD = "CODEC";
 
 	/**
 	 * 本类在构建CODEC时，将依据该Map查询哪个类使用哪个CODEC。
 	 */
 	@SuppressWarnings("rawtypes")
-	public static final HashMap<Class<?>, CodecResolver> CODECS = new HashMap<>();
+	public static final HashMap<Class<?>, CodecResolver> CODEC_RESOLVERS = new HashMap<>();
 
 	static {
 		setCodec(byte.class, Codec.BYTE);
@@ -52,8 +49,8 @@ public class Codecs {
 		setCodec(Boolean.class, Codec.BOOL);
 		setCodec(short.class, Codec.SHORT);
 		setCodec(Short.class, Codec.SHORT);
-		CodecResolver<CodecEntry> INT = (Type type, CodecEntry params) -> {
-			IntRange ir = params.int_range().length == 0 ? null : params.int_range()[0];
+		CodecResolver<CodecEntry> INT = (Type fieldType, CodecType codecType, CodecEntry param) -> {
+			IntRange ir = param.int_range().length == 0 ? null : param.int_range()[0];
 			if (ir == null)
 				return CodecResolver.Entry.of(Codec.INT);
 			else
@@ -63,8 +60,8 @@ public class Codecs {
 		setCodec(Integer.class, INT);
 		setCodec(long.class, Codec.LONG);
 		setCodec(Long.class, Codec.LONG);
-		CodecResolver<CodecEntry> FLOAT = (Type type, CodecEntry params) -> {
-			FloatRange fr = params.float_range().length == 0 ? null : params.float_range()[0];
+		CodecResolver<CodecEntry> FLOAT = (Type fieldType, CodecType codecType, CodecEntry param) -> {
+			FloatRange fr = param.float_range().length == 0 ? null : param.float_range()[0];
 			if (fr == null)
 				return CodecResolver.Entry.of(Codec.FLOAT);
 			else
@@ -72,8 +69,8 @@ public class Codecs {
 		};
 		setCodec(float.class, FLOAT);
 		setCodec(Float.class, FLOAT);
-		CodecResolver<CodecEntry> DOUBLE = (Type type, CodecEntry params) -> {
-			DoubleRange dr = params.double_range().length == 0 ? null : params.double_range()[0];
+		CodecResolver<CodecEntry> DOUBLE = (Type fieldType, CodecType codecType, CodecEntry param) -> {
+			DoubleRange dr = param.double_range().length == 0 ? null : param.double_range()[0];
 			if (dr == null)
 				return CodecResolver.Entry.of(Codec.DOUBLE);
 			else
@@ -81,8 +78,8 @@ public class Codecs {
 		};
 		setCodec(double.class, DOUBLE);
 		setCodec(Double.class, DOUBLE);
-		CodecResolver<CodecEntry> STRING = (Type type, CodecEntry params) -> {
-			StringLength sl = params.string_length().length == 0 ? null : params.string_length()[0];
+		CodecResolver<CodecEntry> STRING = (Type fieldType, CodecType codecType, CodecEntry param) -> {
+			StringLength sl = param.string_length().length == 0 ? null : param.string_length()[0];
 			if (sl == null)
 				return CodecResolver.Entry.of(Codec.STRING);
 			else
@@ -90,9 +87,9 @@ public class Codecs {
 		};
 		setCodec(String.class, STRING);
 		// Holder的CODEC从其泛型参数类中寻找
-		CodecResolver<Object> HOLDER = (Type type, Object params) -> {
-			Class<?> holderType = Holders.getHolderType(type);
-			Codec<?> codec = getCodec(holderType, GenericTypes.type(type, 0), params).asCodec();
+		CodecResolver<Object> HOLDER = (Type fieldType, CodecType codecType, Object param) -> {
+			Class<?> holderType = Holders.getHolderType(fieldType);// Holder<holderType [<GenericTypes.type(type, 0)>] >
+			Codec<?> codec = getCodec(holderType, GenericTypes.type(fieldType, 0), CodecType.HOLDER, param).codec();
 			if (codec == null)
 				throw new IllegalArgumentException("No CODEC found for type " + holderType + " in Holder entry.");
 			return CodecResolver.Entry.of(codec);
@@ -100,12 +97,12 @@ public class Codecs {
 		setCodec(Holder.class, HOLDER);
 		setCodec(Holder.Reference.class, HOLDER);
 		// 列表/数组编解码器
-		CodecResolver<CodecEntry> LIST = (Type type, CodecEntry params) -> {
-			Class<?> listType = Arrays.getListType(type);
-			Codec<?> codec = getCodec(listType, GenericTypes.type(type, 0), params).asCodec();
+		CodecResolver<CodecEntry> LIST = (Type fieldType, CodecType codecType, CodecEntry param) -> {
+			Class<?> listType = Arrays.getListType(fieldType);
+			Codec<?> codec = getCodec(listType, GenericTypes.type(fieldType, 0), codecType, param).codec();
 			if (codec == null)
 				throw new IllegalArgumentException("No CODEC found for type " + listType + " in List entry.");
-			ListSize ls = params.list_size().length == 0 ? null : params.list_size()[0];
+			ListSize ls = param.list_size().length == 0 ? null : param.list_size()[0];
 			if (ls == null)
 				return CodecResolver.Entry.of(codec.listOf());
 			else
@@ -113,29 +110,29 @@ public class Codecs {
 		};
 		setCodec(List.class, LIST);
 		// Map编解码器
-		CodecResolver<CodecEntry> MAP = (Type type, CodecEntry params) -> {
-			Class<?> keyType = GenericTypes.classes(type)[0].type();
-			Codec<?> keyCodec = getCodec(keyType, GenericTypes.type(type, 0), params).asCodec();
+		CodecResolver<CodecEntry> MAP = (Type fieldType, CodecType codecType, CodecEntry param) -> {
+			Class<?> keyType = GenericTypes.classes(fieldType)[0].type();
+			Codec<?> keyCodec = getCodec(keyType, GenericTypes.type(fieldType, 0), codecType, param).codec();
 			if (keyCodec == null)
 				throw new IllegalArgumentException("No CODEC found for key type " + keyType + " in Map entry.");
-			Class<?> valueType = GenericTypes.classes(type)[0].type();
-			Codec<?> valueCodec = getCodec(valueType, GenericTypes.type(type, 1), params).asCodec();
+			Class<?> valueType = GenericTypes.classes(fieldType)[0].type();
+			Codec<?> valueCodec = getCodec(valueType, GenericTypes.type(fieldType, 1), codecType, param).codec();
 			if (valueCodec == null)
 				throw new IllegalArgumentException("No CODEC found for value type " + valueType + " in Map entry.");
 			return CodecResolver.Entry.of(Codec.unboundedMap(keyCodec, valueCodec));
 		};
 		setCodec(Map.class, MAP);
 		// 可选值编解码器
-		CodecResolver<CodecEntry> OPTIONAL_LONG = (Type type, CodecEntry params) -> {
-			return CodecResolver.Entry.of(Codec.LONG, CodecResolver.Entry.Type.OPTIONAL);
+		CodecResolver<CodecEntry> OPTIONAL_LONG = (Type fieldType, CodecType codecType, CodecEntry param) -> {
+			return CodecResolver.Entry.of(Codec.LONG, CodecResolver.Entry.RequirementType.OPTIONAL);
 		};
 		setCodec(OptionalLong.class, OPTIONAL_LONG);
-		CodecResolver<CodecEntry> OPTIONAL = (Type type, CodecEntry params) -> {
-			Class<?> optionalType = GenericTypes.getFirstGenericType(type);
-			Codec<?> codec = getCodec(optionalType, GenericTypes.type(type, 0), params).asCodec();
+		CodecResolver<CodecEntry> OPTIONAL = (Type fieldType, CodecType codecType, CodecEntry param) -> {
+			Class<?> optionalType = GenericTypes.getFirstGenericType(fieldType);
+			Codec<?> codec = getCodec(optionalType, GenericTypes.type(fieldType, 0), codecType, param).codec();
 			if (codec == null)
 				throw new IllegalArgumentException("No CODEC found for type " + optionalType + " in Optional entry.");
-			return CodecResolver.Entry.of(codec, CodecResolver.Entry.Type.OPTIONAL);
+			return CodecResolver.Entry.of(codec, CodecResolver.Entry.RequirementType.OPTIONAL);
 		};
 		setCodec(Optional.class, OPTIONAL);
 	}
@@ -148,7 +145,9 @@ public class Codecs {
 	 * @return
 	 */
 	public static final void setCodecByFieldName(Class<?> targetClass, String codecFieldName) {
-		CODECS.put(targetClass, (Type type, Object param) -> CodecResolver.Entry.of(ObjectManipulator.access(targetClass, codecFieldName == null ? DEFAULT_CODEC_FIELD : codecFieldName)));
+		if (codecFieldName == null)
+			throw new IllegalArgumentException("Codec field name for " + targetClass + " is null");
+		CODEC_RESOLVERS.put(targetClass, (Type fieldType, CodecType codecType, Object param) -> CodecResolver.Entry.of(ObjectManipulator.access(targetClass, codecFieldName)));
 	}
 
 	/**
@@ -158,41 +157,87 @@ public class Codecs {
 	 * @param codec
 	 */
 	public static final void setCodec(Class<?> targetClass, Object codec) {
-		CODECS.put(targetClass, (Type type, Object param) -> CodecResolver.Entry.of(codec));
+		CODEC_RESOLVERS.put(targetClass, (Type fieldType, CodecType codecType, Object param) -> CodecResolver.Entry.of(codec));
 	}
 
 	@SuppressWarnings("rawtypes")
 	public static final void setCodec(Class<?> targetClass, CodecResolver resolver) {
-		CODECS.put(targetClass, resolver);
+		CODEC_RESOLVERS.put(targetClass, resolver);
 	}
 
 	/**
-	 * 获取某个类的CODEC，如果不存在则获取该类中默认字段名称的CODEC
+	 * 访问匹配的MapCodec
 	 * 
-	 * @param targetClass
+	 * @param obj
+	 * @param defaultValue
 	 * @return
 	 */
-	public static final CodecResolver.Entry getCodec(Class<?> targetClass) {
-		return getCodec(targetClass, null, null);
+	@SuppressWarnings("unchecked")
+	public static final <T> MapCodec<?> accessMapCodecOrDefault(Object obj, MapCodec<?> defaultValue) {
+		Class<T> cls;
+		if (obj instanceof Class c)
+			cls = c;
+		else
+			cls = (Class<T>) obj.getClass();
+		Placeholders.TypeWrapper<MapCodec<T>> mc = Placeholders.TypeWrapper.wrap();
+		CodecWalker.walkMapCodecs(cls, cls, (Field f, MapCodec<T> codec) -> {
+			mc.value = codec;
+			return false;
+		});
+		if (mc.value != null)
+			return mc.value;
+		return defaultValue;
 	}
 
 	@SuppressWarnings("unchecked")
-	public static final CodecResolver.Entry getCodec(Class<?> targetClass, Type type, boolean empty_codec_if_not_exist, Object param) {
-		return CODECS.computeIfAbsent(targetClass, (Class<?> t) -> (Type c, Object p) -> CodecResolver.Entry.of(ObjectManipulator.accessOrDefault(targetClass, DEFAULT_CODEC_FIELD, Codecs.emptyCodec(targetClass)))).resolve(type, param);
+	public static final <T> Codec<?> accessCodecOrDefault(Object obj, Codec<?> defaultValue) {
+		Class<T> cls;
+		if (obj instanceof Class c)
+			cls = c;
+		else
+			cls = (Class<T>) obj.getClass();
+		Placeholders.TypeWrapper<Codec<T>> c = Placeholders.TypeWrapper.wrap();
+		CodecWalker.walkCodecs(cls, cls, (Field f, Codec<T> codec) -> {
+			c.value = codec;
+			return false;
+		});
+		if (c.value != null)
+			return c.value;
+		return defaultValue;
 	}
 
 	@SuppressWarnings("unchecked")
-	public static final CodecResolver.Entry getCodec(Class<?> targetClass, Type type, Object default_codec_if_not_exist, Object param) {
-		return CODECS.computeIfAbsent(targetClass, (Class<?> t) -> (Type c, Object p) -> CodecResolver.Entry.of(ObjectManipulator.accessOrDefault(targetClass, DEFAULT_CODEC_FIELD, default_codec_if_not_exist))).resolve(type, param);
+	public static final <T> KeyDispatchDataCodec<?> accessKeyDispatchDataCodecOrDefault(Object obj, KeyDispatchDataCodec<?> defaultValue) {
+		Class<T> cls;
+		if (obj instanceof Class c)
+			cls = c;
+		else
+			cls = (Class<T>) obj.getClass();
+		Placeholders.TypeWrapper<KeyDispatchDataCodec<T>> kddc = Placeholders.TypeWrapper.wrap();
+		CodecWalker.walkKeyDispatchDataCodecs(cls, cls, (Field f, KeyDispatchDataCodec<T> codec) -> {
+			kddc.value = codec;
+			return false;
+		});
+		if (kddc.value != null)
+			return kddc.value;
+		return defaultValue;
 	}
 
 	@SuppressWarnings("unchecked")
-	public static final CodecResolver.Entry getCodec(Class<?> targetClass, Type type, Object param) {
-		return CODECS.computeIfAbsent(targetClass, (Class<?> t) -> (Type c, Object p) -> CodecResolver.Entry.of(ObjectManipulator.access(targetClass, DEFAULT_CODEC_FIELD))).resolve(type, param);
+	public static final CodecResolver.Entry getCodec(Class<?> targetClass, Type fieldType, CodecType codecType, Codec<?> default_codec_if_not_exist, Object param) {
+		return CODEC_RESOLVERS.computeIfAbsent(targetClass, (Class<?> t) -> CodecResolver.findInRawClass(targetClass, default_codec_if_not_exist)).resolve(fieldType, codecType, param);
 	}
 
-	public static final CodecResolver.Entry getCodec(Class<?> targetClass, Object param) {
-		return getCodec(targetClass, null, param);
+	public static final CodecResolver.Entry getCodec(Class<?> targetClass, Type fieldType, CodecType codecType, boolean empty_codec_if_not_exist, Object param) {
+		return getCodec(targetClass, fieldType, codecType, empty_codec_if_not_exist ? Codecs.emptyCodec(targetClass) : null, param);
+	}
+
+	public static final CodecResolver.Entry getCodec(Class<?> targetClass, Type fieldType, CodecType codecType, Object param) {
+		return getCodec(targetClass, fieldType, codecType, null, param);
+	}
+
+	public static final CodecResolver.Entry getCodec(Class<?> targetClass, CodecType codecType) {
+		return getCodec(targetClass, null, codecType, null);
 	}
 
 	/**
@@ -218,8 +263,8 @@ public class Codecs {
 	 * @param targetClass
 	 * @return
 	 */
-	public static final <T> Codec<T> accessCodec(Class<T> targetClass) {
-		return asCodec(getCodec(targetClass));
+	public static final <T> Codec<T> accessCodec(Class<T> targetClass, CodecType codecType) {
+		return asCodec(getCodec(targetClass, codecType));
 	}
 
 	@SuppressWarnings("unchecked")
@@ -230,17 +275,6 @@ public class Codecs {
 			return mc.codec();
 		else if (class_codec instanceof KeyDispatchDataCodec kddc)
 			return kddc.codec().codec();
-		return null;
-	}
-
-	@SuppressWarnings("unchecked")
-	public static final <T> MapCodec<T> asMapCodec(Object class_codec) {
-		if (class_codec instanceof Codec c)
-			return c.fieldOf(null);
-		else if (class_codec instanceof MapCodec mc)
-			return mc;
-		else if (class_codec instanceof KeyDispatchDataCodec kddc)
-			return kddc.codec().codec().fieldOf(null);
 		return null;
 	}
 
@@ -321,6 +355,6 @@ public class Codecs {
 	}
 
 	public static final <O> MapCodec<O> accessMapCodec(Class<?> targetClass, Class<O> codecTypeClass) {
-		return accessMapCodec(targetClass, codecTypeClass, Codecs.DEFAULT_CODEC_FIELD);
+		return accessMapCodec(targetClass, codecTypeClass, CodecResolver.DEFAULT_HOLDER_CODEC_FIELD);
 	}
 }
