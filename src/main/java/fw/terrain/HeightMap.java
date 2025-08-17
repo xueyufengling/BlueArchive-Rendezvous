@@ -4,6 +4,8 @@ import java.util.ArrayList;
 
 import fw.codec.annotation.CodecAutogen;
 import fw.codec.derived.KeyDispatchDataCodecHolder;
+import fw.math.ConvolutionKernel;
+import fw.math.Sampler2D;
 import net.minecraft.util.KeyDispatchDataCodec;
 import net.minecraft.world.level.levelgen.DensityFunction;
 import net.minecraft.world.level.levelgen.DensityFunctions;
@@ -11,7 +13,7 @@ import net.minecraft.world.level.levelgen.DensityFunctions;
 /**
  * 高度图，根据x、z坐标计算出高度y，高于y则方块置空，低于y则密度保持不变
  */
-public abstract class HeightMap implements DensityFunction.SimpleFunction, KeyDispatchDataCodecHolder<DensityFunction>, Cloneable {
+public abstract class HeightMap implements DensityFunction.SimpleFunction, KeyDispatchDataCodecHolder<DensityFunction>, Sampler2D, Cloneable {
 	static {
 		CodecAutogen.CodecGenerator.markDerivedAutoRegister();
 	}
@@ -38,37 +40,33 @@ public abstract class HeightMap implements DensityFunction.SimpleFunction, KeyDi
 	 */
 	protected abstract double getHeightValue(double x, double z);
 
-	/**
-	 * 获取初始项的系数
-	 * 
-	 * @param x
-	 * @param z
-	 * @param lastStepResult
-	 * @param sampledValue
-	 * @return
-	 */
-	protected double getCoefficient(double x, double z, double lastStepResult, Sampler2D sampler, double sampledValue) {
-		return 1.0;
-	}
-
 	private ArrayList<Sampler2D.Entry> height_samplers = new ArrayList<>();
 
 	public HeightMap() {
 		KeyDispatchDataCodecHolder.super.construct(DensityFunction.class);
-		height_samplers.add(Sampler2D.Entry.of(Sampler2D.Operation.ASSIGN, (double x, double z, double lastStepResult, Sampler2D sampler, double sampledValue) -> this.getCoefficient(x, z, lastStepResult, sampler, sampledValue), (double x, double z) -> this.getHeightValue(x, z)));
+		height_samplers.add(Sampler2D.Entry.of(Sampler2D.Operation.ASSIGN, (double x, double z) -> this.getHeightValue(x, z)));
 	}
 
-	public final double compute(double x, double z) {
-		double result = Double.NaN;
-		for (Sampler2D.Entry entry : height_samplers) {
-			result = entry.calculate(result, x, z);
+	public final int entryNum() {
+		return height_samplers.size();
+	}
+
+	public final Sampler2D wrap() {
+		Sampler2D finalCalc = height_samplers.get(0).term;
+		for (int idx = 1; idx < height_samplers.size(); ++idx) {
+			finalCalc = Sampler2D.Entry.wrap(finalCalc, height_samplers.get(idx));
 		}
-		return result;
+		return finalCalc;
+	}
+
+	@Override
+	public final double value(double x, double z) {
+		return wrap().value(x, z);
 	}
 
 	@Override
 	public final double compute(DensityFunction.FunctionContext context) {
-		return context.blockY() > compute(context.blockX(), context.blockZ()) ? minValue() : maxValue();
+		return context.blockY() > value(context.blockX(), context.blockZ()) ? minValue() : maxValue();
 	}
 
 	@Override
@@ -91,160 +89,85 @@ public abstract class HeightMap implements DensityFunction.SimpleFunction, KeyDi
 		return DensityFunctions.mul(func, this);
 	}
 
-	/**
-	 * 执行算术操作
-	 * 
-	 * @param op
-	 * @param coefficient
-	 * @param height
-	 * @return
-	 */
-
-	public final HeightMap op(Sampler2D.Operation op, Sampler2D.Coefficient coefficient, Sampler2D height) {
-		HeightMap hm = this.clone();
-		hm.height_samplers.add(Sampler2D.Entry.of(op, coefficient, height));
+	public static final HeightMap op(HeightMap hm, Sampler2D.Operation op, Sampler2D height) {
+		hm.height_samplers.add(Sampler2D.Entry.of(op, height));
 		return hm;
 	}
 
-	public final HeightMap op(Sampler2D.Operation op, double coefficient, Sampler2D height) {
-		HeightMap hm = this.clone();
-		hm.height_samplers.add(Sampler2D.Entry.of(op, coefficient, height));
-		return hm;
-	}
-
-	public final HeightMap op(Sampler2D.Operation op, Sampler2D.Coefficient coefficient, HeightMap height) {
-		return op(op, coefficient, (double x, double z) -> height.clone().getHeightValue(x, z));
-	}
-
-	public final HeightMap op(Sampler2D.Operation op, double coefficient, HeightMap height) {
-		return op(op, coefficient, (double x, double z) -> height.clone().getHeightValue(x, z));
+	public final HeightMap opThis(Sampler2D.Operation op, Sampler2D height) {
+		return op(this, op, height);
 	}
 
 	public final HeightMap op(Sampler2D.Operation op, Sampler2D height) {
-		return op(op, 1.0, height);
-	}
-
-	public final HeightMap op(Sampler2D.Operation op, HeightMap height) {
-		return op(op, 1.0, height);
+		return op(this.clone(), op, height);
 	}
 
 	/**
 	 * 加法
 	 * 
-	 * @param coefficient
+	 * @param hm
 	 * @param height
 	 * @return
 	 */
-	public final HeightMap add(Sampler2D.Coefficient coefficient, Sampler2D height) {
-		HeightMap hm = this.clone();
-		hm.height_samplers.add(Sampler2D.Entry.of(Sampler2D.Operation.ADD, coefficient, height));
-		return hm;
+	public static final HeightMap add(HeightMap hm, Sampler2D height) {
+		return op(hm, Sampler2D.Operation.ADD, height);
 	}
 
-	public final HeightMap add(double coefficient, Sampler2D height) {
-		HeightMap hm = this.clone();
-		hm.height_samplers.add(Sampler2D.Entry.of(Sampler2D.Operation.ADD, coefficient, height));
-		return hm;
-	}
-
-	public final HeightMap add(Sampler2D.Coefficient coefficient, HeightMap height) {
-		return add(coefficient, (double x, double z) -> height.clone().getHeightValue(x, z));
-	}
-
-	public final HeightMap add(double coefficient, HeightMap height) {
-		return add(coefficient, (double x, double z) -> height.clone().getHeightValue(x, z));
+	public final HeightMap addThis(Sampler2D height) {
+		return add(this, height);
 	}
 
 	public final HeightMap add(Sampler2D height) {
-		return add(1.0, height);
+		return add(this.clone(), height);
 	}
 
-	public final HeightMap add(HeightMap height) {
-		return add(1.0, height);
+	public static final HeightMap sub(HeightMap hm, Sampler2D height) {
+		return op(hm, Sampler2D.Operation.SUB, height);
 	}
 
-	public final HeightMap sub(Sampler2D.Coefficient coefficient, Sampler2D height) {
-		HeightMap hm = this.clone();
-		hm.height_samplers.add(Sampler2D.Entry.of(Sampler2D.Operation.SUB, coefficient, height));
-		return this;
-	}
-
-	public final HeightMap sub(double coefficient, Sampler2D height) {
-		HeightMap hm = this.clone();
-		hm.height_samplers.add(Sampler2D.Entry.of(Sampler2D.Operation.SUB, coefficient, height));
-		return this;
-	}
-
-	public final HeightMap sub(Sampler2D.Coefficient coefficient, HeightMap height) {
-		return sub(coefficient, (double x, double z) -> height.clone().getHeightValue(x, z));
-	}
-
-	public final HeightMap sub(double coefficient, HeightMap height) {
-		return sub(coefficient, (double x, double z) -> height.clone().getHeightValue(x, z));
-	}
-
-	public final HeightMap sub(Sampler2D height) {
-		return sub(1.0, height);
+	public final HeightMap subThis(Sampler2D height) {
+		return sub(this, height);
 	}
 
 	public final HeightMap sub(HeightMap height) {
-		return sub(1.0, height);
+		return sub(this.clone(), height);
 	}
 
-	public final HeightMap mul(double coefficient, Sampler2D height) {
-		HeightMap hm = this.clone();
-		hm.height_samplers.add(Sampler2D.Entry.of(Sampler2D.Operation.MUL, coefficient, height));
-		return this;
+	public static final HeightMap mul(HeightMap hm, Sampler2D height) {
+		return op(hm, Sampler2D.Operation.MUL, height);
 	}
 
-	public final HeightMap mul(Sampler2D.Coefficient coefficient, Sampler2D height) {
-		HeightMap hm = this.clone();
-		hm.height_samplers.add(Sampler2D.Entry.of(Sampler2D.Operation.MUL, coefficient, height));
-		return this;
-	}
-
-	public final HeightMap mul(Sampler2D.Coefficient coefficient, HeightMap height) {
-		return mul(coefficient, (double x, double z) -> height.clone().getHeightValue(x, z));
-	}
-
-	public final HeightMap mul(double coefficient, HeightMap height) {
-		return mul(coefficient, (double x, double z) -> height.clone().getHeightValue(x, z));
-	}
-
-	public final HeightMap mul(Sampler2D height) {
-		return mul(1.0, height);
+	public final HeightMap mulThis(Sampler2D height) {
+		return mul(this, height);
 	}
 
 	public final HeightMap mul(HeightMap height) {
-		return mul(1.0, height);
+		return mul(this.clone(), height);
 	}
 
-	public final HeightMap div(Sampler2D.Coefficient coefficient, Sampler2D height) {
-		HeightMap hm = this.clone();
-		hm.height_samplers.add(Sampler2D.Entry.of(Sampler2D.Operation.DIV, coefficient, height));
-		return this;
+	public static final HeightMap div(HeightMap hm, Sampler2D height) {
+		return op(hm, Sampler2D.Operation.DIV, height);
 	}
 
-	public final HeightMap div(double coefficient, Sampler2D height) {
-		HeightMap hm = this.clone();
-		hm.height_samplers.add(Sampler2D.Entry.of(Sampler2D.Operation.DIV, coefficient, height));
-		return this;
-	}
-
-	public final HeightMap div(Sampler2D.Coefficient coefficient, HeightMap height) {
-		return div(coefficient, (double x, double z) -> height.clone().getHeightValue(x, z));
-	}
-
-	public final HeightMap div(double coefficient, HeightMap height) {
-		return div(coefficient, (double x, double z) -> height.clone().getHeightValue(x, z));
-	}
-
-	public final HeightMap div(Sampler2D height) {
-		return div(1.0, height);
+	public final HeightMap divThis(Sampler2D height) {
+		return div(this, height);
 	}
 
 	public final HeightMap div(HeightMap height) {
-		return div(1.0, height);
+		return div(this.clone(), height);
+	}
+
+	public static final HeightMap conv(HeightMap hm, ConvolutionKernel kernel) {
+		hm.height_samplers.add(Sampler2D.Entry.of(Sampler2D.Operation.CONV(kernel)));
+		return hm;
+	}
+
+	public final HeightMap convThis(ConvolutionKernel kernel) {
+		return conv(this, kernel);
+	}
+
+	public final HeightMap conv(ConvolutionKernel kernel) {
+		return conv(this.clone(), kernel);
 	}
 
 	@Override

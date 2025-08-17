@@ -24,9 +24,12 @@
     "erosion": 0.0,
     "final_density": {
       "type": "ba:kivotos_height_map",
+      "fractal_settings": {
+        "fractal_components": []
+      },
       "noise": {
-        "amplitude": 300.0,
-        "bias": -50.0,
+        "amplitude": 128.0,
+        "bias": 128.0,
         "octaves": [
           1,
           2,
@@ -34,8 +37,8 @@
         ],
         "seed": 0,
         "use_noise_offsets": true,
-        "x_factor": 0.005,
-        "z_factor": 0.005
+        "x_factor": 5.0E-4,
+        "z_factor": 5.0E-4
       }
     },
     "fluid_level_floodedness": 0.0,

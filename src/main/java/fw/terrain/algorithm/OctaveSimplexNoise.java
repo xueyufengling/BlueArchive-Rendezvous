@@ -8,8 +8,7 @@ import fw.codec.annotation.AsDataField;
 import fw.codec.annotation.CodecAutogen;
 import fw.codec.annotation.CodecEntry;
 import fw.codec.annotation.CodecTarget;
-import fw.codec.derived.CodecHolder;
-import fw.terrain.Sampler2D;
+import fw.math.Sampler2D;
 import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.level.levelgen.synth.PerlinSimplexNoise;
 
@@ -17,7 +16,7 @@ import net.minecraft.world.level.levelgen.synth.PerlinSimplexNoise;
  * 倍频SimplexNoise噪声作为高度图
  */
 @AsDataField
-public class OctaveSimplexNoise implements Sampler2D, CodecHolder<OctaveSimplexNoise> {
+public class OctaveSimplexNoise implements Sampler2D {
 
 	static {
 		CodecAutogen.CodecGenerator.Codec();
@@ -30,32 +29,32 @@ public class OctaveSimplexNoise implements Sampler2D, CodecHolder<OctaveSimplexN
 	 * 地形最低点偏移y坐标
 	 */
 	@CodecEntry
-	protected final double bias;
+	public final double bias;
 
 	/**
 	 * 地形振幅，最高点和最低点的落差值，方块为单位
 	 */
 	@CodecEntry
-	protected final double amplitude;
+	public final double amplitude;
 
 	/**
 	 * 采样要使用x、z的数值同样为较小的小数，直接使用方块坐标采样则相邻方块参差不齐，无法得到连续性结果。<br>
 	 * 实际采样x坐标为x*x_factor，该值越小则相邻两个方块采样结果越平滑。
 	 */
 	@CodecEntry
-	protected final double x_factor;
+	public final double x_factor;
 
 	@CodecEntry
-	protected final double z_factor;
+	public final double z_factor;
 
 	@CodecEntry
-	protected final long seed;
+	public final long seed;
 
 	@CodecEntry
-	protected final boolean use_noise_offsets;
+	public final boolean use_noise_offsets;
 
 	@CodecEntry
-	protected final List<Integer> octaves;
+	public final List<Integer> octaves;
 
 	/**
 	 * 噪声取值-1.0 ~ 1.0
@@ -63,7 +62,7 @@ public class OctaveSimplexNoise implements Sampler2D, CodecHolder<OctaveSimplexN
 	private final PerlinSimplexNoise noise;
 
 	/**
-	 * 地形振幅，最终高度为bias+(noise(x*x_factor, z*z_factor)+1)*(amplitude/2)，其中noise为噪声函数，取值-1 ~ 1
+	 * 地形振幅，最终高度为bias+noise(x*x_factor, z*z_factor)*(amplitude)，其中noise为噪声函数，取值-1 ~ 1
 	 *
 	 * @param bias
 	 * @param amplitude
@@ -108,12 +107,12 @@ public class OctaveSimplexNoise implements Sampler2D, CodecHolder<OctaveSimplexN
 	 * @return
 	 */
 	public final double minHeight() {
-		return bias;
+		return bias - amplitude;
 	}
 
 	@Override
 	public double value(double x, double z) {
-		return bias + (noise.getValue(x * x_factor, z * z_factor, use_noise_offsets) + 1.0) * (amplitude / 2.0);
+		return bias + noise.getValue(x * x_factor, z * z_factor, use_noise_offsets) * amplitude;
 	}
 
 	/**
@@ -135,5 +134,9 @@ public class OctaveSimplexNoise implements Sampler2D, CodecHolder<OctaveSimplexN
 	 */
 	public final double amplitudeRatio(double yOffset, double sampledValue) {
 		return (sampledValue - yOffset) / (this.maxHeight() - yOffset);
+	}
+
+	public final OctaveSimplexNoise biasOf(double bias) {
+		return new OctaveSimplexNoise(bias, this.amplitude, this.x_factor, this.z_factor, this.seed, this.use_noise_offsets, this.octaves);
 	}
 }
