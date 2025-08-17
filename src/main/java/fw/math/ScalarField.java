@@ -117,6 +117,8 @@ public interface ScalarField {
 		public static final Operation MAX = (double x, double z, ScalarField lastStepCalc, ScalarField thisStepTerm) -> Math.max(lastStepCalc.value(x, z), lastStepCalc.value(x, z));
 		public static final Operation MIN = (double x, double z, ScalarField lastStepCalc, ScalarField thisStepTerm) -> Math.min(lastStepCalc.value(x, z), lastStepCalc.value(x, z));
 
+		public static final Operation ABS = (double x, double z, ScalarField lastStepCalc, ScalarField thisStepTerm) -> Math.abs(lastStepCalc.value(x, z));
+
 		public static Operation CONV(ConvolutionKernel kernel) {
 			return (double x, double z, ScalarField lastStepCalc, ScalarField thisStepTerm) -> kernel.calculate(lastStepCalc, x, z);
 		}

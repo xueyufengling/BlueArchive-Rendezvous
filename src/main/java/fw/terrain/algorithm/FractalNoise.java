@@ -2,6 +2,7 @@ package fw.terrain.algorithm;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 import com.mojang.serialization.Codec;
 
@@ -15,7 +16,20 @@ import fw.math.ScalarField;
  * 分形噪声
  */
 @AsDataField
-public class FractalNoise implements ScalarField {
+public class FractalNoise implements ScalarField, Cloneable {
+	@Override
+	public FractalNoise clone() {
+		try {
+			FractalNoise result = (FractalNoise) super.clone();
+			result.fractal_components = new ArrayList<>();
+			result.fractal_components.addAll(this.fractal_components);
+			return result;
+		} catch (CloneNotSupportedException ex) {
+			ex.printStackTrace();
+		}
+		return null;
+	}
+
 	static {
 		CodecAutogen.CodecGenerator.Codec();
 	}
@@ -82,6 +96,10 @@ public class FractalNoise implements ScalarField {
 		}
 	}
 
+	private Function<Double, Double> layer_transform = (Double value) -> value;
+
+	private Function<Double, Double> final_transform = (Double value) -> value;
+
 	private ScalarField noise;
 
 	@CodecEntry
@@ -105,6 +123,28 @@ public class FractalNoise implements ScalarField {
 		return this;
 	}
 
+	/**
+	 * 设置每层分形噪声的操作
+	 * 
+	 * @param layer_transform
+	 * @return
+	 */
+	public FractalNoise setLayerNoiseTransform(Function<Double, Double> layer_transform) {
+		this.layer_transform = layer_transform;
+		return this;
+	}
+
+	/**
+	 * 设置叠加后的总噪声的变换操作
+	 * 
+	 * @param final_transform
+	 * @return
+	 */
+	public FractalNoise setFinalNoiseTransform(Function<Double, Double> final_transform) {
+		this.final_transform = final_transform;
+		return this;
+	}
+
 	public FractalNoise addComponents(Entry... fractal_components) {
 		this.fractal_components.addAll(List.of(fractal_components));
 		return this;
@@ -114,8 +154,12 @@ public class FractalNoise implements ScalarField {
 	public double value(double x, double z) {
 		double result = 0;
 		for (Entry entry : fractal_components) {
-			result += noise.value(x * entry.scale_x + entry.offset_x, z * entry.scale_y + entry.offset_y) * entry.scale_amplitude;
+			result += layer_transform.apply(noise.value(x * entry.scale_x + entry.offset_x, z * entry.scale_y + entry.offset_y) * entry.scale_amplitude);
 		}
-		return result;
+		return final_transform.apply(result);
+	}
+
+	public final FractalNoise absInvertRidges(double invertNoiseValue) {
+		return this.clone().setLayerNoiseTransform((Double value) -> Math.abs(value)).setFinalNoiseTransform((Double value) -> invertNoiseValue - value);
 	}
 }

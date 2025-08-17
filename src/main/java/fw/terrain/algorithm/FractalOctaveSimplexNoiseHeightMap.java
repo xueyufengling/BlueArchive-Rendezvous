@@ -50,4 +50,9 @@ public class FractalOctaveSimplexNoiseHeightMap extends HeightMap {
 	protected final double getHeightValue(double x, double z) {
 		return noise.value(x, z) + fractal_settings.value(x, z);
 	}
+
+	public final FractalOctaveSimplexNoiseHeightMap applyAbsInvertRidges() {
+		this.addThis(fractal_settings.absInvertRidges(0));
+		return this;
+	}
 }

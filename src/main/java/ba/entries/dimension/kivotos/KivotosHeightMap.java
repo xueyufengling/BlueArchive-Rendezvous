@@ -28,7 +28,8 @@ public class KivotosHeightMap extends FractalOctaveSimplexNoiseHeightMap {
 	public KivotosHeightMap(@AsDataField OctaveSimplexNoise noise, FractalNoise fractal_settings) {
 		super(noise, fractal_settings);
 		this.convThis(ConvolutionKernel.GaussianBlur_3x3(5));
-		this.blendThis(academyMainlandBlendFunc, ScalarField.constant(100));
+		this.applyAbsInvertRidges();
+		// this.blendThis(academyMainlandBlendFunc, ScalarField.constant(100));
 		// this.convThis(ConvolutionKernel.Sharpening_3x3(5));
 	}
 
