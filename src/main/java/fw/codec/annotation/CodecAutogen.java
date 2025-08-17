@@ -61,6 +61,13 @@ public @interface CodecAutogen {
 	boolean null_if_empty() default false;
 
 	/**
+	 * 是否注册该CODEC
+	 * 
+	 * @return
+	 */
+	boolean register() default false;
+
+	/**
 	 * 当CODEC生成完成后注册阶段注册失败时，是否打印警告。<br>
 	 * 并非所有CODEC都需要注册，这些无需注册的CODEC是在其父类中实现了CODEC相关功能，并且其注册表也不是MapCodec<T>类型。<br>
 	 * 
@@ -76,6 +83,32 @@ public @interface CodecAutogen {
 	boolean include_base() default true;
 
 	public static class CodecGenerator {
+		/**
+		 * 子类CODEC是否自动注册，如果标记为自动注册则无论CodecAutogen.register()值为多少均会注册
+		 */
+		private static final ArrayList<Class<?>> derivedAutoRegistered = new ArrayList<>();
+
+		/**
+		 * 标记该类的子类中的CodecAutogen自动注册
+		 * 
+		 * @param targetClass
+		 */
+		public static final void markDerivedAutoRegister(Class<?> targetClass) {
+			derivedAutoRegistered.add(targetClass);
+		}
+
+		public static final void markDerivedAutoRegister() {
+			Class<?> caller = JavaLang.getOuterCallerClass();
+			markDerivedAutoRegister(caller);
+		}
+
+		public static final boolean isMarkedAsAutoRegister(Class<?> targetClass) {
+			for (Class<?> autoRegisterdBase : derivedAutoRegistered) {
+				if (Reflection.is(targetClass, autoRegisterdBase))
+					return true;
+			}
+			return false;
+		}
 
 		private static final DynamicConcurrentArrayList<Class<?>> codecClasses = new DynamicConcurrentArrayList<Class<?>>();
 
@@ -587,22 +620,24 @@ public @interface CodecAutogen {
 		 * @return
 		 */
 		@SuppressWarnings({ "rawtypes", "unchecked" })
-		private static final Object generateAndRegister(String codecName, Class<?> target, MethodHandle buildMethod, Class<?> registryType, boolean null_if_empty, boolean warn_if_register_failed, boolean include_base) {
+		private static final Object generateAndRegister(String codecName, Class<?> target, MethodHandle buildMethod, Class<?> registryType, boolean null_if_empty, boolean register, boolean warn_if_register_failed, boolean include_base) {
 			Object CODEC = generate(target, buildMethod, null_if_empty, include_base);
 			if (CODEC == null)
 				return null;
 			Core.logInfo("Generated CODEC " + CODEC + " for " + target);
-			Placeholders.TypeWrapper<Boolean> registered = Placeholders.TypeWrapper.wrap(false);
-			RegistryWalker.walkMapCodecRegistries((Field f, ResourceKey registryKey, Class<?> codecType) -> {
-				if (Reflection.is(registryType, codecType)) {// 当注册表MapCodec的泛型参数和传入的registryType匹配时注册
-					RegistryFactory.deferredRegister(registryKey).register(codecName, () -> CODEC);
-					registered.value = true;
-					Core.logInfo("Registered CODEC " + codecName + " in registry [" + registryKey.location() + "].");
-				}
-				return true;
-			});
-			if (!registered.value && warn_if_register_failed)
-				Core.logWarn("CODEC " + codecName + " was not registered, the registry for MapCodec<" + registryType.getName() + "> was not found. Maybe it isn't a MapCodec registry?");
+			if (register || isMarkedAsAutoRegister(target)) {
+				Placeholders.TypeWrapper<Boolean> registered = Placeholders.TypeWrapper.wrap(false);
+				RegistryWalker.walkMapCodecRegistries((Field f, ResourceKey registryKey, Class<?> codecType) -> {
+					if (Reflection.is(registryType, codecType)) {// 当注册表MapCodec的泛型参数和传入的registryType匹配时注册
+						RegistryFactory.deferredRegister(registryKey).register(codecName, () -> CODEC);
+						registered.value = true;
+						Core.logInfo("Registered CODEC " + codecName + " in registry [" + registryKey.location() + "].");
+					}
+					return true;
+				});
+				if (!registered.value && warn_if_register_failed)
+					Core.logWarn("CODEC " + codecName + " was not registered, the registry for MapCodec<" + registryType.getName() + "> was not found. Maybe it isn't a MapCodec registry?");
+			}
 			return CODEC;
 		}
 
@@ -630,7 +665,7 @@ public @interface CodecAutogen {
 					if (classSimpleName.equals(registerName))
 						registerName = Codecs.defaultCodecRegisterName(codecClass);
 					Core.logInfo("Starting to generate CODEC for @CodecAutogen " + f);
-					Object CODEC = generateAndRegister(registerName, codecClass, internalBuildMethod, GenericTypes.getFirstGenericType(f), annotation.null_if_empty(), annotation.warn_if_register_failed(), annotation.include_base());
+					Object CODEC = generateAndRegister(registerName, codecClass, internalBuildMethod, GenericTypes.getFirstGenericType(f), annotation.null_if_empty(), annotation.register(), annotation.warn_if_register_failed(), annotation.include_base());
 					if (isKeyDispatchDataCodec)
 						CODEC = KeyDispatchDataCodec.of((MapCodec) CODEC);
 					ObjectManipulator.setObject(codecClass, f, CODEC);

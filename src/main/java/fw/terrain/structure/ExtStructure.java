@@ -10,6 +10,7 @@ import java.util.function.Supplier;
 import com.mojang.serialization.MapCodec;
 
 import fw.codec.annotation.AsDataField;
+import fw.codec.annotation.CodecAutogen;
 import fw.codec.annotation.CodecEntry;
 import fw.codec.annotation.CodecTarget;
 import fw.codec.derived.MapCodecHolder;
@@ -46,6 +47,10 @@ import net.neoforged.neoforge.registries.DeferredHolder;
  * 采用拼图模板的结构，自动创建对应的StructureType。<br>
  */
 public abstract class ExtStructure extends Structure implements MapCodecHolder<Structure> {
+	static {
+		CodecAutogen.CodecGenerator.markDerivedAutoRegister();
+	}
+
 	/**
 	 * 所有构造函数传入且在实例方法中使用的字段需要全部作为CODEC字段。<br>
 	 * 若构造函数传入了，但实例方法中未使用该参数（即仅构造函数内部使用的参数）则不需要序列化。

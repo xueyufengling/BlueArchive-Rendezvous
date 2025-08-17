@@ -1,6 +1,7 @@
 package fw.codec;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -106,6 +107,7 @@ public class Codecs {
 				return CodecResolver.Entry.of(codec.listOf(ls.min(), ls.max()));
 		};
 		setCodec(List.class, LIST);
+		setCodec(ArrayList.class, LIST);
 		// Map编解码器
 		CodecResolver<CodecEntry> MAP = (Type fieldType, CodecType codecType, CodecEntry param) -> {
 			Class<?> keyType = GenericTypes.classes(fieldType)[0].type();

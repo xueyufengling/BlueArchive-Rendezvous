@@ -2,6 +2,7 @@ package fw.terrain;
 
 import java.util.ArrayList;
 
+import fw.codec.annotation.CodecAutogen;
 import fw.codec.derived.KeyDispatchDataCodecHolder;
 import net.minecraft.util.KeyDispatchDataCodec;
 import net.minecraft.world.level.levelgen.DensityFunction;
@@ -11,6 +12,9 @@ import net.minecraft.world.level.levelgen.DensityFunctions;
  * 高度图，根据x、z坐标计算出高度y，高于y则方块置空，低于y则密度保持不变
  */
 public abstract class HeightMap implements DensityFunction.SimpleFunction, KeyDispatchDataCodecHolder<DensityFunction>, Cloneable {
+	static {
+		CodecAutogen.CodecGenerator.markDerivedAutoRegister();
+	}
 
 	@Override
 	@SuppressWarnings("unchecked")

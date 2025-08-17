@@ -33,7 +33,7 @@ public class AronaClassRoom extends ExtStructure {
 		RegistryEntry.RegistriesProvider.forDatagen();
 	}
 
-	@CodecAutogen(null_if_empty = false)
+	@CodecAutogen(null_if_empty = false, register = true)
 	public static final MapCodec<AronaClassRoom> CODEC = null;
 
 	@CodecTarget

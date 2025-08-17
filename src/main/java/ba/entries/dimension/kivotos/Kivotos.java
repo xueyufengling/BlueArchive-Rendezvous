@@ -3,12 +3,10 @@ package ba.entries.dimension.kivotos;
 import java.util.List;
 import java.util.OptionalLong;
 
-import ba.entries.biome.kivotos.KivotosBiomes;
 import fw.datagen.EntryHolder;
 import fw.datagen.annotation.RegistryEntry;
 import fw.dimension.ExtDimension;
 import fw.terrain.Df;
-import fw.terrain.algorithm.OctaveSimplexNoiseHeightMap;
 import fw.terrain.biome.ExtBiome;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
@@ -76,8 +74,6 @@ public class Kivotos {
 				2,
 				2);
 
-		DensityFunction base3dNoise = df.func(KivotosDensityFunctions.KIVOTOS_BASE_3D_NOISE.getKey());
-
 		DensityFunction continents = df.func("minecraft:overworld/continents");
 
 		return new NoiseGeneratorSettings(
@@ -97,7 +93,7 @@ public class Kivotos {
 						DensityFunctions.zero(), // depth
 						DensityFunctions.zero(), // ridges
 						DensityFunctions.zero(), // initial_density_without_jaggedness
-						new KivotosHeightMap(-50, 400, 0.0002, 0L, true, 10, 5, 2, 1), // final_density
+						new KivotosHeightMap(), // final_density
 						DensityFunctions.zero(), // vein_toggle
 						DensityFunctions.zero(), // vein_ridged
 						DensityFunctions.zero()), // vein_gap

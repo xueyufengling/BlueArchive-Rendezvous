@@ -7,6 +7,7 @@ import java.util.stream.Stream;
 import com.mojang.serialization.MapCodec;
 
 import fw.codec.annotation.AsDataField;
+import fw.codec.annotation.CodecAutogen;
 import fw.codec.annotation.CodecEntry;
 import fw.codec.annotation.CodecTarget;
 import fw.codec.derived.MapCodecHolder;
@@ -17,6 +18,10 @@ import net.minecraft.world.level.biome.BiomeSource;
 
 @AsDataField
 public abstract class ExtBiomeSource extends BiomeSource implements MapCodecHolder<BiomeSource> {
+	static {
+		CodecAutogen.CodecGenerator.markDerivedAutoRegister();
+	}
+
 	@Override
 	@SuppressWarnings({ "unchecked" })
 	public MapCodec<? extends BiomeSource> codec() {
