@@ -8,7 +8,7 @@ import fw.codec.annotation.AsDataField;
 import fw.codec.annotation.CodecAutogen;
 import fw.codec.annotation.CodecEntry;
 import fw.codec.annotation.CodecTarget;
-import fw.math.Sampler2D;
+import fw.math.ScalarField;
 import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.level.levelgen.synth.PerlinSimplexNoise;
 
@@ -16,7 +16,7 @@ import net.minecraft.world.level.levelgen.synth.PerlinSimplexNoise;
  * 倍频SimplexNoise噪声作为高度图
  */
 @AsDataField
-public class OctaveSimplexNoise implements Sampler2D {
+public class OctaveSimplexNoise implements ScalarField {
 
 	static {
 		CodecAutogen.CodecGenerator.Codec();

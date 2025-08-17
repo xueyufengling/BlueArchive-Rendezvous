@@ -52,6 +52,10 @@ public class ConvolutionKernel {
 		this(size, size, values);
 	}
 
+	public ConvolutionKernel(double step, int size, double[] values) {
+		this(step, size, size, values);
+	}
+
 	public final int index(int x_idx, int y_idx) {
 		return x_idx + y_idx * column;
 	}
@@ -86,7 +90,7 @@ public class ConvolutionKernel {
 	 * @param sampledValue
 	 * @return
 	 */
-	public final double calculate(Sampler2D source, double x, double y) {
+	public final double calculate(ScalarField source, double x, double y) {
 		double start_x = x - (column / 2) * step_x;
 		double start_y = y - (line / 2) * step_y;
 		double result = 0;
@@ -96,5 +100,42 @@ public class ConvolutionKernel {
 			}
 		}
 		return result;
+	}
+
+	/**
+	 * 恒等卷积核
+	 */
+	public static final ConvolutionKernel Identity_3x3 = new ConvolutionKernel(3,
+			new double[] {
+					0, 0, 0,
+					0, 1, 0,
+					0, 0, 0 });
+
+	/**
+	 * 锐化卷积核
+	 * 
+	 * @param step
+	 * @return
+	 */
+	public static final ConvolutionKernel Sharpening_3x3(double step) {
+		return new ConvolutionKernel(3,
+				new double[] {
+						0, -1, 0,
+						-1, 5, -1,
+						0, -1, 0 });
+	}
+
+	/**
+	 * 高斯模糊
+	 * 
+	 * @param step
+	 * @return
+	 */
+	public static final ConvolutionKernel GaussianBlur_3x3(double step) {
+		return new ConvolutionKernel(3,
+				new double[] {
+						1.0 / 16, 2.0 / 16, 1.0 / 16,
+						2.0 / 16, 4.0 / 16, 2.0 / 16,
+						1.0 / 16, 2.0 / 16, 1.0 / 16 });
 	}
 }

@@ -25,11 +25,33 @@
     "final_density": {
       "type": "ba:kivotos_height_map",
       "fractal_settings": {
-        "fractal_components": []
+        "fractal_components": [
+          {
+            "offset_x": 0.0,
+            "offset_y": 0.0,
+            "scale_amplitude": 0.2,
+            "scale_x": 5.0,
+            "scale_y": 5.0
+          },
+          {
+            "offset_x": 0.0,
+            "offset_y": 0.0,
+            "scale_amplitude": 0.1,
+            "scale_x": 10.0,
+            "scale_y": 10.0
+          },
+          {
+            "offset_x": 0.0,
+            "offset_y": 0.0,
+            "scale_amplitude": 0.05,
+            "scale_x": 20.0,
+            "scale_y": 20.0
+          }
+        ]
       },
       "noise": {
         "amplitude": 128.0,
-        "bias": 128.0,
+        "bias": 64.0,
         "octaves": [
           1,
           2,

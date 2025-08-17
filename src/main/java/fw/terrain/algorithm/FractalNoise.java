@@ -9,13 +9,13 @@ import fw.codec.annotation.AsDataField;
 import fw.codec.annotation.CodecAutogen;
 import fw.codec.annotation.CodecEntry;
 import fw.codec.annotation.CodecTarget;
-import fw.math.Sampler2D;
+import fw.math.ScalarField;
 
 /**
  * 分形噪声
  */
 @AsDataField
-public class FractalNoise implements Sampler2D {
+public class FractalNoise implements ScalarField {
 	static {
 		CodecAutogen.CodecGenerator.Codec();
 	}
@@ -35,15 +35,28 @@ public class FractalNoise implements Sampler2D {
 		@CodecEntry
 		public final double scale_amplitude;
 
+		/**
+		 * x坐标的缩放因子，该值越大，则相邻两个方块在函数中的采样点坐标差距越大。<br>
+		 * 例如，设置为2.0则相对于函数整体频率变为两倍，也就是缩小1/2。<br>
+		 */
 		@CodecEntry
 		public final double scale_x;
 
+		/**
+		 * y坐标的缩放因子
+		 */
 		@CodecEntry
 		public final double scale_y;
 
+		/**
+		 * x坐标的偏移量
+		 */
 		@CodecEntry
 		public final double offset_x;
 
+		/**
+		 * y坐标偏移量
+		 */
 		@CodecEntry
 		public final double offset_y;
 
@@ -69,7 +82,7 @@ public class FractalNoise implements Sampler2D {
 		}
 	}
 
-	private Sampler2D noise;
+	private ScalarField noise;
 
 	@CodecEntry
 	private List<Entry> fractal_components;
@@ -79,7 +92,7 @@ public class FractalNoise implements Sampler2D {
 		this.fractal_components = fractal_components;
 	}
 
-	public FractalNoise(Sampler2D noise, Entry... fractal_components) {
+	public FractalNoise(ScalarField noise, Entry... fractal_components) {
 		this.fractal_components = new ArrayList<>();
 		this.fractal_components.addAll(List.of(fractal_components));
 		if (noise == null)
@@ -87,7 +100,7 @@ public class FractalNoise implements Sampler2D {
 		this.noise = noise;
 	}
 
-	public FractalNoise setNoise(Sampler2D noise) {
+	public FractalNoise setNoise(ScalarField noise) {
 		this.noise = noise;
 		return this;
 	}
