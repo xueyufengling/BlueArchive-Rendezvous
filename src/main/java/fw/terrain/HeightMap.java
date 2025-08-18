@@ -6,6 +6,7 @@ import fw.codec.annotation.CodecAutogen;
 import fw.codec.derived.KeyDispatchDataCodecHolder;
 import fw.math.ConvolutionKernel;
 import fw.math.ScalarField;
+import fw.math.SlidingWindowOperation;
 import net.minecraft.util.KeyDispatchDataCodec;
 import net.minecraft.world.level.levelgen.DensityFunction;
 import net.minecraft.world.level.levelgen.DensityFunctions;
@@ -32,6 +33,22 @@ public abstract class HeightMap implements DensityFunction.SimpleFunction, KeyDi
 	}
 
 	/**
+	 * 高度值的系数
+	 */
+	@FunctionalInterface
+	public static interface Coefficient {
+		/**
+		 * @param x
+		 * @param z
+		 * @param y 采样得到的原始高度值
+		 * @return 变换后的最终高度值
+		 */
+		public double coefficient(double x, double z, double y);
+
+		public static final Coefficient NONE = (double x, double z, double y) -> 1;
+	}
+
+	/**
 	 * 初始项
 	 * 
 	 * @param x
@@ -44,7 +61,7 @@ public abstract class HeightMap implements DensityFunction.SimpleFunction, KeyDi
 
 	public HeightMap() {
 		KeyDispatchDataCodecHolder.super.construct(DensityFunction.class);
-		height_samplers.add(ScalarField.Entry.of(ScalarField.Operation.ASSIGN, (double x, double z) -> this.getHeightValue(x, z)));
+		height_samplers.add(ScalarField.Entry.of(ScalarField.Operator.ASSIGN, (double x, double z) -> this.getHeightValue(x, z)));
 	}
 
 	public final int entryNum() {
@@ -89,16 +106,16 @@ public abstract class HeightMap implements DensityFunction.SimpleFunction, KeyDi
 		return DensityFunctions.mul(func, this);
 	}
 
-	public static final HeightMap op(HeightMap hm, ScalarField.Operation op, ScalarField height) {
+	public static final HeightMap op(HeightMap hm, ScalarField.Operator op, ScalarField height) {
 		hm.height_samplers.add(ScalarField.Entry.of(op, height));
 		return hm;
 	}
 
-	public final HeightMap opThis(ScalarField.Operation op, ScalarField height) {
+	public final HeightMap opThis(ScalarField.Operator op, ScalarField height) {
 		return op(this, op, height);
 	}
 
-	public final HeightMap op(ScalarField.Operation op, ScalarField height) {
+	public final HeightMap op(ScalarField.Operator op, ScalarField height) {
 		return op(this.clone(), op, height);
 	}
 
@@ -110,7 +127,7 @@ public abstract class HeightMap implements DensityFunction.SimpleFunction, KeyDi
 	 * @return
 	 */
 	public static final HeightMap add(HeightMap hm, ScalarField height) {
-		return op(hm, ScalarField.Operation.ADD, height);
+		return op(hm, ScalarField.Operator.ADD, height);
 	}
 
 	public final HeightMap addThis(ScalarField height) {
@@ -122,7 +139,7 @@ public abstract class HeightMap implements DensityFunction.SimpleFunction, KeyDi
 	}
 
 	public static final HeightMap sub(HeightMap hm, ScalarField height) {
-		return op(hm, ScalarField.Operation.SUB, height);
+		return op(hm, ScalarField.Operator.SUB, height);
 	}
 
 	public final HeightMap subThis(ScalarField height) {
@@ -134,7 +151,7 @@ public abstract class HeightMap implements DensityFunction.SimpleFunction, KeyDi
 	}
 
 	public static final HeightMap mul(HeightMap hm, ScalarField height) {
-		return op(hm, ScalarField.Operation.MUL, height);
+		return op(hm, ScalarField.Operator.MUL, height);
 	}
 
 	public final HeightMap mulThis(ScalarField height) {
@@ -146,7 +163,7 @@ public abstract class HeightMap implements DensityFunction.SimpleFunction, KeyDi
 	}
 
 	public static final HeightMap div(HeightMap hm, ScalarField height) {
-		return op(hm, ScalarField.Operation.DIV, height);
+		return op(hm, ScalarField.Operator.DIV, height);
 	}
 
 	public final HeightMap divThis(ScalarField height) {
@@ -158,7 +175,7 @@ public abstract class HeightMap implements DensityFunction.SimpleFunction, KeyDi
 	}
 
 	public static final HeightMap conv(HeightMap hm, ConvolutionKernel kernel) {
-		hm.height_samplers.add(ScalarField.Entry.of(ScalarField.Operation.CONV(kernel)));
+		hm.height_samplers.add(ScalarField.Entry.of(ScalarField.Operator.CONV(kernel)));
 		return hm;
 	}
 
@@ -171,7 +188,7 @@ public abstract class HeightMap implements DensityFunction.SimpleFunction, KeyDi
 	}
 
 	public static final HeightMap blend(HeightMap hm, ScalarField blendFactor, ScalarField func) {
-		hm.height_samplers.add(ScalarField.Entry.of(ScalarField.Operation.BLEND(blendFactor), func));
+		hm.height_samplers.add(ScalarField.Entry.of(ScalarField.Operator.BLEND(blendFactor), func));
 		return hm;
 	}
 
@@ -181,6 +198,19 @@ public abstract class HeightMap implements DensityFunction.SimpleFunction, KeyDi
 
 	public final HeightMap blend(ScalarField blendFactor, ScalarField func) {
 		return blend(this.clone(), blendFactor, func);
+	}
+
+	public static final HeightMap slidingWindow(HeightMap hm, SlidingWindowOperation op) {
+		hm.height_samplers.add(ScalarField.Entry.of(ScalarField.Operator.SLIDING_WINDOW(op)));
+		return hm;
+	}
+
+	public final HeightMap slidingWindowThis(SlidingWindowOperation op) {
+		return slidingWindow(this, op);
+	}
+
+	public final HeightMap slidingWindow(SlidingWindowOperation op) {
+		return slidingWindow(this.clone(), op);
 	}
 
 	@Override

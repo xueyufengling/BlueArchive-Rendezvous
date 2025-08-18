@@ -6,6 +6,7 @@ import fw.codec.annotation.CodecTarget;
 import fw.math.ConvolutionKernel;
 import fw.math.ScalarField;
 import fw.terrain.algorithm.OctaveSimplexNoise;
+import fw.terrain.algorithm.SlidingWindowErosion;
 import fw.terrain.algorithm.FractalNoise;
 import fw.terrain.algorithm.FractalOctaveSimplexNoiseHeightMap;
 import net.minecraft.util.KeyDispatchDataCodec;
@@ -25,18 +26,17 @@ public class KivotosHeightMap extends FractalOctaveSimplexNoiseHeightMap {
 	ScalarField academyMainlandBlendFunc = ScalarField.spherePotential(0, 0, 64, 0.0, 256, 1.0);
 
 	@CodecTarget
-	public KivotosHeightMap(@AsDataField OctaveSimplexNoise noise, FractalNoise fractal_settings) {
-		super(noise, fractal_settings);
-		this.convThis(ConvolutionKernel.GaussianBlur_3x3(5));
-		this.applyAbsInvertRidges();
+	public KivotosHeightMap(double height_bias, double min_height, double max_height, @AsDataField OctaveSimplexNoise noise, @AsDataField FractalNoise fractal_settings) {
+		super(height_bias, min_height, max_height, noise, fractal_settings);
+		this.applyAbsInvertRidges(
+				FractalNoise.Entry.of(0.25, 4),
+				FractalNoise.Entry.of(0.125, 8));
+		this.slidingWindowThis(SlidingWindowErosion.octaveSimplexErode(0.4, 2, 3, 9, 0L, false, 0.001, 0.001, 1, 2, 4));
+		// this.convThis(ConvolutionKernel.GaussianBlur_3x3(2));
 		// this.blendThis(academyMainlandBlendFunc, ScalarField.constant(100));
-		// this.convThis(ConvolutionKernel.Sharpening_3x3(5));
 	}
 
 	public KivotosHeightMap() {
-		super(64, 128, 0.0005, 0L, true, 1, 2, 4);
-		this.addFractalComponents(FractalNoise.Entry.of(0.2, 5),
-				FractalNoise.Entry.of(0.1, 10),
-				FractalNoise.Entry.of(0.05, 20));
+		super(56, -50, 288, 0.0005, 0L, true, 1, 2, 4);
 	}
 }

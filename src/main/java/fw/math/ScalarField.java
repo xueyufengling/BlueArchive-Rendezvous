@@ -92,8 +92,11 @@ public interface ScalarField {
 		};
 	}
 
+	/**
+	 * 标量场算子
+	 */
 	@FunctionalInterface
-	public static interface Operation {
+	public static interface Operator {
 		/**
 		 * @param x            采样x坐标
 		 * @param z            采样y坐标
@@ -106,25 +109,29 @@ public interface ScalarField {
 		/**
 		 * 作为HeightMap起始赋值
 		 */
-		public static final Operation ASSIGN = (double x, double z, ScalarField lastStepCalc, ScalarField thisStepTerm) -> thisStepTerm.value(x, z);
-		public static final Operation DISCARD = (double x, double z, ScalarField lastStepCalc, ScalarField thisStepTerm) -> lastStepCalc.value(x, z);
+		public static final Operator ASSIGN = (double x, double z, ScalarField lastStepCalc, ScalarField thisStepTerm) -> thisStepTerm.value(x, z);
+		public static final Operator DISCARD = (double x, double z, ScalarField lastStepCalc, ScalarField thisStepTerm) -> lastStepCalc.value(x, z);
 
-		public static final Operation ADD = (double x, double z, ScalarField lastStepCalc, ScalarField thisStepTerm) -> lastStepCalc.value(x, z) + lastStepCalc.value(x, z);
-		public static final Operation SUB = (double x, double z, ScalarField lastStepCalc, ScalarField thisStepTerm) -> lastStepCalc.value(x, z) - lastStepCalc.value(x, z);
-		public static final Operation MUL = (double x, double z, ScalarField lastStepCalc, ScalarField thisStepTerm) -> lastStepCalc.value(x, z) * lastStepCalc.value(x, z);
-		public static final Operation DIV = (double x, double z, ScalarField lastStepCalc, ScalarField thisStepTerm) -> lastStepCalc.value(x, z) / lastStepCalc.value(x, z);
+		public static final Operator ADD = (double x, double z, ScalarField lastStepCalc, ScalarField thisStepTerm) -> lastStepCalc.value(x, z) + thisStepTerm.value(x, z);
+		public static final Operator SUB = (double x, double z, ScalarField lastStepCalc, ScalarField thisStepTerm) -> lastStepCalc.value(x, z) - thisStepTerm.value(x, z);
+		public static final Operator MUL = (double x, double z, ScalarField lastStepCalc, ScalarField thisStepTerm) -> lastStepCalc.value(x, z) * thisStepTerm.value(x, z);
+		public static final Operator DIV = (double x, double z, ScalarField lastStepCalc, ScalarField thisStepTerm) -> lastStepCalc.value(x, z) / thisStepTerm.value(x, z);
 
-		public static final Operation MAX = (double x, double z, ScalarField lastStepCalc, ScalarField thisStepTerm) -> Math.max(lastStepCalc.value(x, z), lastStepCalc.value(x, z));
-		public static final Operation MIN = (double x, double z, ScalarField lastStepCalc, ScalarField thisStepTerm) -> Math.min(lastStepCalc.value(x, z), lastStepCalc.value(x, z));
+		public static final Operator MAX = (double x, double z, ScalarField lastStepCalc, ScalarField thisStepTerm) -> Math.max(lastStepCalc.value(x, z), thisStepTerm.value(x, z));
+		public static final Operator MIN = (double x, double z, ScalarField lastStepCalc, ScalarField thisStepTerm) -> Math.min(lastStepCalc.value(x, z), thisStepTerm.value(x, z));
 
-		public static final Operation ABS = (double x, double z, ScalarField lastStepCalc, ScalarField thisStepTerm) -> Math.abs(lastStepCalc.value(x, z));
+		public static final Operator ABS = (double x, double z, ScalarField lastStepCalc, ScalarField thisStepTerm) -> Math.abs(lastStepCalc.value(x, z));
 
-		public static Operation CONV(ConvolutionKernel kernel) {
+		public static Operator CONV(ConvolutionKernel kernel) {
 			return (double x, double z, ScalarField lastStepCalc, ScalarField thisStepTerm) -> kernel.calculate(lastStepCalc, x, z);
 		}
 
-		public static Operation BLEND(ScalarField blendFactor) {
+		public static Operator BLEND(ScalarField blendFactor) {
 			return (double x, double z, ScalarField lastStepCalc, ScalarField thisStepTerm) -> ScalarField.blend(blendFactor, lastStepCalc, thisStepTerm).value(x, z);
+		}
+
+		public static Operator SLIDING_WINDOW(SlidingWindowOperation op) {
+			return (double x, double z, ScalarField lastStepCalc, ScalarField thisStepTerm) -> op.calculate(lastStepCalc, x, z);
 		}
 	}
 
@@ -143,31 +150,35 @@ public interface ScalarField {
 		/**
 		 * 执行的运算操作
 		 */
-		public final Operation op;
+		public final Operator op;
 
 		/**
 		 * 高度采样器
 		 */
 		public final ScalarField term;
 
-		private Entry(Operation op, ScalarField sampler) {
+		private Entry(Operator op, ScalarField sampler) {
 			this.op = op;
 			this.term = sampler;
 		}
 
-		public static final Entry of(Operation op, ScalarField sampler) {
+		public static final Entry of(Operator op, ScalarField sampler) {
 			return new Entry(op, sampler);
 		}
 
 		public static final Entry of(ScalarField sampler) {
-			return of(Operation.ADD, sampler);
+			return of(Operator.ADD, sampler);
 		}
 
-		public static final Entry of(double coefficient) {
-			return of(Operation.MUL, ScalarField.constant(coefficient));
+		public static final Entry coefficient(ScalarField coefficient) {
+			return of(Operator.MUL, coefficient);
 		}
 
-		public static final Entry of(Operation op) {
+		public static final Entry coefficient(double coefficient) {
+			return coefficient(ScalarField.constant(coefficient));
+		}
+
+		public static final Entry of(Operator op) {
 			return new Entry(op, null);
 		}
 

@@ -13,7 +13,7 @@ import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.level.levelgen.synth.PerlinSimplexNoise;
 
 /**
- * 倍频SimplexNoise噪声作为高度图
+ * 平滑的倍频SimplexNoise噪声
  */
 @AsDataField
 public class OctaveSimplexNoise implements ScalarField {
@@ -90,6 +90,10 @@ public class OctaveSimplexNoise implements ScalarField {
 
 	public OctaveSimplexNoise(double bias, double amplitude, double xz_factor, long seed, boolean use_noise_offsets, Integer... octaves) {
 		this(bias, amplitude, xz_factor, xz_factor, seed, use_noise_offsets, octaves);
+	}
+
+	public OctaveSimplexNoise(double amplitude, double xz_factor, long seed, boolean use_noise_offsets, Integer... octaves) {
+		this(0, amplitude, xz_factor, seed, use_noise_offsets, octaves);
 	}
 
 	/**

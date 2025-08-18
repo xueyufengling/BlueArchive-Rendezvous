@@ -13,7 +13,6 @@ import net.minecraft.core.HolderGetter;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
-import net.minecraft.data.worldgen.SurfaceRuleData;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.level.biome.FixedBiomeSource;
@@ -27,6 +26,8 @@ import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
 import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 import net.minecraft.world.level.levelgen.NoiseRouter;
 import net.minecraft.world.level.levelgen.NoiseSettings;
+import net.minecraft.world.level.levelgen.SurfaceRules;
+import net.minecraft.world.level.levelgen.VerticalAnchor;
 
 public class Kivotos {
 	static {
@@ -97,7 +98,24 @@ public class Kivotos {
 						DensityFunctions.zero(), // vein_toggle
 						DensityFunctions.zero(), // vein_ridged
 						DensityFunctions.zero()), // vein_gap
-				SurfaceRuleData.overworld(), // -54生成岩浆
+				SurfaceRules.sequence(
+						SurfaceRules.ifTrue(
+								SurfaceRules.yBlockCheck(VerticalAnchor.absolute(164), 0),
+								SurfaceRules.ifTrue(
+										SurfaceRules.abovePreliminarySurface(),
+										SurfaceRules.state(Blocks.SNOW_BLOCK.defaultBlockState()))),
+						SurfaceRules.ifTrue(
+								SurfaceRules.yBlockCheck(VerticalAnchor.absolute(70), 0),
+								SurfaceRules.ifTrue(
+										SurfaceRules.abovePreliminarySurface(),
+										SurfaceRules.state(Blocks.GRASS_BLOCK.defaultBlockState()))),
+						SurfaceRules.ifTrue(
+								SurfaceRules.not(SurfaceRules.yBlockCheck(VerticalAnchor.absolute(70), 0)),
+								SurfaceRules.ifTrue(
+										SurfaceRules.abovePreliminarySurface(),
+										SurfaceRules.state(Blocks.SAND.defaultBlockState())))
+
+				), // -54生成岩浆
 				List.of(),
 				SEALEVEL,
 				false,

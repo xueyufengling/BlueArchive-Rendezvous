@@ -3,21 +3,12 @@ package fw.math;
 /**
  * 二维卷积运算
  */
-public class ConvolutionKernel {
-	/**
-	 * 采样步长
-	 */
-	public double step_x;
-	public double step_y;
-	private final int line;
-	private final int column;
+public class ConvolutionKernel extends SlidingWindowOperation {
+
 	private final double[] values;
 
 	public ConvolutionKernel(double step_x, double step_y, int line, int column) {
-		this.step_x = step_x;
-		this.step_y = step_y;
-		this.line = line;
-		this.column = column;
+		super(step_x, step_y, line, column);
 		values = new double[line * column];
 	}
 
@@ -25,15 +16,12 @@ public class ConvolutionKernel {
 		this(step, step, line, column);
 	}
 
-	public ConvolutionKernel(int line, int column) {
-		this(1.0, line, column);
+	public ConvolutionKernel(double step, int size) {
+		this(step, size, size);
 	}
 
 	public ConvolutionKernel(double step_x, double step_y, int line, int column, double[] values) {
-		this.step_x = step_x;
-		this.step_y = step_y;
-		this.line = line;
-		this.column = column;
+		super(step_x, step_y, line, column);
 		int size = line * column;
 		if (values.length != size)
 			throw new IllegalArgumentException("Convolution kernel matrix size should be " + size);
@@ -44,20 +32,8 @@ public class ConvolutionKernel {
 		this(step, step, line, column, values);
 	}
 
-	public ConvolutionKernel(int line, int column, double[] values) {
-		this(1.0, line, column, values);
-	}
-
-	public ConvolutionKernel(int size, double[] values) {
-		this(size, size, values);
-	}
-
 	public ConvolutionKernel(double step, int size, double[] values) {
 		this(step, size, size, values);
-	}
-
-	public final int index(int x_idx, int y_idx) {
-		return x_idx + y_idx * column;
 	}
 
 	public final double value(int x_idx, int y_idx) {
@@ -90,14 +66,11 @@ public class ConvolutionKernel {
 	 * @param sampledValue
 	 * @return
 	 */
-	public final double calculate(ScalarField source, double x, double y) {
-		double start_x = x - (column / 2) * step_x;
-		double start_y = y - (line / 2) * step_y;
+	@Override
+	public final double resolve(double x, double z, double[] values) {
 		double result = 0;
-		for (int x_idx = 0; x_idx < column; ++x_idx) {
-			for (int y_idx = 0; y_idx < line; ++y_idx) {
-				result += this.value(x_idx, y_idx) * source.value(start_x + x_idx * step_x, start_y + y_idx * step_y);
-			}
+		for (int idx = 0; idx < values.length; ++idx) {
+			result += values[idx] * this.values[idx];
 		}
 		return result;
 	}
@@ -105,11 +78,13 @@ public class ConvolutionKernel {
 	/**
 	 * 恒等卷积核
 	 */
-	public static final ConvolutionKernel Identity_3x3 = new ConvolutionKernel(3,
-			new double[] {
-					0, 0, 0,
-					0, 1, 0,
-					0, 0, 0 });
+	public static final ConvolutionKernel Identity_3x3(double step) {
+		return new ConvolutionKernel(step, 3,
+				new double[] {
+						0, 0, 0,
+						0, 1, 0,
+						0, 0, 0 });
+	}
 
 	/**
 	 * 锐化卷积核
@@ -118,7 +93,7 @@ public class ConvolutionKernel {
 	 * @return
 	 */
 	public static final ConvolutionKernel Sharpening_3x3(double step) {
-		return new ConvolutionKernel(3,
+		return new ConvolutionKernel(step, 3,
 				new double[] {
 						0, -1, 0,
 						-1, 5, -1,
@@ -132,10 +107,18 @@ public class ConvolutionKernel {
 	 * @return
 	 */
 	public static final ConvolutionKernel GaussianBlur_3x3(double step) {
-		return new ConvolutionKernel(3,
+		return new ConvolutionKernel(step, 3,
 				new double[] {
 						1.0 / 16, 2.0 / 16, 1.0 / 16,
 						2.0 / 16, 4.0 / 16, 2.0 / 16,
 						1.0 / 16, 2.0 / 16, 1.0 / 16 });
+	}
+
+	public static final ConvolutionKernel Erosion_3x3(double step) {
+		return new ConvolutionKernel(step, 3,
+				new double[] {
+						1, 1, 1,
+						1, 1, 1,
+						1, 1, 1 });
 	}
 }

@@ -2,7 +2,6 @@ package fw.terrain.algorithm;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 
 import com.mojang.serialization.Codec;
 
@@ -36,6 +35,20 @@ public class FractalNoise implements ScalarField, Cloneable {
 
 	@CodecAutogen(null_if_empty = true)
 	public static final Codec<FractalNoise> CODEC = null;
+
+	@FunctionalInterface
+	public interface Transform {
+		/**
+		 * @param layer_idx
+		 * @param x
+		 * @param z
+		 * @param calc_value
+		 * @return 变换后的值
+		 */
+		public double transform(int layer_idx, double x, double z, double calc_value);
+
+		public static Transform NONE = (int layer_idx, double x, double z, double calc_value) -> calc_value;
+	}
 
 	@AsDataField
 	public static class Entry {
@@ -94,11 +107,24 @@ public class FractalNoise implements ScalarField, Cloneable {
 		public static final Entry of(double scale_amplitude, double scale_xy) {
 			return of(scale_amplitude, scale_xy, scale_xy);
 		}
+
+		/**
+		 * 分形噪声额外造成的振幅变化比例值，该值乘以噪声振幅为实际增加的振幅
+		 * 
+		 * @param fractal_components
+		 * @return
+		 */
+		public static final double scaledAdditionalHeight(FractalNoise.Entry... fractal_components) {
+			double additional_height = 0;
+			for (FractalNoise.Entry entry : fractal_components)
+				additional_height += entry.scale_amplitude;
+			return additional_height;
+		}
 	}
 
-	private Function<Double, Double> layer_transform = (Double value) -> value;
+	private Transform layer_transform = Transform.NONE;
 
-	private Function<Double, Double> final_transform = (Double value) -> value;
+	private Transform final_transform = Transform.NONE;
 
 	private ScalarField noise;
 
@@ -110,12 +136,21 @@ public class FractalNoise implements ScalarField, Cloneable {
 		this.fractal_components = fractal_components;
 	}
 
+	public FractalNoise() {
+		this.fractal_components = new ArrayList<>();
+	}
+
 	public FractalNoise(ScalarField noise, Entry... fractal_components) {
 		this.fractal_components = new ArrayList<>();
 		this.fractal_components.addAll(List.of(fractal_components));
 		if (noise == null)
 			throw new IllegalArgumentException("Invalid FractalNoise argument: noise cannot be null.");
 		this.noise = noise;
+	}
+
+	public FractalNoise(ScalarField noise) {
+		this.noise = noise;
+		this.fractal_components = new ArrayList<>();
 	}
 
 	public FractalNoise setNoise(ScalarField noise) {
@@ -129,7 +164,7 @@ public class FractalNoise implements ScalarField, Cloneable {
 	 * @param layer_transform
 	 * @return
 	 */
-	public FractalNoise setLayerNoiseTransform(Function<Double, Double> layer_transform) {
+	public FractalNoise setLayerNoiseTransform(Transform layer_transform) {
 		this.layer_transform = layer_transform;
 		return this;
 	}
@@ -140,7 +175,7 @@ public class FractalNoise implements ScalarField, Cloneable {
 	 * @param final_transform
 	 * @return
 	 */
-	public FractalNoise setFinalNoiseTransform(Function<Double, Double> final_transform) {
+	public FractalNoise setFinalNoiseTransform(Transform final_transform) {
 		this.final_transform = final_transform;
 		return this;
 	}
@@ -153,13 +188,34 @@ public class FractalNoise implements ScalarField, Cloneable {
 	@Override
 	public double value(double x, double z) {
 		double result = 0;
-		for (Entry entry : fractal_components) {
-			result += layer_transform.apply(noise.value(x * entry.scale_x + entry.offset_x, z * entry.scale_y + entry.offset_y) * entry.scale_amplitude);
+		for (int layer_idx = 0; layer_idx < fractal_components.size(); ++layer_idx) {
+			Entry entry = fractal_components.get(layer_idx);
+			result += layer_transform.transform(layer_idx, x, z, noise.value(x * entry.scale_x + entry.offset_x, z * entry.scale_y + entry.offset_y) * entry.scale_amplitude);
 		}
-		return final_transform.apply(result);
+		return final_transform.transform(-1, x, z, result);
 	}
 
-	public final FractalNoise absInvertRidges(double invertNoiseValue) {
-		return this.clone().setLayerNoiseTransform((Double value) -> Math.abs(value)).setFinalNoiseTransform((Double value) -> invertNoiseValue - value);
+	/**
+	 * 直接修改原始噪声，将其取绝对值反转形成山脊效果层
+	 * 
+	 * @param ridgeThreshold   山脊起始点（零点），通常是噪声平均值或bias
+	 * @param invertNoiseValue 噪声最大值
+	 * @return
+	 */
+	public static final FractalNoise absInvertRidges(FractalNoise noise, double ridgeThreshold, double invertNoiseValue) {
+		return noise
+				.setLayerNoiseTransform((int layer_idx, double x, double z, double calc_value) -> Math.abs(calc_value - ridgeThreshold))
+				.setFinalNoiseTransform((int layer_idx, double x, double z, double calc_value) -> invertNoiseValue - calc_value);
+	}
+
+	public static final FractalNoise absInvertRidgesOf(FractalNoise noise, double ridgeThreshold, double invertNoiseValue) {
+		return absInvertRidges(noise.clone(), ridgeThreshold, invertNoiseValue);
+	}
+
+	public static final double scaledAdditionalHeight(FractalNoise noise) {
+		double additional_height = 0;
+		for (FractalNoise.Entry entry : noise.fractal_components)
+			additional_height += entry.scale_amplitude;
+		return additional_height;
 	}
 }
