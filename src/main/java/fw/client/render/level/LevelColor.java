@@ -3,8 +3,8 @@ package fw.client.render.level;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import fw.math.ColorLinearInterpolation;
-import fw.math.Vec3LinearInterpolation;
+import fw.math.interpolation.ColorLinearInterpolation;
+import fw.math.interpolation.Vec3LinearInterpolation;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.Holder;
 import net.minecraft.world.level.biome.Biome;

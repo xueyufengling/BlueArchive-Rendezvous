@@ -11,7 +11,7 @@ import fw.codec.derived.DerivedCodecHolder;
 import fw.core.ExecuteIn;
 import fw.datagen.EntryHolder;
 import fw.datagen.annotation.RegistryEntry;
-import fw.math.ColorLinearInterpolation;
+import fw.math.interpolation.ColorLinearInterpolation;
 import fw.terrain.biome.ExtBiome;
 import fw.terrain.biome.ExtBiomeSource;
 import net.minecraft.core.Holder;

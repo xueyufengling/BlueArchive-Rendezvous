@@ -1,8 +1,8 @@
 package fw.client.render.sky;
 
 import fw.client.render.level.LevelColor;
-import fw.math.ColorLinearInterpolation;
-import fw.math.Vec3LinearInterpolation;
+import fw.math.interpolation.ColorLinearInterpolation;
+import fw.math.interpolation.Vec3LinearInterpolation;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.Holder;
 import net.minecraft.world.level.biome.Biome;

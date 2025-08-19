@@ -3,12 +3,11 @@ package ba.entries.dimension.kivotos;
 import fw.codec.annotation.AsDataField;
 import fw.codec.annotation.CodecAutogen;
 import fw.codec.annotation.CodecTarget;
-import fw.math.ConvolutionKernel;
 import fw.math.ScalarField;
-import fw.terrain.algorithm.OctaveSimplexNoise;
-import fw.terrain.algorithm.SlidingWindowErosion;
+import fw.terrain.algorithm.ErosionOperator;
 import fw.terrain.algorithm.FractalNoise;
 import fw.terrain.algorithm.FractalOctaveSimplexNoiseHeightMap;
+import fw.terrain.algorithm.OctaveSimplexNoise;
 import net.minecraft.util.KeyDispatchDataCodec;
 
 public class KivotosHeightMap extends FractalOctaveSimplexNoiseHeightMap {
@@ -31,7 +30,7 @@ public class KivotosHeightMap extends FractalOctaveSimplexNoiseHeightMap {
 		this.applyAbsInvertRidges(
 				FractalNoise.Entry.of(0.25, 4),
 				FractalNoise.Entry.of(0.125, 8));
-		this.slidingWindowThis(SlidingWindowErosion.octaveSimplexErode(0.4, 2, 3, 9, 0L, false, 0.001, 0.001, 1, 2, 4));
+		this.opThis(ErosionOperator.of(0.4, 2, 3), ErosionOperator.octaveSimplexErosion(1, 0.001, 0L, false, 1, 2, 4));
 		// this.convThis(ConvolutionKernel.GaussianBlur_3x3(2));
 		// this.blendThis(academyMainlandBlendFunc, ScalarField.constant(100));
 	}

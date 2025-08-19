@@ -1,4 +1,4 @@
-package fw.math;
+package fw.math.interpolation;
 
 import java.awt.Color;
 

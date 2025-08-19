@@ -6,7 +6,7 @@ import java.util.OptionalInt;
 import fw.core.registry.registries.client.DynamicRegistries;
 import fw.event.LevelTickTrigger;
 import fw.event.LevelTrigger;
-import fw.math.ColorLinearInterpolation;
+import fw.math.interpolation.ColorLinearInterpolation;
 import fw.resources.ResourceKeyBuilder;
 import lyra.alpha.reference.FieldRecoverable;
 import lyra.object.ObjectManipulator;
