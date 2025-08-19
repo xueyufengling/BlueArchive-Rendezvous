@@ -8,6 +8,9 @@ import fw.datagen.annotation.RegistryEntry;
 import fw.dimension.ExtDimension;
 import fw.terrain.Df;
 import fw.terrain.biome.ExtBiome;
+import fw.terrain.decoration.Decoration;
+import fw.terrain.decoration.TerrainDecorator;
+import fw.terrain.decoration.TerrainTest;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.RegistryAccess;
@@ -26,8 +29,6 @@ import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
 import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 import net.minecraft.world.level.levelgen.NoiseRouter;
 import net.minecraft.world.level.levelgen.NoiseSettings;
-import net.minecraft.world.level.levelgen.SurfaceRules;
-import net.minecraft.world.level.levelgen.VerticalAnchor;
 
 public class Kivotos {
 	static {
@@ -98,24 +99,27 @@ public class Kivotos {
 						DensityFunctions.zero(), // vein_toggle
 						DensityFunctions.zero(), // vein_ridged
 						DensityFunctions.zero()), // vein_gap
-				SurfaceRules.sequence(
-						SurfaceRules.ifTrue(
-								SurfaceRules.yBlockCheck(VerticalAnchor.absolute(164), 0),
-								SurfaceRules.ifTrue(
-										SurfaceRules.abovePreliminarySurface(),
-										SurfaceRules.state(Blocks.SNOW_BLOCK.defaultBlockState()))),
-						SurfaceRules.ifTrue(
-								SurfaceRules.yBlockCheck(VerticalAnchor.absolute(70), 0),
-								SurfaceRules.ifTrue(
-										SurfaceRules.abovePreliminarySurface(),
-										SurfaceRules.state(Blocks.GRASS_BLOCK.defaultBlockState()))),
-						SurfaceRules.ifTrue(
-								SurfaceRules.not(SurfaceRules.yBlockCheck(VerticalAnchor.absolute(70), 0)),
-								SurfaceRules.ifTrue(
-										SurfaceRules.abovePreliminarySurface(),
-										SurfaceRules.state(Blocks.SAND.defaultBlockState())))
-
-				), // -54生成岩浆
+				TerrainDecorator.begin()
+						.layer(
+								Decoration.begin(Blocks.SNOW_BLOCK)
+										.when(
+												TerrainTest.aboveYGradient(132, 164),
+												TerrainTest.solidSurface(2)))
+						.layer(
+								Decoration.begin(Blocks.GRASS_BLOCK)
+										.when(
+												TerrainTest.aboveY(70),
+												TerrainTest.solidSurface(1)),
+								Decoration.begin(Blocks.DIRT)
+										.when(
+												TerrainTest.aboveY(70),
+												TerrainTest.solidSurface(4)))
+						.layer(
+								Decoration.begin(Blocks.SAND)
+										.when(
+												TerrainTest.belowYGradient(70, 65),
+												TerrainTest.solidSurface(4)))
+						.toRuleSource(), // -54生成岩浆
 				List.of(),
 				SEALEVEL,
 				false,

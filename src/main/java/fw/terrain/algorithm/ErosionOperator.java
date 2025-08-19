@@ -1,7 +1,7 @@
 package fw.terrain.algorithm;
 
-import fw.math.ScalarField;
-import fw.math.SlidingWindowOperator;
+import fw.math.field.ScalarField;
+import fw.math.field.SlidingWindowOperator;
 
 /**
  * 非线性侵蚀算子

@@ -4,10 +4,10 @@ import java.util.ArrayList;
 
 import fw.codec.annotation.CodecAutogen;
 import fw.codec.derived.KeyDispatchDataCodecHolder;
-import fw.math.ScalarField;
 import fw.math.algebra.Operator;
 import fw.math.algebra.Term;
 import fw.math.algebra.UnaryOperator;
+import fw.math.field.ScalarField;
 import net.minecraft.util.KeyDispatchDataCodec;
 import net.minecraft.world.level.levelgen.DensityFunction;
 import net.minecraft.world.level.levelgen.DensityFunctions;

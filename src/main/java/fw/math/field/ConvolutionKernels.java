@@ -1,5 +1,8 @@
-package fw.math;
+package fw.math.field;
 
+/**
+ * 离散二维卷积核
+ */
 public class ConvolutionKernels {
 	/**
 	 * 恒等卷积核

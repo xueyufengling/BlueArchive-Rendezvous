@@ -8,7 +8,7 @@ import fw.codec.annotation.AsDataField;
 import fw.codec.annotation.CodecAutogen;
 import fw.codec.annotation.CodecEntry;
 import fw.codec.annotation.CodecTarget;
-import fw.math.ScalarField;
+import fw.math.field.ScalarField;
 import net.minecraft.world.level.levelgen.LegacyRandomSource;
 import net.minecraft.world.level.levelgen.synth.PerlinSimplexNoise;
 

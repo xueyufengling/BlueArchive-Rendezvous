@@ -3,7 +3,7 @@ package ba.entries.dimension.kivotos;
 import fw.codec.annotation.AsDataField;
 import fw.codec.annotation.CodecAutogen;
 import fw.codec.annotation.CodecTarget;
-import fw.math.ScalarField;
+import fw.math.field.ScalarField;
 import fw.terrain.algorithm.ErosionOperator;
 import fw.terrain.algorithm.FractalNoise;
 import fw.terrain.algorithm.FractalOctaveSimplexNoiseHeightMap;

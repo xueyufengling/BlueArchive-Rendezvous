@@ -1,4 +1,4 @@
-package fw.math;
+package fw.math.field;
 
 import fw.math.algebra.BinaryOperator;
 import fw.math.algebra.Operator;
