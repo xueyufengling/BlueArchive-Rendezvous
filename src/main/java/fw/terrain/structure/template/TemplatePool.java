@@ -6,7 +6,7 @@ import java.util.function.Function;
 import com.mojang.datafixers.util.Pair;
 
 import fw.datagen.EntryHolder;
-import fw.resources.ResourceKeyBuilder;
+import fw.resources.ResourceKeys;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
@@ -27,7 +27,7 @@ public class TemplatePool {
 	}
 
 	public static final ResourceKey<StructureTemplatePool> key(String name) {
-		return ResourceKeyBuilder.build(Registries.TEMPLATE_POOL, name);
+		return ResourceKeys.build(Registries.TEMPLATE_POOL, name);
 	}
 
 	public static final EntryHolder<StructureTemplatePool> register(String name, EntryHolder.BootstrapValue<StructureTemplatePool> pool) {

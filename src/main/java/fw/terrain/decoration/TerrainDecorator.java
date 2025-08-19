@@ -5,6 +5,9 @@ import java.util.List;
 
 import net.minecraft.world.level.levelgen.SurfaceRules;
 
+/**
+ * 地表填充规则
+ */
 public class TerrainDecorator {
 	private final ArrayList<Decoration> decorations = new ArrayList<>();
 

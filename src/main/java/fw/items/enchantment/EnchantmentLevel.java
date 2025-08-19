@@ -5,7 +5,7 @@ import java.util.Objects;
 import java.util.Set;
 
 import fw.core.registry.registries.client.DynamicRegistries;
-import fw.resources.ResourceKeyBuilder;
+import fw.resources.ResourceKeys;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceKey;
@@ -32,7 +32,7 @@ public class EnchantmentLevel {
 	}
 
 	public static String getEnchantmentId(ResourceKey<Enchantment> resourceKey) {
-		return ResourceKeyBuilder.toString(resourceKey);
+		return ResourceKeys.toString(resourceKey);
 	}
 
 	public static String getEnchantmentId(Enchantment enchantment) {

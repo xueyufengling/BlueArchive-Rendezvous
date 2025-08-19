@@ -9,7 +9,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 
 import fw.client.render.gui.GuiGraphicsContext;
 import fw.core.Core;
-import fw.resources.ResourceLocationBuilder;
+import fw.resources.ResourceLocations;
 import net.minecraft.resources.ResourceLocation;
 
 /**
@@ -179,7 +179,7 @@ public class Texture implements Cloneable {
 	}
 
 	public static Texture of(String loc) {
-		return new Texture(ResourceLocationBuilder.build(loc));
+		return new Texture(ResourceLocations.build(loc));
 	}
 
 	public static Texture of(ResourceLocation loc, float u1, float v1, float u2, float v2) {
@@ -187,7 +187,7 @@ public class Texture implements Cloneable {
 	}
 
 	public static Texture of(String loc, float u1, float v1, float u2, float v2) {
-		return new Texture(ResourceLocationBuilder.build(loc), u1, v1, u2, v2);
+		return new Texture(ResourceLocations.build(loc), u1, v1, u2, v2);
 	}
 
 	public static Texture of(ResourceLocation loc, float u1, float v1, float u2, float v2, float depth) {
@@ -195,7 +195,7 @@ public class Texture implements Cloneable {
 	}
 
 	public static Texture of(String loc, float u1, float v1, float u2, float v2, float depth) {
-		return new Texture(ResourceLocationBuilder.build(loc), u1, v1, u2, v2, depth);
+		return new Texture(ResourceLocations.build(loc), u1, v1, u2, v2, depth);
 	}
 
 	public static Texture of(ResourceLocation loc, int u1, int v1, int u2, int v2) {
@@ -203,7 +203,7 @@ public class Texture implements Cloneable {
 	}
 
 	public static Texture of(String loc, int u1, int v1, int u2, int v2) {
-		return new Texture(ResourceLocationBuilder.build(loc), u1, v1, u2, v2);
+		return new Texture(ResourceLocations.build(loc), u1, v1, u2, v2);
 	}
 
 	public static Texture of(ResourceLocation loc, int u1, int v1, int u2, int v2, float depth) {
@@ -211,7 +211,7 @@ public class Texture implements Cloneable {
 	}
 
 	public static Texture of(String loc, int u1, int v1, int u2, int v2, float depth) {
-		return new Texture(ResourceLocationBuilder.build(loc), u1, v1, u2, v2, depth);
+		return new Texture(ResourceLocations.build(loc), u1, v1, u2, v2, depth);
 	}
 
 	public static Texture of(ResourceLocation loc, float depth) {
@@ -219,7 +219,7 @@ public class Texture implements Cloneable {
 	}
 
 	public static Texture of(String loc, float depth) {
-		return new Texture(ResourceLocationBuilder.build(loc), depth);
+		return new Texture(ResourceLocations.build(loc), depth);
 	}
 
 	/**
@@ -238,7 +238,7 @@ public class Texture implements Cloneable {
 	public static Texture[] of(String... locs) {
 		Texture[] textures = new Texture[locs.length];
 		for (int i = 0; i < locs.length; ++i)
-			textures[i] = new Texture(ResourceLocationBuilder.build(locs[i]), i);
+			textures[i] = new Texture(ResourceLocations.build(locs[i]), i);
 		return textures;
 	}
 

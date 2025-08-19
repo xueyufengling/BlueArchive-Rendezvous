@@ -3,14 +3,24 @@ package ba.entries.dimension.kivotos;
 import java.util.List;
 import java.util.OptionalLong;
 
+import fw.client.render.RenderableObject;
+import fw.client.render.renderable.Texture;
+import fw.client.render.sky.CloudColor;
+import fw.client.render.sky.Sky;
+import fw.client.render.sky.SkyColor;
+import fw.core.ExecuteIn;
 import fw.datagen.EntryHolder;
 import fw.datagen.annotation.RegistryEntry;
 import fw.dimension.ExtDimension;
+import fw.event.ClientLifecycleTrigger;
+import fw.math.interpolation.ColorLinearInterpolation;
+import fw.math.interpolation.Vec3LinearInterpolation;
 import fw.terrain.Df;
 import fw.terrain.biome.ExtBiome;
 import fw.terrain.decoration.Decoration;
 import fw.terrain.decoration.TerrainDecorator;
 import fw.terrain.decoration.TerrainTest;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.RegistryAccess;
@@ -31,11 +41,45 @@ import net.minecraft.world.level.levelgen.NoiseRouter;
 import net.minecraft.world.level.levelgen.NoiseSettings;
 
 public class Kivotos {
-	static {
-		RegistryEntry.RegistriesProvider.forDatagen();
-	}
 
 	public static final String ID = "ba:kivotos";
+
+	static {
+		RegistryEntry.RegistriesProvider.forDatagen();
+		ExecuteIn.Client(() -> {
+			CloudColor.setLevelCloudColorResolver(ID,
+					ColorLinearInterpolation
+							.begin(0, 214, 186, 159)// 6 h 灰黄
+							.append(3000, 208, 228, 243)// 9 h 灰白
+							.append(6000, 246, 242, 243)// 12 h 亮白
+							.append(9000, 208, 228, 243)// 15 h 灰白
+							.append(12000, 116, 83, 160)// 18 h 紫
+							.append(15000, 68, 139, 203)// 21 h 灰
+							.append(18000, 59, 106, 189)// 0 h 深黑蓝
+							.append(21000, 68, 139, 203)// 3 h 灰
+			);
+			SkyColor.setLevelSkyColorResolver(ID,
+					ColorLinearInterpolation
+							.begin(3000, 90, 145, 198)// 9 h 灰蓝
+							.append(9000, 90, 145, 198)// 15 h 灰蓝
+							.append(15000, 67, 130, 195)// 21 h 夜晚蓝
+							.append(18000, 12, 29, 71)// 0 h 深黑蓝
+							.append(21000, 67, 130, 195), // 3 h 夜晚蓝
+					Vec3LinearInterpolation
+							.begin(3000, 0.1)// 9 h
+							.append(9000, 0.1)// 15 h
+							.append(15000, 0.3)// 21 h
+							.append(18000, 0.7)// 0 h
+							.append(21000, 0.3) // 3 h
+							.append(22500, 0.3)// 4.5 h
+			);
+			Sky.setFixedCelestialColor(1, 1, 1, 1);
+		});
+		ClientLifecycleTrigger.CLIENT_CONNECT.addCallback((ClientLevel level, RegistryAccess.Frozen registryAccess) -> {
+			// Sky.render(RenderableObject.quad(Texture.of("ba:textures/sky/sun.png")));
+			Sky.setSunTexture("ba:textures/sky/sun.png");
+		});
+	}
 
 	public static final int MIN_Y = -256;
 	public static final int MAX_Y = 384;
@@ -101,10 +145,19 @@ public class Kivotos {
 						DensityFunctions.zero()), // vein_gap
 				TerrainDecorator.begin()
 						.layer(
+								Decoration.begin(Blocks.SNOW)
+										.when(
+												TerrainTest.aboveYGradient(132, 384),
+												TerrainTest.solidSurface(2)),
 								Decoration.begin(Blocks.SNOW_BLOCK)
 										.when(
-												TerrainTest.aboveYGradient(132, 164),
-												TerrainTest.solidSurface(2)))
+												TerrainTest.aboveYGradient(164, 180),
+												TerrainTest.solidSurface(1)))
+						.layer(
+								Decoration.begin(Blocks.SAND)
+										.when(
+												TerrainTest.belowYGradient(75, 70),
+												TerrainTest.solidSurface(4)))
 						.layer(
 								Decoration.begin(Blocks.GRASS_BLOCK)
 										.when(
@@ -113,11 +166,6 @@ public class Kivotos {
 								Decoration.begin(Blocks.DIRT)
 										.when(
 												TerrainTest.aboveY(70),
-												TerrainTest.solidSurface(4)))
-						.layer(
-								Decoration.begin(Blocks.SAND)
-										.when(
-												TerrainTest.belowYGradient(70, 65),
 												TerrainTest.solidSurface(4)))
 						.toRuleSource(), // -54生成岩浆
 				List.of(),

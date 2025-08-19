@@ -9,7 +9,7 @@ import fw.codec.annotation.AsDataField;
 import fw.codec.annotation.CodecAutogen;
 import fw.codec.annotation.CodecEntry;
 import fw.codec.annotation.CodecTarget;
-import fw.resources.ResourceLocationBuilder;
+import fw.resources.ResourceLocations;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
@@ -157,7 +157,7 @@ public class JigsawPlacementContext {
 			int dimension_padding_top,
 			LiquidSettings liquid_settings) {
 		this(context.lookup(Registries.TEMPLATE_POOL).getOrThrow(TemplatePool.key(template_pool)),
-				start_jigsaw_name == null ? Optional.empty() : Optional.of(ResourceLocationBuilder.build(start_jigsaw_name)),
+				start_jigsaw_name == null ? Optional.empty() : Optional.of(ResourceLocations.build(start_jigsaw_name)),
 				max_depth,
 				start_height,
 				project_start_to_heightmap == null ? Optional.empty() : Optional.of(project_start_to_heightmap),

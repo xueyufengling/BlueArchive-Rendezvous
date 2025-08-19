@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Map;
 
-import fw.resources.ResourceKeyBuilder;
+import fw.resources.ResourceKeys;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import it.unimi.dsi.fastutil.objects.Reference2IntMap;
@@ -273,6 +273,6 @@ public class MutableMappedRegistry<T> implements Recoverable<MutableMappedRegist
 	}
 
 	public Holder.Reference<T> register(String reslocWithNamespace, T value) {
-		return mappedRegistry.register(ResourceKeyBuilder.build(pkey, reslocWithNamespace), value, RegistrationInfo.BUILT_IN);
+		return mappedRegistry.register(ResourceKeys.build(pkey, reslocWithNamespace), value, RegistrationInfo.BUILT_IN);
 	}
 }

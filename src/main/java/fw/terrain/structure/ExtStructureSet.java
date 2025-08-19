@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import fw.core.registry.RegistryMap;
-import fw.resources.ResourceKeyBuilder;
+import fw.resources.ResourceKeys;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.registries.Registries;
@@ -83,7 +83,7 @@ public class ExtStructureSet {
 		}
 
 		public Builder add(String key, int weight) {
-			return add(ResourceKeyBuilder.build(Registries.STRUCTURE, key), weight);
+			return add(ResourceKeys.build(Registries.STRUCTURE, key), weight);
 		}
 
 		public StructureSet build() {

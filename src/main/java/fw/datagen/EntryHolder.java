@@ -5,8 +5,8 @@ import java.util.ArrayList;
 import fw.core.registry.MappedRegistryAccess;
 import fw.core.registry.RegistryFactory;
 import fw.core.registry.RegistryMap;
-import fw.resources.ResourceKeyBuilder;
-import fw.resources.ResourceLocationBuilder;
+import fw.resources.ResourceKeys;
+import fw.resources.ResourceLocations;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.RegistrationInfo;
@@ -85,15 +85,15 @@ public class EntryHolder<T> {
 		this.registryKey = registryKey;
 		this.namespace = namespace;
 		this.path = path;
-		this.resourceKey = ResourceKeyBuilder.build(registryKey, namespace, path);
+		this.resourceKey = ResourceKeys.build(registryKey, namespace, path);
 		this.valueSource = valueSource;
 		this.orininalValue = value;
 	}
 
 	private EntryHolder(ResourceKey<? extends Registry<T>> registryKey, String namespacedId, BootstrapValue<T> valueSource, T value) {
 		this.registryKey = registryKey;
-		ResourceLocation loc = ResourceLocationBuilder.build(namespacedId);
-		this.resourceKey = ResourceKeyBuilder.build(registryKey, loc);
+		ResourceLocation loc = ResourceLocations.build(namespacedId);
+		this.resourceKey = ResourceKeys.build(registryKey, loc);
 		this.namespace = loc.getNamespace();
 		this.path = loc.getPath();
 		this.valueSource = valueSource;
@@ -122,7 +122,7 @@ public class EntryHolder<T> {
 	}
 
 	public final <R> ResourceKey<R> castKey(ResourceKey<? extends Registry<R>> registryKey) {
-		return ResourceKeyBuilder.build(registryKey, namespace, path);
+		return ResourceKeys.build(registryKey, namespace, path);
 	}
 
 	/**

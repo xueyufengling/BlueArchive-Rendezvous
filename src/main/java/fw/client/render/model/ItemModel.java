@@ -2,7 +2,7 @@ package fw.client.render.model;
 
 import fw.core.registry.registries.bootstrap.BootstrapRegistries;
 import fw.mixins.internal.ItemRendererInternal;
-import fw.resources.ResourceLocationBuilder;
+import fw.resources.ResourceLocations;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelManager;
 import net.minecraft.client.resources.model.ModelResourceLocation;
@@ -40,8 +40,8 @@ public class ItemModel {
 
 	// 如果显示给itemType指定为null，则取消目标模型的渲染
 	public ItemModel(String resourceLoc, String itemType, int combinedLight, int combinedOverlay) {
-		this.resourceLoc = ResourceLocationBuilder.build(resourceLoc);
-		this.itemType = itemType == null ? null : BootstrapRegistries.ITEM.get(ResourceLocationBuilder.build(itemType));
+		this.resourceLoc = ResourceLocations.build(resourceLoc);
+		this.itemType = itemType == null ? null : BootstrapRegistries.ITEM.get(ResourceLocations.build(itemType));
 		this.combinedLight = combinedLight;
 		this.combinedOverlay = combinedOverlay;
 	}
@@ -65,7 +65,7 @@ public class ItemModel {
 	public BakedModel model(String tyoe) {
 		ModelManager modelManager = ItemRendererInternal.Render.Args.this_.getItemModelShaper().getModelManager();
 		if (resourceLoc == null)
-			return modelManager.getModel(new ModelResourceLocation(ResourceLocationBuilder.build("minecraft:air"), tyoe));
+			return modelManager.getModel(new ModelResourceLocation(ResourceLocations.build("minecraft:air"), tyoe));
 		else
 			return modelManager.getModel(new ModelResourceLocation(resourceLoc, tyoe));
 	}

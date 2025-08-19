@@ -32,7 +32,7 @@ public class ShittimChestBiomes extends ExtBiomeSource {
 		DerivedCodecHolder.CODEC();
 		RegistryEntry.RegistriesProvider.forDatagen();
 		ExecuteIn.Client(() -> {
-			effects = MutableBiomeSpecialEffects.from(SHITTIM_CHEST_ID);
+			effects = MutableBiomeSpecialEffects.from(SHITTIM_CHEST_ID).bindTo("minecraft:forest");
 			effects.tick(ColorLinearInterpolation
 					.begin(0, 254, 229, 166)// 6 h 黄
 					.append(1500, 165, 154, 188)// 7.5 h 淡蓝紫

@@ -5,9 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 
-import fw.resources.ResourceKeyBuilder;
-import fw.resources.ResourceLocationBuilder;
-import fw.resources.TagKeyBuilder;
+import fw.resources.ResourceKeys;
+import fw.resources.ResourceLocations;
+import fw.resources.TagKeys;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Registry;
 import net.minecraft.data.DataGenerator;
@@ -49,14 +49,14 @@ public final class ExtTagsProvider<T> extends TagsProvider<T> {
 	}
 
 	public static final <T> void setTags(ResourceKey<? extends Registry<T>> registryKey, String structureSetTagName, String... tagMembers) {
-		ResourceLocation loc = ResourceLocationBuilder.build(structureSetTagName);
+		ResourceLocation loc = ResourceLocations.build(structureSetTagName);
 		String modId = loc.getNamespace();
 		HashMap<ResourceKey<? extends Registry<?>>, HashMap<TagKey<?>, List<ResourceKey<?>>>> modAllTags = datagenTags.computeIfAbsent(modId, (String id) -> new HashMap<>());
 		HashMap<TagKey<?>, List<ResourceKey<?>>> tagsMap = modAllTags.computeIfAbsent(registryKey, (ResourceKey<? extends Registry<?>> key) -> new HashMap<>());
 		ArrayList<ResourceKey<?>> members = new ArrayList<>();
 		for (String member : tagMembers)
-			members.add(ResourceKeyBuilder.build(registryKey, member));
-		TagKey<T> tagKey = TagKeyBuilder.build(registryKey, loc);
+			members.add(ResourceKeys.build(registryKey, member));
+		TagKey<T> tagKey = TagKeys.build(registryKey, loc);
 		tagsMap.put(tagKey, members);
 	}
 

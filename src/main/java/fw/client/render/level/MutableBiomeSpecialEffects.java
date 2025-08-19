@@ -7,7 +7,7 @@ import fw.core.registry.registries.client.DynamicRegistries;
 import fw.event.LevelTickTrigger;
 import fw.event.LevelTrigger;
 import fw.math.interpolation.ColorLinearInterpolation;
-import fw.resources.ResourceKeyBuilder;
+import fw.resources.ResourceKeys;
 import lyra.alpha.reference.FieldRecoverable;
 import lyra.object.ObjectManipulator;
 import net.minecraft.core.Holder;
@@ -41,7 +41,7 @@ public class MutableBiomeSpecialEffects implements FieldRecoverable<MutableBiome
 
 	private MutableBiomeSpecialEffects(String biomeKey) {
 		LevelTrigger.CLIENT_LEVEL_LOAD.addCallback(EventPriority.HIGH, (LevelAccessor level) -> {
-			this.effects = DynamicRegistries.BIOME.getHolderOrThrow(ResourceKeyBuilder.build(Registries.BIOME, biomeKey)).value().getSpecialEffects();
+			this.effects = DynamicRegistries.BIOME.getHolderOrThrow(ResourceKeys.build(Registries.BIOME, biomeKey)).value().getSpecialEffects();
 		});
 	}
 
@@ -59,7 +59,7 @@ public class MutableBiomeSpecialEffects implements FieldRecoverable<MutableBiome
 	public final MutableBiomeSpecialEffects bindTo(String... biomesWithNamespace) {
 		LevelTrigger.CLIENT_LEVEL_LOAD.addCallback(EventPriority.LOWEST, (LevelAccessor level) -> {
 			for (String biomeKey : biomesWithNamespace) {
-				Holder.Reference<Biome> holder = DynamicRegistries.BIOME.getHolder(ResourceKeyBuilder.build(Registries.BIOME, biomeKey)).orElse(null);
+				Holder.Reference<Biome> holder = DynamicRegistries.BIOME.getHolder(ResourceKeys.build(Registries.BIOME, biomeKey)).orElse(null);
 				if (holder != null)
 					ObjectManipulator.setDeclaredMemberObject(holder.value(), "specialEffects", effects);
 			}

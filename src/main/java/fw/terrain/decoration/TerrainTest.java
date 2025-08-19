@@ -2,7 +2,7 @@ package fw.terrain.decoration;
 
 import java.util.Random;
 
-import fw.resources.ResourceKeyBuilder;
+import fw.resources.ResourceKeys;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.biome.Biome;
@@ -43,7 +43,7 @@ public class TerrainTest {
 	public static SurfaceRules.ConditionSource inBiomes(String... biomes) {
 		ResourceKey<Biome>[] keys = new ResourceKey[biomes.length];
 		for (int idx = 0; idx < biomes.length; ++idx)
-			keys[idx] = ResourceKeyBuilder.build(Registries.BIOME, biomes[idx]);
+			keys[idx] = ResourceKeys.build(Registries.BIOME, biomes[idx]);
 		return SurfaceRules.isBiome(keys);
 	}
 

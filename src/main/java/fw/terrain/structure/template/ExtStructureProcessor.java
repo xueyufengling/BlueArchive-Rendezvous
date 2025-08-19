@@ -5,7 +5,7 @@ import java.util.List;
 
 import fw.core.registry.RegistryMap;
 import fw.datagen.EntryHolder;
-import fw.resources.ResourceKeyBuilder;
+import fw.resources.ResourceKeys;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
@@ -32,7 +32,7 @@ public class ExtStructureProcessor {
 	public static final RegistryMap<StructureProcessorList> PROCESSOR_LISTS = RegistryMap.of(Registries.PROCESSOR_LIST);
 
 	public static final ResourceKey<StructureProcessorList> listKey(String name) {
-		return ResourceKeyBuilder.build(Registries.PROCESSOR_LIST, name);
+		return ResourceKeys.build(Registries.PROCESSOR_LIST, name);
 	}
 
 	public static final Holder.Reference<StructureProcessorList> list(BootstrapContext<?> context, String name) {

@@ -85,4 +85,47 @@ public class LevelRendererInternal {
 			}
 		}
 	}
+
+	public static class RenderSky {
+
+		public static class Args {
+			public static LevelRenderer this_;
+			public static Matrix4f frustumMatrix;
+			public static Matrix4f projectionMatrix;
+			public static float partialTick;
+			public static Camera camera;
+			public static boolean isFoggy;
+			public static Runnable skyFogSetup;
+			public static CallbackInfo ci;
+
+			public static final void store(LevelRenderer this_, Matrix4f frustumMatrix, Matrix4f projectionMatrix, float partialTick, Camera camera, boolean isFoggy, Runnable skyFogSetup, CallbackInfo ci) {
+				// 方法参数
+				Args.this_ = this_;
+				Args.frustumMatrix = frustumMatrix;
+				Args.projectionMatrix = projectionMatrix;
+				Args.partialTick = partialTick;
+				Args.camera = camera;
+				Args.isFoggy = isFoggy;
+				Args.skyFogSetup = skyFogSetup;
+				Args.ci = ci;
+			}
+		}
+
+		@FunctionalInterface
+		public static interface Callback extends Internal.Callback {
+			public void renderSky(LevelRenderer this_, Matrix4f frustumMatrix, Matrix4f projectionMatrix, float partialTick, Camera camera, boolean isFoggy, Runnable skyFogSetup, CallbackInfo ci);
+
+			public default void execute() {
+				renderSky(Args.this_, Args.frustumMatrix, Args.projectionMatrix, Args.partialTick, Args.camera, Args.isFoggy, Args.skyFogSetup, Args.ci);
+			}
+		}
+
+		public static class Callbacks {
+			public static ArrayList<Callback> after_2nd_popPose = new ArrayList<>();
+
+			public static void addAfter2nd_popPose(Callback func) {
+				after_2nd_popPose.add(func);
+			}
+		}
+	}
 }

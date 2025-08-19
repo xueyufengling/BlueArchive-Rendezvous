@@ -6,7 +6,7 @@ import java.util.Set;
 import fw.core.Core;
 import fw.core.registry.registries.server.DynamicRegistries;
 import fw.datagen.EntryHolder;
-import fw.resources.ResourceKeyBuilder;
+import fw.resources.ResourceKeys;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
@@ -31,7 +31,7 @@ public class ExtBiome {
 	 * @return
 	 */
 	public static final Holder<Biome> getBiome(String key) {
-		return DynamicRegistries.BIOME.getHolderOrThrow(ResourceKeyBuilder.build(Registries.BIOME, key));
+		return DynamicRegistries.BIOME.getHolderOrThrow(ResourceKeys.build(Registries.BIOME, key));
 	}
 
 	/**
@@ -41,7 +41,7 @@ public class ExtBiome {
 	 * @return
 	 */
 	public static final Holder<Biome> modBiome(String key) {
-		return DynamicRegistries.BIOME.getHolderOrThrow(ResourceKeyBuilder.build(Registries.BIOME, Core.ModId, key));
+		return DynamicRegistries.BIOME.getHolderOrThrow(ResourceKeys.build(Registries.BIOME, Core.ModId, key));
 	}
 
 	/**
@@ -54,7 +54,7 @@ public class ExtBiome {
 	 * @return
 	 */
 	public static final Holder<Biome> datagenStageHolder(BootstrapContext<?> context, String key) {
-		return context.lookup(Registries.BIOME).getOrThrow(ResourceKeyBuilder.build(Registries.BIOME, key));
+		return context.lookup(Registries.BIOME).getOrThrow(ResourceKeys.build(Registries.BIOME, key));
 	}
 
 	/**
@@ -65,7 +65,7 @@ public class ExtBiome {
 	 * @return
 	 */
 	public static final Holder<Biome> datagenStageModHolder(BootstrapContext<?> context, String key) {
-		return context.lookup(Registries.BIOME).getOrThrow(ResourceKeyBuilder.build(Registries.BIOME, Core.ModId, key));
+		return context.lookup(Registries.BIOME).getOrThrow(ResourceKeys.build(Registries.BIOME, Core.ModId, key));
 	}
 
 	/**

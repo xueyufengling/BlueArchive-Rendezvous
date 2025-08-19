@@ -1,7 +1,7 @@
 package fw.terrain;
 
 import fw.core.Core;
-import fw.resources.ResourceKeyBuilder;
+import fw.resources.ResourceKeys;
 import lyra.object.ObjectManipulator;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
@@ -40,7 +40,7 @@ public class Df {
 	}
 
 	public Holder<NoiseParameters> param(String noiseParametersKey) {
-		return param(ResourceKeyBuilder.build(Registries.NOISE, noiseParametersKey));
+		return param(ResourceKeys.build(Registries.NOISE, noiseParametersKey));
 	}
 
 	public DensityFunction modParam(String noiseParametersKey) {
@@ -73,7 +73,7 @@ public class Df {
 	 * @return
 	 */
 	public DensityFunction func(String densityFunctionsKey) {
-		return func(ResourceKeyBuilder.build(Registries.DENSITY_FUNCTION, densityFunctionsKey));
+		return func(ResourceKeys.build(Registries.DENSITY_FUNCTION, densityFunctionsKey));
 	}
 
 	/**

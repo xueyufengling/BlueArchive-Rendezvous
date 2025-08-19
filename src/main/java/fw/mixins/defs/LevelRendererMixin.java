@@ -13,6 +13,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 
 import fw.client.render.sky.CloudColor;
+import fw.client.render.sky.Sky;
 import fw.client.render.sky.SkyColor;
 import fw.mixins.internal.Internal;
 import fw.mixins.internal.LevelRendererInternal;
@@ -37,7 +38,7 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
 	private ClientLevel level;
 
 	@Inject(method = "renderLevel", at = @At(value = "HEAD"))
-	private void initParams(DeltaTracker deltaTracker, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f frustumMatrix, Matrix4f projectionMatrix, CallbackInfo ci) {
+	private void renderLevel_initParams(DeltaTracker deltaTracker, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f frustumMatrix, Matrix4f projectionMatrix, CallbackInfo ci) {
 		LevelRendererInternal.RenderLevel.Args.store((LevelRenderer) (Object) this, deltaTracker, renderBlockOutline, camera, gameRenderer, lightTexture, frustumMatrix, projectionMatrix, ci);
 		LevelRendererInternal.RenderLevel.LocalVars.store(level);
 	}
@@ -55,19 +56,53 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
 	}
 
 	@Inject(method = "renderLevel", at = @At(value = "RETURN", shift = Shift.BEFORE), cancellable = true)
-	private void before_return(DeltaTracker deltaTracker, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f frustumMatrix, Matrix4f projectionMatrix, CallbackInfo ci) {
+	private void renderLevel_before_return(DeltaTracker deltaTracker, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f frustumMatrix, Matrix4f projectionMatrix, CallbackInfo ci) {
 		LevelRendererInternal.RenderLevel.Args.store((LevelRenderer) (Object) this, deltaTracker, renderBlockOutline, camera, gameRenderer, lightTexture, frustumMatrix, projectionMatrix, ci);
 		Internal.Callbacks.invoke(LevelRendererInternal.RenderLevel.Callbacks.before_return);
 	}
 
 	@Inject(method = "renderLevel", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/LevelRenderer;checkPoseStack(Lcom/mojang/blaze3d/vertex/PoseStack;)V", ordinal = 0, shift = Shift.BEFORE), cancellable = true)
-	private void before_1st_checkPoseStack(DeltaTracker deltaTracker, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f frustumMatrix, Matrix4f projectionMatrix, CallbackInfo ci) {
+	private void renderLevel_before_1st_checkPoseStack(DeltaTracker deltaTracker, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f frustumMatrix, Matrix4f projectionMatrix, CallbackInfo ci) {
 		LevelRendererInternal.RenderLevel.Args.store((LevelRenderer) (Object) this, deltaTracker, renderBlockOutline, camera, gameRenderer, lightTexture, frustumMatrix, projectionMatrix, ci);
 		Internal.Callbacks.invoke(LevelRendererInternal.RenderLevel.Callbacks.before_1st_checkPoseStack);
 	}
 
 	@Inject(method = "renderLevel", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;disableBlend()V", shift = Shift.BEFORE), cancellable = true)
-	private void before_RenderSystem_disableBlend(DeltaTracker deltaTracker, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f frustumMatrix, Matrix4f projectionMatrix, CallbackInfo ci) {
+	private void renderLevel_before_RenderSystem_disableBlend(DeltaTracker deltaTracker, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f frustumMatrix, Matrix4f projectionMatrix, CallbackInfo ci) {
 		Internal.Callbacks.invoke(LevelRendererInternal.RenderLevel.Callbacks.before_RenderSystem_disableBlend);
+	}
+
+	/**
+	 * renderSky()
+	 * 
+	 * @param frustumMatrix
+	 * @param projectionMatrix
+	 * @param partialTick
+	 * @param camera
+	 * @param isFoggy
+	 * @param skyFogSetup
+	 * @param ci
+	 */
+	@Inject(method = "renderSky", at = @At(value = "HEAD"))
+	private void renderSky_initParams(Matrix4f frustumMatrix, Matrix4f projectionMatrix, float partialTick, Camera camera, boolean isFoggy, Runnable skyFogSetup, CallbackInfo ci) {
+		LevelRendererInternal.RenderSky.Args.store((LevelRenderer) (Object) this, frustumMatrix, projectionMatrix, partialTick, camera, isFoggy, skyFogSetup, ci);
+	}
+
+	@Inject(method = "renderSky", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;popPose()V", ordinal = 1, shift = Shift.AFTER), cancellable = true)
+	private void renderSky_after_2nd_popPose(Matrix4f frustumMatrix, Matrix4f projectionMatrix, float partialTick, Camera camera, boolean isFoggy, Runnable skyFogSetup, CallbackInfo ci) {
+		Internal.Callbacks.invoke(LevelRendererInternal.RenderSky.Callbacks.after_2nd_popPose);
+	}
+
+	/**
+	 * @param red
+	 * @param green
+	 * @param blue
+	 * @param alpha 与下雨有关
+	 * @param orig
+	 */
+	@WrapOperation(method = "renderSky", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;setShaderColor(FFFF)V", ordinal = 2))
+	private void renderSky_modifySunMoonShaderColor(float red, float green, float blue, float alpha, Operation<Void> orig) {
+		float[] color = Sky.celestialColor.resolve(red, green, blue, alpha);
+		orig.call(color[0], color[1], color[2], color[3]);
 	}
 }

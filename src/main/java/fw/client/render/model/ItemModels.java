@@ -9,7 +9,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 
 import fw.items.Items;
 import fw.mixins.internal.ItemRendererInternal;
-import fw.resources.ResourceLocationBuilder;
+import fw.resources.ResourceLocations;
 import lyra.object.ObjectManipulator;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.ItemRenderer;
@@ -122,7 +122,7 @@ public class ItemModels {
 	}
 
 	public static void setInventoryModel(String item_id, String model_resloc, Item item) {
-		setInventoryModel(item_id, ResourceLocationBuilder.build(model_resloc), item);
+		setInventoryModel(item_id, ResourceLocations.build(model_resloc), item);
 	}
 
 	public static void setInventoryModel(String item_id, String model_resloc, String item) {
@@ -150,7 +150,7 @@ public class ItemModels {
 	}
 
 	public static void setInHandModel(String item_id, String model_resloc, Item item) {
-		setInHandModel(item_id, ResourceLocationBuilder.build(model_resloc), item);
+		setInHandModel(item_id, ResourceLocations.build(model_resloc), item);
 	}
 
 	public static void setInHandModel(String item_id, String model_resloc, String item) {

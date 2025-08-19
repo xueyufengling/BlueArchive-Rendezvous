@@ -8,7 +8,7 @@ import fw.core.registry.MutableMappedRegistry;
 import fw.core.registry.registries.server.DynamicRegistries;
 import fw.datagen.EntryHolder;
 import fw.event.ServerLifecycleTrigger;
-import fw.resources.ResourceKeyBuilder;
+import fw.resources.ResourceKeys;
 import lyra.alpha.reference.FieldReference;
 import lyra.object.ObjectManipulator;
 import net.minecraft.core.registries.Registries;
@@ -121,7 +121,7 @@ public class Dimensions {
 	}
 
 	public static final void redirectOverworld(String dimensionType, String levelStem) {
-		redirectOverworld(ResourceKeyBuilder.build(Registries.DIMENSION_TYPE, dimensionType), ResourceKeyBuilder.build(Registries.LEVEL_STEM, levelStem));
+		redirectOverworld(ResourceKeys.build(Registries.DIMENSION_TYPE, dimensionType), ResourceKeys.build(Registries.LEVEL_STEM, levelStem));
 	}
 
 	/**

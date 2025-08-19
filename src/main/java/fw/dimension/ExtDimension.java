@@ -6,7 +6,7 @@ import fw.core.registry.MappedRegistryAccess;
 import fw.core.registry.RegistryMap;
 import fw.core.registry.registries.server.DynamicRegistries;
 import fw.datagen.EntryHolder;
-import fw.resources.ResourceKeyBuilder;
+import fw.resources.ResourceKeys;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.KeyDispatchDataCodec;
@@ -27,7 +27,7 @@ public class ExtDimension {
 		}
 
 		public static final ResourceKey<DimensionType> key(String name) {
-			return ResourceKeyBuilder.build(Registries.DIMENSION_TYPE, name);
+			return ResourceKeys.build(Registries.DIMENSION_TYPE, name);
 		}
 
 		public static final DimensionType get(String name) {
@@ -44,7 +44,7 @@ public class ExtDimension {
 		}
 
 		public static final ResourceKey<LevelStem> key(String name) {
-			return ResourceKeyBuilder.build(Registries.LEVEL_STEM, name);
+			return ResourceKeys.build(Registries.LEVEL_STEM, name);
 		}
 
 		/**
@@ -65,11 +65,11 @@ public class ExtDimension {
 		 * @return
 		 */
 		public static final ResourceKey<Level> levelKey(ResourceKey<LevelStem> levelStem) {
-			return levelStem == null ? null : ResourceKeyBuilder.build(Registries.DIMENSION, levelStem.location());
+			return levelStem == null ? null : ResourceKeys.build(Registries.DIMENSION, levelStem.location());
 		}
 
 		public static final ResourceKey<Level> levelKey(String levelStem) {
-			return levelStem == null ? null : ResourceKeyBuilder.build(Registries.DIMENSION, levelStem);
+			return levelStem == null ? null : ResourceKeys.build(Registries.DIMENSION, levelStem);
 		}
 	}
 
@@ -82,7 +82,7 @@ public class ExtDimension {
 		}
 
 		public static final ResourceKey<NoiseGeneratorSettings> key(String name) {
-			return ResourceKeyBuilder.build(Registries.NOISE_SETTINGS, name);
+			return ResourceKeys.build(Registries.NOISE_SETTINGS, name);
 		}
 	}
 
@@ -94,11 +94,11 @@ public class ExtDimension {
 		public static final RegistryMap<MapCodec<? extends DensityFunction>> DENSITY_FUNCTION_TYPES = RegistryMap.of(Registries.DENSITY_FUNCTION_TYPE);
 
 		public static final ResourceKey<DensityFunction> key(String name) {
-			return ResourceKeyBuilder.build(Registries.DENSITY_FUNCTION, name);
+			return ResourceKeys.build(Registries.DENSITY_FUNCTION, name);
 		}
 
 		public static final ResourceKey<MapCodec<? extends DensityFunction>> typeKey(String name) {
-			return ResourceKeyBuilder.build(Registries.DENSITY_FUNCTION_TYPE, name);
+			return ResourceKeys.build(Registries.DENSITY_FUNCTION_TYPE, name);
 		}
 
 		/**

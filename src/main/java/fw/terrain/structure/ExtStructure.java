@@ -17,7 +17,7 @@ import fw.codec.derived.MapCodecHolder;
 import fw.core.registry.HolderSets;
 import fw.core.registry.RegistryMap;
 import fw.datagen.EntryHolder;
-import fw.resources.ResourceKeyBuilder;
+import fw.resources.ResourceKeys;
 import fw.terrain.structure.template.JigsawPlacementContext;
 import fw.terrain.structure.template.JigsawPlacementContext.StartPosResolver;
 import lyra.klass.KlassWalker;
@@ -272,7 +272,7 @@ public abstract class ExtStructure extends Structure implements MapCodecHolder<S
 		}
 
 		public static final ResourceKey<StructureType<?>> key(String name) {
-			return ResourceKeyBuilder.build(Registries.STRUCTURE_TYPE, name);
+			return ResourceKeys.build(Registries.STRUCTURE_TYPE, name);
 		}
 
 		/**

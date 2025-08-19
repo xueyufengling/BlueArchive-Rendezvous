@@ -10,7 +10,7 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 
 import fw.client.render.GLStates;
 import fw.client.render.TesselatorInstance;
-import fw.resources.ResourceLocationBuilder;
+import fw.resources.ResourceLocations;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -153,19 +153,19 @@ public class GuiGraphicsContext {
 	}
 
 	public static void blitImage(PoseStack poseStack, String atlasLocation, int x1, int x2, int y1, int y2, int blitOffset, float minU, float maxU, float minV, float maxV) {
-		blitImage(poseStack, ResourceLocationBuilder.build(atlasLocation), x1, x2, y1, y2, blitOffset, minU, maxU, minV, maxV);
+		blitImage(poseStack, ResourceLocations.build(atlasLocation), x1, x2, y1, y2, blitOffset, minU, maxU, minV, maxV);
 	}
 
 	public static void blitImage(PoseStack poseStack, String atlasLocation, int x1, int x2, int y1, int y2, float minU, float maxU, float minV, float maxV) {
-		blitImage(poseStack, ResourceLocationBuilder.build(atlasLocation), x1, x2, y1, y2, DEFAULT_BLIT_OFFSET, minU, maxU, minV, maxV);
+		blitImage(poseStack, ResourceLocations.build(atlasLocation), x1, x2, y1, y2, DEFAULT_BLIT_OFFSET, minU, maxU, minV, maxV);
 	}
 
 	public static void blitImage(PoseStack poseStack, String atlasLocation, int x1, int x2, int y1, int y2, int blitOffset) {
-		blitImage(poseStack, ResourceLocationBuilder.build(atlasLocation), x1, x2, y1, y2, blitOffset, DEFAULT_BEGIN_U, DEFAULT_END_U, DEFAULT_BEGIN_V, DEFAULT_END_V);
+		blitImage(poseStack, ResourceLocations.build(atlasLocation), x1, x2, y1, y2, blitOffset, DEFAULT_BEGIN_U, DEFAULT_END_U, DEFAULT_BEGIN_V, DEFAULT_END_V);
 	}
 
 	public static void blitImage(PoseStack poseStack, String atlasLocation, int x1, int x2, int y1, int y2) {
-		blitImage(poseStack, ResourceLocationBuilder.build(atlasLocation), x1, x2, y1, y2, DEFAULT_BLIT_OFFSET, DEFAULT_BEGIN_U, DEFAULT_END_U, DEFAULT_BEGIN_V, DEFAULT_END_V);
+		blitImage(poseStack, ResourceLocations.build(atlasLocation), x1, x2, y1, y2, DEFAULT_BLIT_OFFSET, DEFAULT_BEGIN_U, DEFAULT_END_U, DEFAULT_BEGIN_V, DEFAULT_END_V);
 	}
 
 	/**

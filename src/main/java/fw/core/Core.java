@@ -8,7 +8,7 @@ import fw.Config;
 import fw.codec.annotation.CodecAutogen;
 import fw.core.registry.RegistryFactory;
 import fw.datagen.annotation.RegistryEntry;
-import fw.resources.ResourceLocationBuilder;
+import fw.resources.ResourceLocations;
 import lyra.filesystem.KlassPath;
 import lyra.internal.oops.markWord;
 import lyra.klass.JarKlassLoader;
@@ -128,7 +128,7 @@ public class Core {
 	 * @return
 	 */
 	public static ResourceLocation modResourceLocation(String loc) {
-		return ResourceLocationBuilder.build(Core.ModId, loc);
+		return ResourceLocations.build(Core.ModId, loc);
 	}
 
 	public static String modNamespacedId(String id) {

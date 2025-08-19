@@ -9,7 +9,7 @@ import java.util.function.Supplier;
 
 import fw.items.ExtCreativeTab;
 import fw.items.ExtItem;
-import fw.resources.ResourceLocationBuilder;
+import fw.resources.ResourceLocations;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
@@ -77,7 +77,7 @@ public class RegistryMap<R> {
 	 * @return
 	 */
 	public <E extends R> DeferredHolder<R, E> register(String name, Supplier<E> sup, Object... args) {
-		ResourceLocation loc = ResourceLocationBuilder.build(name);
+		ResourceLocation loc = ResourceLocations.build(name);
 		namespaces.add(loc.getNamespace());// 将当前注册的元素命名空间加入集合
 		DeferredHolder<R, E> entry = (DeferredHolder<R, E>) getDeferredRegister(loc.getNamespace()).register(loc.getPath(), sup);
 		entriesMap.put(name, entry);

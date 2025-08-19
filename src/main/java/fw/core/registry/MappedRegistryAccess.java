@@ -5,7 +5,7 @@ import java.util.IdentityHashMap;
 
 import fw.core.Core;
 import fw.event.ClientLifecycleTrigger;
-import fw.resources.ResourceLocationBuilder;
+import fw.resources.ResourceLocations;
 import lyra.klass.KlassWalker;
 import lyra.object.ObjectManipulator;
 import net.minecraft.core.MappedRegistry;
@@ -161,6 +161,6 @@ public class MappedRegistryAccess {
 	public static <T> T getValue(Registry<T> registry, String reslocWithNamespace) {
 		if (registry == null)
 			return null;
-		return registry.get(ResourceLocationBuilder.build(reslocWithNamespace));
+		return registry.get(ResourceLocations.build(reslocWithNamespace));
 	}
 }

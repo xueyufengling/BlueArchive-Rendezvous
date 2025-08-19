@@ -4,8 +4,8 @@ import java.lang.invoke.MethodHandle;
 import java.util.ArrayList;
 import java.util.List;
 
-import fw.resources.ResourceKeyBuilder;
-import fw.resources.TagKeyBuilder;
+import fw.resources.ResourceKeys;
+import fw.resources.TagKeys;
 import lyra.lang.Handles;
 import lyra.object.ObjectManipulator;
 import net.minecraft.core.Holder;
@@ -40,14 +40,14 @@ public class HolderSets {
 	public static final <T> HolderSet.Direct<T> build(Registry<T> registry, List<String> elements) {
 		ArrayList<Holder<T>> holders = new ArrayList<>();
 		for (String id : elements)
-			holders.add(registry.getHolderOrThrow(ResourceKeyBuilder.build(registry.key(), id)));
+			holders.add(registry.getHolderOrThrow(ResourceKeys.build(registry.key(), id)));
 		return HolderSet.direct(holders);
 	}
 
 	public static final <T> HolderSet.Direct<T> build(Registry<T> registry, String... elements) {
 		ArrayList<Holder<T>> holders = new ArrayList<>();
 		for (String id : elements)
-			holders.add(registry.getHolderOrThrow(ResourceKeyBuilder.build(registry.key(), id)));
+			holders.add(registry.getHolderOrThrow(ResourceKeys.build(registry.key(), id)));
 		return HolderSet.direct(holders);
 	}
 
@@ -63,7 +63,7 @@ public class HolderSets {
 		HolderGetter<T> holderGetter = context.lookup(registryKey);
 		ArrayList<Holder<T>> holders = new ArrayList<>();
 		for (String id : elements)
-			holders.add(holderGetter.getOrThrow(ResourceKeyBuilder.build(registryKey, id)));
+			holders.add(holderGetter.getOrThrow(ResourceKeys.build(registryKey, id)));
 		return HolderSet.direct(holders);
 	}
 
@@ -71,7 +71,7 @@ public class HolderSets {
 		HolderGetter<T> holderGetter = context.lookup(registryKey);
 		ArrayList<Holder<T>> holders = new ArrayList<>();
 		for (String id : elements)
-			holders.add(holderGetter.getOrThrow(ResourceKeyBuilder.build(registryKey, id)));
+			holders.add(holderGetter.getOrThrow(ResourceKeys.build(registryKey, id)));
 		return HolderSet.direct(holders);
 	}
 
@@ -107,15 +107,15 @@ public class HolderSets {
 	}
 
 	public static final <T> HolderSet.Named<T> newHolderSet$Named(HolderOwner<T> owner, ResourceKey<T> key) {
-		return newHolderSet$Named(owner, TagKeyBuilder.build(key));
+		return newHolderSet$Named(owner, TagKeys.build(key));
 	}
 
 	public static final <T> HolderSet.Named<T> newHolderSet$Named(HolderOwner<T> owner, ResourceKey<? extends Registry<T>> registryKey, ResourceLocation loc) {
-		return newHolderSet$Named(owner, TagKeyBuilder.build(registryKey, loc));
+		return newHolderSet$Named(owner, TagKeys.build(registryKey, loc));
 	}
 
 	public static final <T> HolderSet.Named<T> newHolderSet$Named(HolderOwner<T> owner, ResourceKey<? extends Registry<T>> registryKey, String loc) {
-		return newHolderSet$Named(owner, TagKeyBuilder.build(registryKey, loc));
+		return newHolderSet$Named(owner, TagKeys.build(registryKey, loc));
 	}
 
 	/**
@@ -127,7 +127,7 @@ public class HolderSets {
 	 * @return
 	 */
 	public static final <T> HolderSet.Named<T> getOrCreate(Registry<T> registry, ResourceKey<T> key) {
-		return registry.getOrCreateTag(TagKeyBuilder.build(key));
+		return registry.getOrCreateTag(TagKeys.build(key));
 	}
 
 	public static final <T> HolderSet.Named<T> getOrCreate(Registry<T> registry, TagKey<T> key) {
@@ -139,11 +139,11 @@ public class HolderSets {
 	}
 
 	public static final <T> HolderSet.Named<T> getOrCreate(Registry<T> registry, ResourceKey<? extends Registry<T>> registryKey, ResourceLocation loc) {
-		return getOrCreate(registry, TagKeyBuilder.build(registryKey, loc));
+		return getOrCreate(registry, TagKeys.build(registryKey, loc));
 	}
 
 	public static final <T> HolderSet.Named<T> getOrCreate(Registry<T> registry, ResourceKey<? extends Registry<T>> registryKey, String loc) {
-		return getOrCreate(registry, TagKeyBuilder.build(registryKey, loc));
+		return getOrCreate(registry, TagKeys.build(registryKey, loc));
 	}
 
 	/**
@@ -160,15 +160,15 @@ public class HolderSets {
 	}
 
 	public static final <T> Named<T> get(BootstrapContext<?> context, ResourceKey<? extends Registry<T>> registryKey, ResourceKey<T> key) {
-		return get(context, registryKey, TagKeyBuilder.build(registryKey, key));
+		return get(context, registryKey, TagKeys.build(registryKey, key));
 	}
 
 	public static final <T> Named<T> get(BootstrapContext<?> context, ResourceKey<? extends Registry<T>> registryKey, ResourceLocation loc) {
-		return get(context, registryKey, TagKeyBuilder.build(registryKey, loc));
+		return get(context, registryKey, TagKeys.build(registryKey, loc));
 	}
 
 	public static final <T> Named<T> get(BootstrapContext<?> context, ResourceKey<? extends Registry<T>> registryKey, String key) {
-		return get(context, registryKey, TagKeyBuilder.build(registryKey, key));
+		return get(context, registryKey, TagKeys.build(registryKey, key));
 	}
 
 	/**
@@ -248,14 +248,14 @@ public class HolderSets {
 	public static final <T> HolderSet.Named<T> set(String name, Registry<T> registry, List<String> elements) {
 		ArrayList<Holder<T>> holders = new ArrayList<>();
 		for (String id : elements)
-			holders.add(registry.getHolderOrThrow(ResourceKeyBuilder.build(registry.key(), id)));
+			holders.add(registry.getHolderOrThrow(ResourceKeys.build(registry.key(), id)));
 		return setContents(getOrCreate(registry, name), holders);
 	}
 
 	public static final <T> HolderSet.Named<T> set(String name, Registry<T> registry, String... elements) {
 		ArrayList<Holder<T>> holders = new ArrayList<>();
 		for (String id : elements)
-			holders.add(registry.getHolderOrThrow(ResourceKeyBuilder.build(registry.key(), id)));
+			holders.add(registry.getHolderOrThrow(ResourceKeys.build(registry.key(), id)));
 		return setContents(getOrCreate(registry, name), holders);
 	}
 
@@ -285,7 +285,7 @@ public class HolderSets {
 		else {
 			ArrayList<Holder<T>> holders = new ArrayList<>();
 			for (String id : elements)
-				holders.add(registry.getHolderOrThrow(ResourceKeyBuilder.build(registry.key(), id)));
+				holders.add(registry.getHolderOrThrow(ResourceKeys.build(registry.key(), id)));
 			return setContents(holderSet, holders);
 		}
 	}
@@ -298,7 +298,7 @@ public class HolderSets {
 		else {
 			ArrayList<Holder<T>> holders = new ArrayList<>();
 			for (String id : elements)
-				holders.add(registry.getHolderOrThrow(ResourceKeyBuilder.build(registry.key(), id)));
+				holders.add(registry.getHolderOrThrow(ResourceKeys.build(registry.key(), id)));
 			return setContents(holderSet, holders);
 		}
 	}
@@ -324,7 +324,7 @@ public class HolderSets {
 		HolderSet.Named<T> holderSet = getOrCreate(registry, name);
 		ArrayList<Holder<T>> holders = new ArrayList<>();
 		for (String id : elements)
-			holders.add(registry.getHolderOrThrow(ResourceKeyBuilder.build(registry.key(), id)));
+			holders.add(registry.getHolderOrThrow(ResourceKeys.build(registry.key(), id)));
 		holders.addAll(getContents(holderSet));
 		return setContents(holderSet, holders);
 	}
@@ -333,7 +333,7 @@ public class HolderSets {
 		HolderSet.Named<T> holderSet = getOrCreate(registry, name);
 		ArrayList<Holder<T>> holders = new ArrayList<>();
 		for (String id : elements)
-			holders.add(registry.getHolderOrThrow(ResourceKeyBuilder.build(registry.key(), id)));
+			holders.add(registry.getHolderOrThrow(ResourceKeys.build(registry.key(), id)));
 		holders.addAll(getContents(holderSet));
 		return setContents(holderSet, holders);
 	}

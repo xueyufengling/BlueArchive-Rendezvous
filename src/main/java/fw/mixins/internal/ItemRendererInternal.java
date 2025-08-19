@@ -6,7 +6,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 
-import fw.resources.ResourceLocationBuilder;
+import fw.resources.ResourceLocations;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.resources.model.BakedModel;
@@ -41,7 +41,7 @@ public class ItemRendererInternal {
 	 */
 	public static final BakedModel emptyItemModel() {
 		if (EMPTY_MODEL == null)
-			EMPTY_MODEL = Render.Args.this_.getItemModelShaper().getModelManager().getModel(new ModelResourceLocation(ResourceLocationBuilder.build("minecraft:air"), "inventory"));
+			EMPTY_MODEL = Render.Args.this_.getItemModelShaper().getModelManager().getModel(new ModelResourceLocation(ResourceLocations.build("minecraft:air"), "inventory"));
 		return EMPTY_MODEL;
 	}
 

@@ -1,6 +1,6 @@
 package fw.client.render.renderable;
 
-import fw.resources.ResourceLocationBuilder;
+import fw.resources.ResourceLocations;
 import net.minecraft.resources.ResourceLocation;
 
 public class TextureAtlas implements Cloneable {
@@ -92,7 +92,7 @@ public class TextureAtlas implements Cloneable {
 		}
 
 		public EquidistantTextureAtlas(String loc, int row, int column, int stride_x, int stride_y, int begin_offset_x, int begin_offset_y, int end_offset_x, int end_offset_y) {
-			this(ResourceLocationBuilder.build(loc), row, column, stride_x, stride_y, begin_offset_x, begin_offset_y, end_offset_x, end_offset_y);
+			this(ResourceLocations.build(loc), row, column, stride_x, stride_y, begin_offset_x, begin_offset_y, end_offset_x, end_offset_y);
 		}
 
 		public EquidistantTextureAtlas(ResourceLocation loc, int row, int column, int stride_x, int stride_y) {
