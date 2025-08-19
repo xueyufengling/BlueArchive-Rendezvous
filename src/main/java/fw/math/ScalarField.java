@@ -2,7 +2,6 @@ package fw.math;
 
 import fw.math.algebra.BinaryOperator;
 import fw.math.algebra.Operator;
-import fw.math.algebra.Term;
 import fw.math.algebra.TernaryOperator;
 import fw.math.algebra.UnaryOperator;
 
@@ -19,26 +18,6 @@ public interface ScalarField {
 	 * @return
 	 */
 	public double value(double x, double z);
-
-	/**
-	 * 将一个标量场和项打包为一个新函数
-	 * 
-	 * @param lastStepCalc
-	 * @param thisTerm
-	 * @return
-	 */
-	public static ScalarField wrap(ScalarField lastStepWrappedCalc, Term<ScalarField, ?> thisTerm) {
-		return (double x, double z) -> thisTerm.calculate(lastStepWrappedCalc).value(x, z);
-	}
-
-	@SuppressWarnings("unchecked")
-	public static <O2> Term<ScalarField, O2> term(Operator<ScalarField, ?, O2> op, O2... operands) {
-		return Term.of(op, operands);
-	}
-
-	public static Term<ScalarField, ScalarField> term(UnaryOperator<ScalarField, ScalarField> op) {
-		return Term.of(op);
-	}
 
 	/**
 	 * 无关xz坐标的常量场
@@ -165,16 +144,6 @@ public interface ScalarField {
 	 * 标量场算子
 	 */
 	public static class Operators {
-		/**
-		 * 作为HeightMap起始赋值
-		 */
-		public static final BinaryOperator<ScalarField, ScalarField, ScalarField> ASSIGN = binary_operator((double v1, double v2) -> v2);
-
-		/**
-		 * 舍弃下一个操作数
-		 */
-		public static final Operator<ScalarField, ScalarField, ScalarField> DISCARD = operator((double v1, double... v2) -> v1);
-
 		public static final BinaryOperator<ScalarField, ScalarField, ScalarField> ADD = binary_operator((double v1, double v2) -> v1 + v2);
 		public static final BinaryOperator<ScalarField, ScalarField, ScalarField> SUB = binary_operator((double v1, double v2) -> v1 - v2);
 		public static final BinaryOperator<ScalarField, ScalarField, ScalarField> MUL = binary_operator((double v1, double v2) -> v1 * v2);

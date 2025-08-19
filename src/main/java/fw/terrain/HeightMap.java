@@ -46,24 +46,16 @@ public abstract class HeightMap implements DensityFunction.SimpleFunction, KeyDi
 
 	public HeightMap() {
 		KeyDispatchDataCodecHolder.super.construct(DensityFunction.class);
-		height_samplers.add(ScalarField.term(ScalarField.Operators.ASSIGN, (double x, double z) -> this.getHeightValue(x, z)));
+		height_samplers.add(Term.of((double x, double z) -> this.getHeightValue(x, z)));
 	}
 
 	public final int entryNum() {
 		return height_samplers.size();
 	}
 
-	public final ScalarField wrap() {
-		ScalarField finalCalc = (ScalarField) height_samplers.get(0).operands[0];// this.getHeightValue()
-		for (int idx = 1; idx < height_samplers.size(); ++idx) {
-			finalCalc = ScalarField.wrap(finalCalc, height_samplers.get(idx));
-		}
-		return finalCalc;
-	}
-
 	@Override
 	public final double value(double x, double z) {
-		return wrap().value(x, z);
+		return Term.resolve(this.height_samplers).value().value(x, z);
 	}
 
 	@Override
@@ -101,7 +93,7 @@ public abstract class HeightMap implements DensityFunction.SimpleFunction, KeyDi
 	 */
 	@SuppressWarnings("unchecked")
 	public static final <O> HeightMap op(HeightMap hm, Operator<ScalarField, ?, O> op, O... oprands) {
-		hm.height_samplers.add(ScalarField.term(op, oprands));
+		hm.height_samplers.add(Term.of(op, oprands));
 		return hm;
 	}
 
@@ -113,7 +105,7 @@ public abstract class HeightMap implements DensityFunction.SimpleFunction, KeyDi
 	 * @return
 	 */
 	public static final HeightMap op(HeightMap hm, UnaryOperator<ScalarField, ScalarField> op) {
-		hm.height_samplers.add(ScalarField.term(op));
+		hm.height_samplers.add(Term.of(op));
 		return hm;
 	}
 

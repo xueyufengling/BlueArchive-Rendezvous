@@ -16,4 +16,16 @@ public interface Operator<R, O1, O2> {
 	 */
 	@SuppressWarnings("unchecked")
 	public abstract R calculate(O1 operand1, O2... operands);
+
+	/**
+	 * 最终值只取右操作数
+	 */
+	@SuppressWarnings("rawtypes")
+	public static final BinaryOperator ASSIGN = (Object obj1, Object obj2) -> obj2;
+
+	/**
+	 * 舍弃全部右操作数
+	 */
+	@SuppressWarnings("rawtypes")
+	public static final Operator DISCARD = (Object obj, Object... objs) -> obj;
 }

@@ -99,14 +99,14 @@ public class FractalOctaveSimplexNoiseHeightMap extends HeightMap {
 	public FractalOctaveSimplexNoiseHeightMap(double height_bias, double min_height, double max_height, double x_factor, double z_factor, long seed, boolean use_noise_offsets, Integer... octaves) {
 		this(height_bias, min_height, max_height);
 		this.noise = new OctaveSimplexNoise(NOISE_BIAS, Math.abs(height_bias - min_height), x_factor, z_factor, seed, use_noise_offsets, List.of(octaves));
-		this.fractal_settings = new FractalNoise(noise, FractalNoise.Entry.of(1.0, 1.0));// 添加本底
+		this.fractal_settings = new FractalNoise(noise, FractalNoise.Component.of(1.0, 1.0));// 添加本底
 	}
 
 	public FractalOctaveSimplexNoiseHeightMap(double height_bias, double min_height, double max_height, double xz_factor, long seed, boolean use_noise_offsets, Integer... octaves) {
 		this(height_bias, min_height, max_height, xz_factor, xz_factor, seed, use_noise_offsets, octaves);
 	}
 
-	public final FractalOctaveSimplexNoiseHeightMap addFractalComponents(FractalNoise.Entry... entries) {
+	public final FractalOctaveSimplexNoiseHeightMap addFractalComponents(FractalNoise.Component... entries) {
 		fractal_settings.addComponents(entries);
 		return this;
 	}
@@ -121,9 +121,9 @@ public class FractalOctaveSimplexNoiseHeightMap extends HeightMap {
 		}
 	}
 
-	public final FractalOctaveSimplexNoiseHeightMap applyAbsInvertRidges(FractalNoise.Entry... fractal_components) {
+	public final FractalOctaveSimplexNoiseHeightMap applyAbsInvertRidges(FractalNoise.Component... fractal_components) {
 		this.addThis(FractalNoise.absInvertRidges(new FractalNoise(noise, fractal_components), noise.bias, noise.amplitude));
-		double k = FractalNoise.Entry.scaledAdditionalHeight(fractal_components);
+		double k = FractalNoise.Component.scaledAdditionalHeight(fractal_components);
 		this.height_bias -= k * height;// 经验值
 		return this;
 	}

@@ -51,13 +51,13 @@ public class FractalNoise implements ScalarField, Cloneable {
 	}
 
 	@AsDataField
-	public static class Entry {
+	public static class Component {
 		static {
 			CodecAutogen.CodecGenerator.Codec();
 		}
 
 		@CodecAutogen(null_if_empty = true)
-		public static final Codec<Entry> CODEC = null;
+		public static final Codec<Component> CODEC = null;
 
 		@CodecEntry
 		public final double scale_amplitude;
@@ -88,7 +88,7 @@ public class FractalNoise implements ScalarField, Cloneable {
 		public final double offset_y;
 
 		@CodecTarget
-		private Entry(double scale_amplitude, double scale_x, double scale_y, double offset_x, double offset_y) {
+		private Component(double scale_amplitude, double scale_x, double scale_y, double offset_x, double offset_y) {
 			this.scale_amplitude = scale_amplitude;
 			this.scale_x = scale_x;
 			this.scale_y = scale_y;
@@ -96,15 +96,15 @@ public class FractalNoise implements ScalarField, Cloneable {
 			this.offset_y = offset_y;
 		}
 
-		public static final Entry of(double scale_amplitude, double scale_x, double scale_y, double offset_x, double offset_y) {
-			return new Entry(scale_amplitude, scale_x, scale_y, offset_x, offset_y);
+		public static final Component of(double scale_amplitude, double scale_x, double scale_y, double offset_x, double offset_y) {
+			return new Component(scale_amplitude, scale_x, scale_y, offset_x, offset_y);
 		}
 
-		public static final Entry of(double scale_amplitude, double scale_x, double scale_y) {
+		public static final Component of(double scale_amplitude, double scale_x, double scale_y) {
 			return of(scale_amplitude, scale_x, scale_y, 0, 0);
 		}
 
-		public static final Entry of(double scale_amplitude, double scale_xy) {
+		public static final Component of(double scale_amplitude, double scale_xy) {
 			return of(scale_amplitude, scale_xy, scale_xy);
 		}
 
@@ -114,9 +114,9 @@ public class FractalNoise implements ScalarField, Cloneable {
 		 * @param fractal_components
 		 * @return
 		 */
-		public static final double scaledAdditionalHeight(FractalNoise.Entry... fractal_components) {
+		public static final double scaledAdditionalHeight(FractalNoise.Component... fractal_components) {
 			double additional_height = 0;
-			for (FractalNoise.Entry entry : fractal_components)
+			for (FractalNoise.Component entry : fractal_components)
 				additional_height += entry.scale_amplitude;
 			return additional_height;
 		}
@@ -129,10 +129,10 @@ public class FractalNoise implements ScalarField, Cloneable {
 	private ScalarField noise;
 
 	@CodecEntry
-	private List<Entry> fractal_components;
+	private List<Component> fractal_components;
 
 	@CodecTarget
-	private FractalNoise(List<Entry> fractal_components) {
+	private FractalNoise(List<Component> fractal_components) {
 		this.fractal_components = fractal_components;
 	}
 
@@ -140,7 +140,7 @@ public class FractalNoise implements ScalarField, Cloneable {
 		this.fractal_components = new ArrayList<>();
 	}
 
-	public FractalNoise(ScalarField noise, Entry... fractal_components) {
+	public FractalNoise(ScalarField noise, Component... fractal_components) {
 		this.fractal_components = new ArrayList<>();
 		this.fractal_components.addAll(List.of(fractal_components));
 		if (noise == null)
@@ -180,7 +180,7 @@ public class FractalNoise implements ScalarField, Cloneable {
 		return this;
 	}
 
-	public FractalNoise addComponents(Entry... fractal_components) {
+	public FractalNoise addComponents(Component... fractal_components) {
 		this.fractal_components.addAll(List.of(fractal_components));
 		return this;
 	}
@@ -189,7 +189,7 @@ public class FractalNoise implements ScalarField, Cloneable {
 	public double value(double x, double z) {
 		double result = 0;
 		for (int layer_idx = 0; layer_idx < fractal_components.size(); ++layer_idx) {
-			Entry entry = fractal_components.get(layer_idx);
+			Component entry = fractal_components.get(layer_idx);
 			result += layer_transform.transform(layer_idx, x, z, noise.value(x * entry.scale_x + entry.offset_x, z * entry.scale_y + entry.offset_y) * entry.scale_amplitude);
 		}
 		return final_transform.transform(-1, x, z, result);
@@ -214,7 +214,7 @@ public class FractalNoise implements ScalarField, Cloneable {
 
 	public static final double scaledAdditionalHeight(FractalNoise noise) {
 		double additional_height = 0;
-		for (FractalNoise.Entry entry : noise.fractal_components)
+		for (FractalNoise.Component entry : noise.fractal_components)
 			additional_height += entry.scale_amplitude;
 		return additional_height;
 	}
