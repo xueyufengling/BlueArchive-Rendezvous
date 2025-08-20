@@ -52,8 +52,8 @@ public class ShittimChestBiomes extends ExtBiomeSource {
 
 	@RegistryEntry
 	public static final EntryHolder<Biome> shittim_chest = ExtBiome.register(SHITTIM_CHEST_ID, ExtBiome.build(
-			false,
-			0,
+			true,
+			0.2f,
 			Biome.TemperatureModifier.NONE,
 			0,
 			ExtBiome.buildBiomeSpecialEffects(0xD2EFFD, 0x47C6FA, 0x62DEFB, 0xA4E2FC, null),

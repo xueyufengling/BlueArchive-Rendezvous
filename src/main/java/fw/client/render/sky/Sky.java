@@ -3,6 +3,7 @@ package fw.client.render.sky;
 import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import fw.client.render.VertexBufferManipulator;
 import fw.client.render.scene.RenderableObject;
 import fw.client.render.scene.SceneGraphNode;
 import fw.mixins.internal.LevelRendererInternal;
@@ -127,6 +128,20 @@ public class Sky {
 
 	public static final void setFixedCelestialColor(float red, float green, float blue) {
 		setCelestialColorResolver(CelestialColorResolver.fixed(red, green, blue));
+	}
+
+	public static VertexBufferManipulator.ColorResolver sunColor;
+
+	public static final void setSunColorResolver(VertexBufferManipulator.ColorResolver resolver) {
+		sunColor = resolver;
+	}
+
+	public static final void setFixedSunColor(int red, int green, int blue, int alpha) {
+		setSunColorResolver(VertexBufferManipulator.ColorResolver.fixed(red, green, blue, alpha));
+	}
+
+	public static final void setFixedSunColor(int red, int green, int blue) {
+		setSunColorResolver(VertexBufferManipulator.ColorResolver.fixedRGB(red, green, blue));
 	}
 
 	public static final SceneGraphNode CELESTIAL_BODYS = SceneGraphNode.createSceneGraph();

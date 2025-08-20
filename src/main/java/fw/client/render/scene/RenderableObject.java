@@ -190,9 +190,9 @@ public class RenderableObject implements Renderable {
 	 * @param a
 	 * @return
 	 */
-	public static RenderableObject quad(Texture texture, float width, float z, float r, float g, float b, float a) {
-		float hw_ratio = texture.height() / texture.width();
-		float height = width * hw_ratio;
+	public static RenderableObject quad(Texture texture, float scale, float z, float r, float g, float b, float a) {
+		float width = texture.width() * scale;
+		float height = texture.height() * scale;
 		RenderableObject obj = new RenderableObject(texture.location()).loadData();
 		obj.addVertex(-width / 2, -height / 2, z, texture.u1(), texture.v1(), r, g, b, a);
 		obj.addVertex(-width / 2, height / 2, z, texture.u1(), texture.v2(), r, g, b, a);
@@ -201,15 +201,15 @@ public class RenderableObject implements Renderable {
 		return obj.flushData();
 	}
 
-	public static RenderableObject quad(Texture texture, float width, float z, float a) {
-		return quad(texture, width, z, 1.0f, 1.0f, 1.0f, a);
+	public static RenderableObject quad(Texture texture, float scale, float z, float a) {
+		return quad(texture, scale, z, 1.0f, 1.0f, 1.0f, a);
 	}
 
 	public static RenderableObject quad(Texture texture, float z, float a) {
-		return quad(texture, texture.width(), z, a);
+		return quad(texture, 1, z, a);
 	}
 
 	public static RenderableObject quad(Texture texture, float z) {
-		return quad(texture, texture.width(), 10);
+		return quad(texture, z, 1.0f);
 	}
 }

@@ -51,6 +51,29 @@ public class NearEarthObject {
 		}
 	}
 
+	@FunctionalInterface
+	public static interface Spin {
+		/**
+		 * 实时计算自旋角速度
+		 * 
+		 * @param time tick为单位
+		 * @return
+		 */
+		public abstract float angularSpeed(float time);
+
+		public static final Spin ZERO = (float time) -> 0;
+
+		/**
+		 * 固定自旋角速度
+		 * 
+		 * @param omega
+		 * @return
+		 */
+		public static Spin fixed(float omega) {
+			return (float time) -> omega;
+		}
+	}
+
 	/**
 	 * 轨道
 	 */
@@ -132,6 +155,8 @@ public class NearEarthObject {
 
 	private Orbit orbit;
 
+	private Spin spin = Spin.ZERO;
+
 	private NearEarthObject(SceneGraphNode node, Orbit orbit) {
 		this.node = node;
 		this.orbit = orbit;
@@ -139,6 +164,11 @@ public class NearEarthObject {
 
 	public final NearEarthObject setOrbit(Orbit orbit) {
 		this.orbit = orbit;
+		return this;
+	}
+
+	public final NearEarthObject setSpin(Spin spin) {
+		this.spin = spin;
 		return this;
 	}
 
@@ -157,6 +187,7 @@ public class NearEarthObject {
 	private void updateTransform(float player_x, float player_z) {
 		Matrix4f incline = new Matrix4f();
 		incline.rotate(Axis.XP.rotationDegrees(-90.0f));// 绕正x轴旋转90°，让物体位于仰视视角
+		incline.rotate(Axis.YN.rotation(spin.angularSpeed(LevelRendererInternal.RenderLevel.LocalVars.time)));
 		Pos pos = orbit.position(LevelRendererInternal.RenderLevel.LocalVars.time);// 计算轨道坐标
 		incline.translate(new Vector3f((pos.object_x - player_x) / pos.distance_decay, (player_z - pos.object_z) / pos.distance_decay, pos.view_height));
 		node.transform = incline;

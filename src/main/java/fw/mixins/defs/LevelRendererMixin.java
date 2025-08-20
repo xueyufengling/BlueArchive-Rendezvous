@@ -1,5 +1,7 @@
 package fw.mixins.defs;
 
+import java.util.Arrays;
+
 import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -11,10 +13,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.MeshData;
 
+import fw.client.render.VertexBufferManipulator;
 import fw.client.render.sky.CloudColor;
 import fw.client.render.sky.Sky;
 import fw.client.render.sky.SkyColor;
+import fw.client.render.sky.WeatherEffect;
 import fw.mixins.internal.Internal;
 import fw.mixins.internal.LevelRendererInternal;
 import net.minecraft.client.Camera;
@@ -104,5 +110,29 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
 	private void renderSky_modifySunMoonShaderColor(float red, float green, float blue, float alpha, Operation<Void> orig) {
 		float[] color = Sky.celestialColor.resolve(red, green, blue, alpha);
 		orig.call(color[0], color[1], color[2], color[3]);
+	}
+
+	@WrapOperation(method = "renderSky", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/BufferUploader;drawWithShader(Lcom/mojang/blaze3d/vertex/MeshData;)V", ordinal = 1))
+	private void renderSky_modifySunVertexBuffer(MeshData mesh, Operation<Void> orig) {
+		VertexBufferManipulator.modifyVertexColor(mesh, DefaultVertexFormat.POSITION_TEX, Sky.sunColor);
+		orig.call(mesh);
+	}
+
+	/**
+	 * 下雨渲染
+	 * 
+	 * @param mesh
+	 * @param orig
+	 */
+	@WrapOperation(method = "renderSnowAndRain", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/BufferUploader;drawWithShader(Lcom/mojang/blaze3d/vertex/MeshData;)V", ordinal = 0))
+	private void renderSnowAndRain_modifyRainVertexBuffer(MeshData mesh, Operation<Void> orig) {
+		VertexBufferManipulator.modifyVertexColor(mesh, DefaultVertexFormat.PARTICLE, WeatherEffect.rainColorResolver);
+		orig.call(mesh);
+	}
+
+	@WrapOperation(method = "renderSnowAndRain", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/BufferUploader;drawWithShader(Lcom/mojang/blaze3d/vertex/MeshData;)V", ordinal = 1))
+	private void renderSnowAndRain_modifySnowVertexBuffer(MeshData mesh, Operation<Void> orig) {
+		VertexBufferManipulator.modifyVertexColor(mesh, DefaultVertexFormat.PARTICLE, WeatherEffect.snowColorResolver);
+		orig.call(mesh);
 	}
 }

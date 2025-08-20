@@ -126,7 +126,8 @@ public class SceneGraphNode extends Node<String, RenderableObject> implements Re
 	private float[] shaderColor = new float[] { 1.0f, 1.0f, 1.0f, 1.0f };
 
 	/**
-	 * 设置顶点颜色
+	 * 设置顶点的纹理颜色各个通道的贡献比例。<br>
+	 * 实际颜色为纹理颜色各个通道值乘以该比例，如果要可直观控制颜色，则纹理应当三色通道值相等。
 	 * 
 	 * @param r
 	 * @param g
@@ -134,7 +135,7 @@ public class SceneGraphNode extends Node<String, RenderableObject> implements Re
 	 * @param a
 	 * @return
 	 */
-	public SceneGraphNode setShaderColor(float r, float g, float b, float a) {
+	public SceneGraphNode setTexColorChannelRatio(float r, float g, float b, float a) {
 		shaderColor[0] = r;
 		shaderColor[1] = g;
 		shaderColor[2] = b;
