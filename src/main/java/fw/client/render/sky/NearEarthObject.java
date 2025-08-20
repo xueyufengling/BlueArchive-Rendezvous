@@ -11,7 +11,8 @@ import net.minecraft.world.phys.Vec3;
 
 /**
  * 近地物体渲染追踪器<br>
- * 负责为指定物体设置变换矩阵
+ * 负责为指定物体设置变换矩阵<br>
+ * 近地物体指玩家x、z坐标变化时物体会有形状剪切，y坐标变化时，物体在玩家视野中的位置固定不变。
  */
 public class NearEarthObject {
 	private SceneGraphNode node;
@@ -94,6 +95,28 @@ public class NearEarthObject {
 		}
 
 		/**
+		 * 圆心在其他轨道上的圆形轨道
+		 * 
+		 * @param center_orbit  圆心所处轨道，该轨道只取x、z值
+		 * @param radius
+		 * @param view_height
+		 * @param angular_speed
+		 * @param initial_phase
+		 * @return
+		 */
+		public static Orbit circle(Orbit center_orbit, float radius, float view_height, float angular_speed, float initial_phase) {
+			return (float time) -> {
+				float phase = initial_phase + angular_speed * time;
+				Pos center = center_orbit.position(time);
+				return Pos.of(center.object_x + (float) Math.sin(phase) * radius, center.object_z + (float) Math.cos(phase) * radius, view_height);
+			};
+		}
+
+		public static Orbit circle(Orbit center_orbit, float radius, float view_height, float angular_speed) {
+			return circle(center_orbit, radius, view_height, angular_speed, 0);
+		}
+
+		/**
 		 * @param center_x
 		 * @param center_z
 		 * @param radius
@@ -112,10 +135,6 @@ public class NearEarthObject {
 	private NearEarthObject(SceneGraphNode node, Orbit orbit) {
 		this.node = node;
 		this.orbit = orbit;
-	}
-
-	private NearEarthObject(SceneGraphNode node, float object_x, float object_z, float view_height) {
-		this(node, Orbit.fixed(object_x, object_z, view_height));
 	}
 
 	public final NearEarthObject setOrbit(Orbit orbit) {

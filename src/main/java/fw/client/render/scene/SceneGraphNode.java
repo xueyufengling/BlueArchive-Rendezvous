@@ -57,6 +57,10 @@ public class SceneGraphNode extends Node<String, RenderableObject> implements Re
 		return new SceneGraphNode(name, parent);
 	}
 
+	private static String[] parsePath(String path) {
+		return path.split("/");
+	}
+
 	/**
 	 * 创建场景图
 	 * 
@@ -66,23 +70,25 @@ public class SceneGraphNode extends Node<String, RenderableObject> implements Re
 		return new SceneGraphNode();
 	}
 
-	public static final SceneGraphNode createGroupNode(String name) {
-		return new SceneGraphNode(name);
+	/**
+	 * 创建空节点或返回已有节点
+	 * 
+	 * @param path 节点路径，以"/"作为分隔符
+	 * @return
+	 */
+	public final SceneGraphNode createNode(String path) {
+		return (SceneGraphNode) this.findChildNode(parsePath(path), true);
 	}
 
-	public static final SceneGraphNode createGroupNode(String name, Matrix4f transform) {
-		SceneGraphNode group = createGroupNode(name);
+	public final SceneGraphNode createNode(String path, Matrix4f transform) {
+		SceneGraphNode group = createNode(path);
 		group.transform = transform;
 		return group;
 	}
 
-	public static final SceneGraphNode createRenderableNode(String name, RenderableObject renderable) {
-		return new SceneGraphNode(name, renderable);
-	}
-
-	public final SceneGraphNode attachRenderableNode(String name, RenderableObject renderable) {
-		SceneGraphNode node = createRenderableNode(name, renderable);
-		this.attachChildNode(node);
+	public final SceneGraphNode createRenderableNode(String path, RenderableObject renderable) {
+		SceneGraphNode node = createNode(path);
+		node.value = renderable;
 		return node;
 	}
 

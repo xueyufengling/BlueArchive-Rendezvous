@@ -82,9 +82,14 @@ public class Kivotos {
 	@ModInit(exec_stage = ModInit.Stage.CLIENT_CONNECT)
 	private static void initHalos() {
 		ExecuteIn.Client(() -> {
-			SceneGraphNode node = Sky.render("new_sun", RenderableObject.quad(Texture.of("ba:textures/sky/halo/halo.png"), 0.4f, 0.8f));
-			NearEarthObject.bind(node, NearEarthObject.Orbit.circle(0, 0, 64, 1, 3.14f / 200f));
-			node.setShaderColor(1, 0, 0, 1);
+			RenderableObject halo = RenderableObject.quad(Texture.of("ba:textures/sky/halo/halo.png"), 0.4f, 0.8f);
+			// SceneGraphNode central_halo0 = Sky.renderFixedNearEarthObject("kivotos/halo/central_halo0", halo, 0, 0, 0);
+			// SceneGraphNode central_halo1 = Sky.renderFixedNearEarthObject("kivotos/halo/central_halo1", halo, 0, 0, -2);
+			float omega = 3.14f / 200f;
+			NearEarthObject.Orbit orbit = NearEarthObject.Orbit.circle(0, 0, 256, 1.0f, omega / 4);
+			SceneGraphNode central_halo2 = Sky.renderNearEarthObject("kivotos/halo/central_halo2", halo, orbit);
+			NearEarthObject.Orbit orbit2 = NearEarthObject.Orbit.circle(orbit, 32, 1.0f, omega);
+			SceneGraphNode central_halo3 = Sky.renderNearEarthObject("kivotos/halo/central_halo2/central_halo3", halo, orbit2);
 		});
 	}
 

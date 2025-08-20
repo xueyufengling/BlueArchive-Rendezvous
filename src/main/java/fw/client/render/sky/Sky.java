@@ -143,7 +143,44 @@ public class Sky {
 	 * 
 	 * @param obj
 	 */
-	public static SceneGraphNode render(String name, RenderableObject obj) {
-		return CELESTIAL_BODYS.attachRenderableNode(name, obj);
+	public static SceneGraphNode render(String path, RenderableObject obj) {
+		return CELESTIAL_BODYS.createRenderableNode(path, obj);
+	}
+
+	public static SceneGraphNode renderNearEarthObject(String path, RenderableObject obj, NearEarthObject.Orbit orbit) {
+		SceneGraphNode node = render(path, obj);
+		NearEarthObject.bind(node, orbit);
+		return node;
+	}
+
+	public static SceneGraphNode renderFixedNearEarthObject(String path, RenderableObject obj, float object_x, float object_z, float view_height) {
+		SceneGraphNode node = render(path, obj);
+		NearEarthObject.bind(node, object_x, object_z, view_height);
+		return node;
+	}
+
+	/**
+	 * 渲染圆形轨道近地物体
+	 * 
+	 * @param path
+	 * @param obj
+	 * @param center_x
+	 * @param center_z
+	 * @param radius
+	 * @param view_height
+	 * @param angular_speed
+	 * @param initial_phase
+	 * @return
+	 */
+	public static SceneGraphNode renderCircleOrbitNearEarthObject(String path, RenderableObject obj, float center_x, float center_z, float radius, float view_height, float angular_speed, float initial_phase) {
+		SceneGraphNode node = render(path, obj);
+		NearEarthObject.bind(node, NearEarthObject.Orbit.circle(center_x, center_z, radius, view_height, angular_speed, initial_phase));
+		return node;
+	}
+
+	public static SceneGraphNode renderCircleOrbitNearEarthObject(String path, RenderableObject obj, float center_x, float center_z, float radius, float view_height, float angular_speed) {
+		SceneGraphNode node = render(path, obj);
+		NearEarthObject.bind(node, NearEarthObject.Orbit.circle(center_x, center_z, radius, view_height, angular_speed));
+		return node;
 	}
 }
