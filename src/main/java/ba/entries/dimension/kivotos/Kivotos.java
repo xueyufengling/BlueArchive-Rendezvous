@@ -3,16 +3,18 @@ package ba.entries.dimension.kivotos;
 import java.util.List;
 import java.util.OptionalLong;
 
-import fw.client.render.RenderableObject;
 import fw.client.render.renderable.Texture;
+import fw.client.render.scene.RenderableObject;
+import fw.client.render.scene.SceneGraphNode;
 import fw.client.render.sky.CloudColor;
+import fw.client.render.sky.NearEarthObject;
 import fw.client.render.sky.Sky;
 import fw.client.render.sky.SkyColor;
 import fw.core.ExecuteIn;
+import fw.core.ModInit;
 import fw.datagen.EntryHolder;
 import fw.datagen.annotation.RegistryEntry;
 import fw.dimension.ExtDimension;
-import fw.event.ClientLifecycleTrigger;
 import fw.math.interpolation.ColorLinearInterpolation;
 import fw.math.interpolation.Vec3LinearInterpolation;
 import fw.terrain.Df;
@@ -20,7 +22,6 @@ import fw.terrain.biome.ExtBiome;
 import fw.terrain.decoration.Decoration;
 import fw.terrain.decoration.TerrainDecorator;
 import fw.terrain.decoration.TerrainTest;
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.RegistryAccess;
@@ -46,6 +47,7 @@ public class Kivotos {
 
 	static {
 		RegistryEntry.RegistriesProvider.forDatagen();
+		ModInit.Initializer.forInit();
 		ExecuteIn.Client(() -> {
 			CloudColor.setLevelCloudColorResolver(ID,
 					ColorLinearInterpolation
@@ -73,11 +75,16 @@ public class Kivotos {
 							.append(21000, 0.3) // 3 h
 							.append(22500, 0.3)// 4.5 h
 			);
-			Sky.setFixedCelestialColor(1, 1, 1, 1);
+			Sky.setFixedCelestialColor(0.5f, 0.5f, 0.5f, 1);
 		});
-		ClientLifecycleTrigger.CLIENT_CONNECT.addCallback((ClientLevel level, RegistryAccess.Frozen registryAccess) -> {
-			// Sky.render(RenderableObject.quad(Texture.of("ba:textures/sky/sun.png")));
-			Sky.setSunTexture("ba:textures/sky/sun.png");
+	}
+
+	@ModInit(exec_stage = ModInit.Stage.CLIENT_CONNECT)
+	private static void initHalos() {
+		ExecuteIn.Client(() -> {
+			SceneGraphNode node = Sky.render("new_sun", RenderableObject.quad(Texture.of("ba:textures/sky/halo/halo.png"), 0.4f, 0.8f));
+			NearEarthObject.bind(node, NearEarthObject.Orbit.circle(0, 0, 64, 1, 3.14f / 200f));
+			node.setShaderColor(1, 0, 0, 1);
 		});
 	}
 

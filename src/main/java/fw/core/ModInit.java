@@ -10,6 +10,7 @@ import java.lang.reflect.Method;
 import lyra.klass.KlassWalker;
 import lyra.lang.DynamicConcurrentArrayList;
 import lyra.lang.JavaLang;
+import lyra.lang.internal.ReflectionBase;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
@@ -33,7 +34,7 @@ public @interface ModInit {
 	};
 
 	public static enum Stage {
-		PRE_INIT, POST_INIT
+		PRE_INIT, POST_INIT, PRE_REGISTER, POST_REGISTER, CLIENT_CONNECT
 	}
 
 	/**
@@ -76,6 +77,7 @@ public @interface ModInit {
 													args[i] = event;
 											}
 											try {
+												ReflectionBase.setAccessible(m, true);
 												m.invoke(obj, args);
 											} catch (IllegalAccessException | InvocationTargetException e) {
 												Core.logError("@CoreInit method " + m + " execute failed.", e);

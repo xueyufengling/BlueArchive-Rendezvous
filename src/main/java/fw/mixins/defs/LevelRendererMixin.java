@@ -40,7 +40,7 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
 	@Inject(method = "renderLevel", at = @At(value = "HEAD"))
 	private void renderLevel_initParams(DeltaTracker deltaTracker, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f frustumMatrix, Matrix4f projectionMatrix, CallbackInfo ci) {
 		LevelRendererInternal.RenderLevel.Args.store((LevelRenderer) (Object) this, deltaTracker, renderBlockOutline, camera, gameRenderer, lightTexture, frustumMatrix, projectionMatrix, ci);
-		LevelRendererInternal.RenderLevel.LocalVars.store(level);
+		LevelRendererInternal.RenderLevel.LocalVars.store(level, deltaTracker);
 	}
 
 	@WrapOperation(method = "renderSky", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/ClientLevel;getSkyColor(Lnet/minecraft/world/phys/Vec3;F)Lnet/minecraft/world/phys/Vec3;"))

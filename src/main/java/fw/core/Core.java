@@ -8,6 +8,7 @@ import fw.Config;
 import fw.codec.annotation.CodecAutogen;
 import fw.core.registry.RegistryFactory;
 import fw.datagen.annotation.RegistryEntry;
+import fw.event.ClientLifecycleTrigger;
 import fw.resources.ResourceLocations;
 import lyra.filesystem.KlassPath;
 import lyra.internal.oops.markWord;
@@ -15,6 +16,8 @@ import lyra.klass.JarKlassLoader;
 import lyra.klass.KlassLoader;
 import lyra.object.ObjectManipulator;
 import lyra.vm.Vm;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.EventPriority;
@@ -27,6 +30,7 @@ import net.neoforged.fml.event.lifecycle.FMLConstructModEvent;
 import net.neoforged.fml.event.lifecycle.ModLifecycleEvent;
 import net.neoforged.fml.javafmlmod.FMLModContainer;
 import net.neoforged.fml.loading.FMLLoader;
+import net.neoforged.neoforge.registries.RegisterEvent;
 
 @EventBusSubscriber(modid = Core.ModId, bus = Bus.MOD)
 public class Core {
@@ -105,6 +109,9 @@ public class Core {
 		ObjectManipulator.setObject(Core.class, "Mod", getModContainer(event));
 		ObjectManipulator.setObject(Core.class, "ModBus", getModEventBus(Mod));// 初始化赋值ModBus
 		loadPackage(internalPackages);
+		ClientLifecycleTrigger.CLIENT_CONNECT.addCallback(EventPriority.HIGHEST, (ClientLevel level, RegistryAccess.Frozen registryAccess) -> {
+			ModInit.Initializer.executeAllInitFuncs(null, ModInit.Stage.CLIENT_CONNECT);
+		});
 		ModInit.Initializer.executeAllInitFuncs(event, ModInit.Stage.PRE_INIT);
 	}
 
@@ -119,6 +126,16 @@ public class Core {
 		RegistryEntry.DeferredEntryHolderRegister.registerAll();
 		RegistryFactory.registerAll();// 注册所有新添加的注册表及其条目
 		ModInit.Initializer.executeAllInitFuncs(event, ModInit.Stage.POST_INIT);
+	}
+
+	@SubscribeEvent(priority = EventPriority.HIGHEST)
+	private static final void preRegister(RegisterEvent event) {
+		ModInit.Initializer.executeAllInitFuncs(null, ModInit.Stage.PRE_REGISTER);
+	}
+
+	@SubscribeEvent(priority = EventPriority.LOWEST)
+	private static final void postRegister(RegisterEvent event) {
+		ModInit.Initializer.executeAllInitFuncs(null, ModInit.Stage.POST_REGISTER);
 	}
 
 	/**

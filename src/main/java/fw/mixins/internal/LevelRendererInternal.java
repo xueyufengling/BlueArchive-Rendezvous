@@ -47,12 +47,14 @@ public class LevelRendererInternal {
 		public static class LocalVars {
 			public static Vec3 camPos;
 			public static Holder<Biome> camPosBiome;
+			public static float time;
 
-			public static final void store(ClientLevel level) {
+			public static final void store(ClientLevel level, DeltaTracker deltaTracker) {
 				// 局部变量
 				Vec3 pos = Args.gameRenderer.getMainCamera().getPosition();
 				LocalVars.camPos = pos;
 				LocalVars.camPosBiome = level.getBiomeManager().getNoiseBiomeAtPosition(pos.x, pos.y, pos.z);
+				LocalVars.time = level.getGameTime() + deltaTracker.getGameTimeDeltaPartialTick(true);
 			}
 		}
 

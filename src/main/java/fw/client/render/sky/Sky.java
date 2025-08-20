@@ -1,11 +1,10 @@
 package fw.client.render.sky;
 
-import java.util.ArrayList;
-
 import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import fw.client.render.RenderableObject;
+import fw.client.render.scene.RenderableObject;
+import fw.client.render.scene.SceneGraphNode;
 import fw.mixins.internal.LevelRendererInternal;
 import fw.resources.ResourceLocations;
 import lyra.object.ObjectManipulator;
@@ -130,13 +129,12 @@ public class Sky {
 		setCelestialColorResolver(CelestialColorResolver.fixed(red, green, blue));
 	}
 
-	private static final ArrayList<RenderableObject> skyRenderables = new ArrayList<>();
+	public static final SceneGraphNode CELESTIAL_BODYS = SceneGraphNode.createSceneGraph();
 
 	static {
 		LevelRendererInternal.RenderSky.Callbacks.addAfter2nd_popPose(
 				(LevelRenderer this_, Matrix4f frustumMatrix, Matrix4f projectionMatrix, float partialTick, Camera camera, boolean isFoggy, Runnable skyFogSetup, CallbackInfo ci) -> {
-					for (RenderableObject obj : skyRenderables)
-						obj.render(frustumMatrix, projectionMatrix);
+					CELESTIAL_BODYS.render(frustumMatrix, projectionMatrix);
 				});
 	}
 
@@ -145,7 +143,7 @@ public class Sky {
 	 * 
 	 * @param obj
 	 */
-	public static void render(RenderableObject obj) {
-		skyRenderables.add(obj);
+	public static SceneGraphNode render(String name, RenderableObject obj) {
+		return CELESTIAL_BODYS.attachRenderableNode(name, obj);
 	}
 }
