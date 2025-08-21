@@ -111,7 +111,6 @@ public class MappedRegistriesClassFileGenerator {
 		/**
 		 * 服务器启动后再收集加载的注册表
 		 */
-		@SuppressWarnings({ "rawtypes", "unchecked" })
 		@SubscribeEvent(priority = EventPriority.LOWEST)
 		private static void onServerStarted(ServerStartedEvent event) {
 			if (gen_file && !Files.exists(Paths.get(dynamicClassPath())) || override_dynamic) {// 动态注册表java源文件存在则且不覆写则不再生成

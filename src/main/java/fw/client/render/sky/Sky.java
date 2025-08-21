@@ -64,84 +64,27 @@ public class Sky {
 		ObjectManipulator.setStaticObject(LevelRenderer.class, FORCEFIELD_LOCATION, ResourceLocations.build(namespacedLoc));
 	}
 
-	public static final String RAIN_LOCATION = "RAIN_LOCATION";
+	public static VertexBufferManipulator.NormalizedColorResolver celestialColor = VertexBufferManipulator.NormalizedColorResolver.NONE;
 
-	public static ResourceLocation getRainTexture() {
-		return (ResourceLocation) ObjectManipulator.getStaticObject(LevelRenderer.class, RAIN_LOCATION);
-	}
-
-	public static void setRainTexture(String namespacedLoc) {
-		ObjectManipulator.setStaticObject(LevelRenderer.class, RAIN_LOCATION, ResourceLocations.build(namespacedLoc));
-	}
-
-	public static final String SNOW_LOCATION = "SNOW_LOCATION";
-
-	public static ResourceLocation getSnowTexture() {
-		return (ResourceLocation) ObjectManipulator.getStaticObject(LevelRenderer.class, SNOW_LOCATION);
-	}
-
-	public static void setSnowTexture(String namespacedLoc) {
-		ObjectManipulator.setStaticObject(LevelRenderer.class, SNOW_LOCATION, ResourceLocations.build(namespacedLoc));
-	}
-
-	@FunctionalInterface
-	public static interface CelestialColorResolver {
-		public float[] resolve(float... colorRGBA);
-
-		public static final CelestialColorResolver NONE = (float... colorRGBA) -> colorRGBA;
-
-		/**
-		 * RGBA均设置成固定颜色
-		 * 
-		 * @param red
-		 * @param green
-		 * @param blue
-		 * @param alpha
-		 * @return
-		 */
-		public static CelestialColorResolver fixed(float red, float green, float blue, float alpha) {
-			return (float... colorRGBA) -> new float[] { red, green, blue, alpha };
-		}
-
-		/**
-		 * RGB重新设置成固定颜色，alpha保持不变
-		 * 
-		 * @param red
-		 * @param green
-		 * @param blue
-		 * @return
-		 */
-		public static CelestialColorResolver fixed(float red, float green, float blue) {
-			return (float... colorRGBA) -> new float[] { red, green, blue, colorRGBA[3] };
-		}
-	}
-
-	public static CelestialColorResolver celestialColor = CelestialColorResolver.NONE;
-
-	public static final void setCelestialColorResolver(CelestialColorResolver resolver) {
+	/**
+	 * 设置太阳、月亮的着色器颜色，即各个通道纹理颜色的贡献值
+	 * 
+	 * @param resolver
+	 */
+	public static final void setCelestialColorResolver(VertexBufferManipulator.NormalizedColorResolver resolver) {
 		celestialColor = resolver;
 	}
 
 	public static final void setFixedCelestialColor(float red, float green, float blue, float alpha) {
-		setCelestialColorResolver(CelestialColorResolver.fixed(red, green, blue, alpha));
+		setCelestialColorResolver(VertexBufferManipulator.NormalizedColorResolver.fixed(red, green, blue, alpha));
 	}
 
 	public static final void setFixedCelestialColor(float red, float green, float blue) {
-		setCelestialColorResolver(CelestialColorResolver.fixed(red, green, blue));
+		setCelestialColorResolver(VertexBufferManipulator.NormalizedColorResolver.fixedRGB(red, green, blue));
 	}
 
-	public static VertexBufferManipulator.ColorResolver sunColor;
-
-	public static final void setSunColorResolver(VertexBufferManipulator.ColorResolver resolver) {
-		sunColor = resolver;
-	}
-
-	public static final void setFixedSunColor(int red, int green, int blue, int alpha) {
-		setSunColorResolver(VertexBufferManipulator.ColorResolver.fixed(red, green, blue, alpha));
-	}
-
-	public static final void setFixedSunColor(int red, int green, int blue) {
-		setSunColorResolver(VertexBufferManipulator.ColorResolver.fixedRGB(red, green, blue));
+	public static final void setFixedCelestialAlpha(float alpha) {
+		setCelestialColorResolver(VertexBufferManipulator.NormalizedColorResolver.fixedA(alpha));
 	}
 
 	public static final SceneGraphNode CELESTIAL_BODYS = SceneGraphNode.createSceneGraph();

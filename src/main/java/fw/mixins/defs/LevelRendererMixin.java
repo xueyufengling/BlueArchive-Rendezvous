@@ -1,7 +1,5 @@
 package fw.mixins.defs;
 
-import java.util.Arrays;
-
 import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -13,14 +11,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.MeshData;
 
 import fw.client.render.VertexBufferManipulator;
-import fw.client.render.sky.CloudColor;
+import fw.client.render.level.LevelColor;
 import fw.client.render.sky.Sky;
 import fw.client.render.sky.SkyColor;
 import fw.client.render.sky.WeatherEffect;
+import fw.common.ColorRGBA;
 import fw.mixins.internal.Internal;
 import fw.mixins.internal.LevelRendererInternal;
 import net.minecraft.client.Camera;
@@ -50,15 +48,21 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
 	}
 
 	@WrapOperation(method = "renderSky", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/ClientLevel;getSkyColor(Lnet/minecraft/world/phys/Vec3;F)Lnet/minecraft/world/phys/Vec3;"))
-	private Vec3 renderSky_modifyAfterGetSkyColor(ClientLevel level, Vec3 pos, float partialTick, Operation<Vec3> orig) {
-		Vec3 o = orig.call(level, pos, partialTick);
-		return SkyColor.resolve(o, level, partialTick, LevelRendererInternal.RenderLevel.LocalVars.camPosBiome, LevelRendererInternal.RenderLevel.LocalVars.camPos, level.getDayTime());
+	private Vec3 renderSky_modifyAfterGetSkyColor(ClientLevel level, Vec3 pos, float partialTick, Operation<Vec3> op) {
+		Vec3 orig = op.call(level, pos, partialTick);
+		return SkyColor.resolveSky(ColorRGBA.of(orig), level, partialTick, LevelRendererInternal.RenderLevel.LocalVars.camPosBiome, LevelRendererInternal.RenderLevel.LocalVars.camPos, LevelRendererInternal.RenderLevel.LocalVars.dayTime).vec3();
+	}
+
+	@WrapOperation(method = "renderSky", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/BufferUploader;drawWithShader(Lcom/mojang/blaze3d/vertex/MeshData;)V", ordinal = 0))
+	private void renderSky_modifyVertexBuffer(MeshData mesh, Operation<Void> orig) {
+		LevelColor.modifyVertexColor(mesh, SkyColor.sunriseColor);
+		orig.call(mesh);
 	}
 
 	@WrapOperation(method = "renderClouds", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/ClientLevel;getCloudColor(F)Lnet/minecraft/world/phys/Vec3;"))
-	private Vec3 renderClouds_modifyAfterGetCloudColor(ClientLevel level, float partialTick, Operation<Vec3> orig) {
-		Vec3 o = orig.call(level, partialTick);
-		return CloudColor.resolve(o, level, partialTick, LevelRendererInternal.RenderLevel.LocalVars.camPosBiome, LevelRendererInternal.RenderLevel.LocalVars.camPos, level.getDayTime());
+	private Vec3 renderClouds_modifyAfterGetCloudColor(ClientLevel level, float partialTick, Operation<Vec3> op) {
+		Vec3 orig = op.call(level, partialTick);
+		return SkyColor.resolveCloud(ColorRGBA.of(orig), level, partialTick, LevelRendererInternal.RenderLevel.LocalVars.camPosBiome, LevelRendererInternal.RenderLevel.LocalVars.camPos, LevelRendererInternal.RenderLevel.LocalVars.dayTime).vec3();
 	}
 
 	@Inject(method = "renderLevel", at = @At(value = "RETURN", shift = Shift.BEFORE), cancellable = true)
@@ -108,14 +112,8 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
 	 */
 	@WrapOperation(method = "renderSky", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;setShaderColor(FFFF)V", ordinal = 2))
 	private void renderSky_modifySunMoonShaderColor(float red, float green, float blue, float alpha, Operation<Void> orig) {
-		float[] color = Sky.celestialColor.resolve(red, green, blue, alpha);
+		float[] color = Sky.celestialColor.color(red, green, blue, alpha);
 		orig.call(color[0], color[1], color[2], color[3]);
-	}
-
-	@WrapOperation(method = "renderSky", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/BufferUploader;drawWithShader(Lcom/mojang/blaze3d/vertex/MeshData;)V", ordinal = 1))
-	private void renderSky_modifySunVertexBuffer(MeshData mesh, Operation<Void> orig) {
-		VertexBufferManipulator.modifyVertexColor(mesh, DefaultVertexFormat.POSITION_TEX, Sky.sunColor);
-		orig.call(mesh);
 	}
 
 	/**
@@ -126,13 +124,19 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
 	 */
 	@WrapOperation(method = "renderSnowAndRain", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/BufferUploader;drawWithShader(Lcom/mojang/blaze3d/vertex/MeshData;)V", ordinal = 0))
 	private void renderSnowAndRain_modifyRainVertexBuffer(MeshData mesh, Operation<Void> orig) {
-		VertexBufferManipulator.modifyVertexColor(mesh, DefaultVertexFormat.PARTICLE, WeatherEffect.rainColorResolver);
+		VertexBufferManipulator.modifyVertexColor(mesh, WeatherEffect.rainColorResolver);
 		orig.call(mesh);
 	}
 
 	@WrapOperation(method = "renderSnowAndRain", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/BufferUploader;drawWithShader(Lcom/mojang/blaze3d/vertex/MeshData;)V", ordinal = 1))
 	private void renderSnowAndRain_modifySnowVertexBuffer(MeshData mesh, Operation<Void> orig) {
-		VertexBufferManipulator.modifyVertexColor(mesh, DefaultVertexFormat.PARTICLE, WeatherEffect.snowColorResolver);
+		VertexBufferManipulator.modifyVertexColor(mesh, WeatherEffect.snowColorResolver);
+		orig.call(mesh);
+	}
+
+	@WrapOperation(method = "renderSnowAndRain", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/BufferUploader;drawWithShader(Lcom/mojang/blaze3d/vertex/MeshData;)V", ordinal = 2))
+	private void renderSnowAndRain_modifyVertexBuffer(MeshData mesh, Operation<Void> orig) {
+		VertexBufferManipulator.modifyVertexColor(mesh, WeatherEffect.rainColorResolver);
 		orig.call(mesh);
 	}
 }

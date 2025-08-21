@@ -45,16 +45,29 @@ public class LevelRendererInternal {
 		}
 
 		public static class LocalVars {
+			public static ClientLevel level;
 			public static Vec3 camPos;
 			public static Holder<Biome> camPosBiome;
-			public static float time;
+			public static float partialTick;
+			/**
+			 * 存档创建起的总时间
+			 */
+			public static float worldTime;
+
+			/**
+			 * 一天的时间
+			 */
+			public static float dayTime;
 
 			public static final void store(ClientLevel level, DeltaTracker deltaTracker) {
+				LocalVars.level = level;
 				// 局部变量
 				Vec3 pos = Args.gameRenderer.getMainCamera().getPosition();
 				LocalVars.camPos = pos;
 				LocalVars.camPosBiome = level.getBiomeManager().getNoiseBiomeAtPosition(pos.x, pos.y, pos.z);
-				LocalVars.time = level.getGameTime() + deltaTracker.getGameTimeDeltaPartialTick(true);
+				LocalVars.partialTick = deltaTracker.getGameTimeDeltaPartialTick(true);
+				LocalVars.worldTime = level.getGameTime() + partialTick;
+				LocalVars.dayTime = level.getDayTime() + partialTick;
 			}
 		}
 

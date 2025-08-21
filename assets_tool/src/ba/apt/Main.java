@@ -2,9 +2,7 @@ package ba.apt;
 
 public class Main {
 	public static void main(String args[]) {
-		BaTexturePreprocessor.applyAlphaChannel("D:\\JavaProjects\\item_bg.png", "D:\\JavaProjects\\fR.png", "D:\\JavaProjects\\item_t1.png");
-		BaTexturePreprocessor.applyAlphaChannel("D:\\JavaProjects\\item_bg.png", "D:\\JavaProjects\\fSR.png", "D:\\JavaProjects\\item_t2.png");
-		BaTexturePreprocessor.applyAlphaChannel("D:\\JavaProjects\\item_bg.png", "D:\\JavaProjects\\fUR.png", "D:\\JavaProjects\\item_t3.png");
+		BaTexturePreprocessor.makeShaderColorTexture("D:\\JavaProjects\\BlueArchive-Rendezvous\\src\\main\\resources\\assets\\ba\\textures\\sky\\environment\\rain.png", "D:\\JavaProjects\\BlueArchive-Rendezvous\\src\\main\\resources\\assets\\ba\\textures\\sky\\environment\\\\raininv.png");
 	}
 
 	public static void tmp() {
@@ -25,5 +23,9 @@ public class Main {
 		ExtItemsClassFileGenerator.generateItemsClassFile(texture_path,
 				"Materials",
 				class_output_path);
+
+		BaTexturePreprocessor.applyAlphaChannel("D:\\JavaProjects\\item_bg.png", "D:\\JavaProjects\\fR.png", "D:\\JavaProjects\\item_t1.png");
+		BaTexturePreprocessor.applyAlphaChannel("D:\\JavaProjects\\item_bg.png", "D:\\JavaProjects\\fSR.png", "D:\\JavaProjects\\item_t2.png");
+		BaTexturePreprocessor.applyAlphaChannel("D:\\JavaProjects\\item_bg.png", "D:\\JavaProjects\\fUR.png", "D:\\JavaProjects\\item_t3.png");
 	}
 }

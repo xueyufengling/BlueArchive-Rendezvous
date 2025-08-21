@@ -1,6 +1,10 @@
 package fw.client.render.sky;
 
 import fw.client.render.VertexBufferManipulator;
+import fw.resources.ResourceLocations;
+import lyra.object.ObjectManipulator;
+import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.resources.ResourceLocation;
 
 public class WeatherEffect {
 
@@ -47,4 +51,25 @@ public class WeatherEffect {
 	public static void setSnowAlpha(int a) {
 		setSnowColorResolver(VertexBufferManipulator.ColorResolver.fixedA(a));
 	}
+
+	public static final String RAIN_LOCATION = "RAIN_LOCATION";
+
+	public static ResourceLocation getRainTexture() {
+		return (ResourceLocation) ObjectManipulator.getStaticObject(LevelRenderer.class, RAIN_LOCATION);
+	}
+
+	public static void setRainTexture(String namespacedLoc) {
+		ObjectManipulator.setStaticObject(LevelRenderer.class, RAIN_LOCATION, ResourceLocations.build(namespacedLoc));
+	}
+
+	public static final String SNOW_LOCATION = "SNOW_LOCATION";
+
+	public static ResourceLocation getSnowTexture() {
+		return (ResourceLocation) ObjectManipulator.getStaticObject(LevelRenderer.class, SNOW_LOCATION);
+	}
+
+	public static void setSnowTexture(String namespacedLoc) {
+		ObjectManipulator.setStaticObject(LevelRenderer.class, SNOW_LOCATION, ResourceLocations.build(namespacedLoc));
+	}
+
 }

@@ -3,21 +3,19 @@ package ba.entries.dimension.kivotos;
 import java.util.List;
 import java.util.OptionalLong;
 
+import ba.client.render.level.LevelRendering;
 import fw.client.render.renderable.Texture;
 import fw.client.render.scene.RenderableObject;
 import fw.client.render.scene.SceneGraphNode;
-import fw.client.render.sky.CloudColor;
 import fw.client.render.sky.NearEarthObject;
 import fw.client.render.sky.Sky;
 import fw.client.render.sky.SkyColor;
-import fw.client.render.sky.WeatherEffect;
 import fw.core.ExecuteIn;
 import fw.core.ModInit;
 import fw.datagen.EntryHolder;
 import fw.datagen.annotation.RegistryEntry;
 import fw.dimension.ExtDimension;
 import fw.math.interpolation.ColorLinearInterpolation;
-import fw.math.interpolation.Vec3LinearInterpolation;
 import fw.terrain.Df;
 import fw.terrain.biome.ExtBiome;
 import fw.terrain.decoration.Decoration;
@@ -49,35 +47,6 @@ public class Kivotos {
 	static {
 		RegistryEntry.RegistriesProvider.forDatagen();
 		ModInit.Initializer.forInit();
-		ExecuteIn.Client(() -> {
-			CloudColor.setLevelCloudColorResolver(ID,
-					ColorLinearInterpolation
-							.begin(0, 214, 186, 159)// 6 h 灰黄
-							.append(3000, 208, 228, 243)// 9 h 灰白
-							.append(6000, 246, 242, 243)// 12 h 亮白
-							.append(9000, 208, 228, 243)// 15 h 灰白
-							.append(12000, 116, 83, 160)// 18 h 紫
-							.append(15000, 68, 139, 203)// 21 h 灰
-							.append(18000, 59, 106, 189)// 0 h 深黑蓝
-							.append(21000, 68, 139, 203)// 3 h 灰
-			);
-			SkyColor.setLevelSkyColorResolver(ID,
-					ColorLinearInterpolation
-							.begin(3000, 90, 145, 198)// 9 h 灰蓝
-							.append(9000, 90, 145, 198)// 15 h 灰蓝
-							.append(15000, 67, 130, 195)// 21 h 夜晚蓝
-							.append(18000, 12, 29, 71)// 0 h 深黑蓝
-							.append(21000, 67, 130, 195), // 3 h 夜晚蓝
-					Vec3LinearInterpolation
-							.begin(3000, 0.1)// 9 h
-							.append(9000, 0.1)// 15 h
-							.append(15000, 0.3)// 21 h
-							.append(18000, 0.7)// 0 h
-							.append(21000, 0.3) // 3 h
-							.append(22500, 0.3)// 4.5 h
-			);
-			Sky.setFixedCelestialColor(0.5f, 0.5f, 0.5f, 1);
-		});
 	}
 
 	@ModInit(exec_stage = ModInit.Stage.CLIENT_CONNECT)
@@ -100,8 +69,8 @@ public class Kivotos {
 			SceneGraphNode inner1_halo1 = Sky.renderNearEarthObject("kivotos/halo/i1", halo30, orbit);
 			NearEarthObject.Orbit orbit2 = NearEarthObject.Orbit.circle(orbit, 80, 1.0f, omega);
 			SceneGraphNode inner1_inner1_halo1 = Sky.renderNearEarthObject("kivotos/halo/i1/i1", halo40, orbit2);
-			WeatherEffect.setRainColor(255, 0, 0);
-			Sky.setFixedSunColor(255, 0, 0);
+			Sky.setFixedCelestialColor(1, 0, 0);
+			LevelRendering.renderColourInvasion();
 		});
 	}
 

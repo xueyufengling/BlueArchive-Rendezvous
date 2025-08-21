@@ -4,14 +4,12 @@ import java.util.List;
 import java.util.OptionalLong;
 
 import ba.entries.biome.shittim_chest.ShittimChestBiomes;
-import fw.client.render.sky.CloudColor;
 import fw.client.render.sky.SkyColor;
 import fw.core.ExecuteIn;
 import fw.datagen.EntryHolder;
 import fw.datagen.annotation.RegistryEntry;
 import fw.dimension.ExtDimension;
 import fw.math.interpolation.ColorLinearInterpolation;
-import fw.math.interpolation.Vec3LinearInterpolation;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.RegistryAccess;
@@ -37,8 +35,8 @@ public class ShittimChest {
 
 	static {
 		RegistryEntry.RegistriesProvider.forDatagen();
-		ExecuteIn.Client(() -> {
-			CloudColor.setLevelCloudColorResolver(ID,
+		ExecuteIn.Client(() -> {/*
+			SkyColor.setLevelCloudColorResolver(ID,
 					ColorLinearInterpolation
 							.begin(0, 214, 186, 159)// 6 h 灰黄
 							.append(3000, 208, 228, 243)// 9 h 灰白
@@ -48,7 +46,7 @@ public class ShittimChest {
 							.append(15000, 68, 139, 203)// 21 h 灰
 							.append(18000, 59, 106, 189)// 0 h 深黑蓝
 							.append(21000, 68, 139, 203)// 3 h 灰
-			);
+			);*/
 			SkyColor.setLevelSkyColorResolver(ID,
 					ColorLinearInterpolation
 							.begin(3000, 90, 145, 198)// 9 h 灰蓝
@@ -56,13 +54,13 @@ public class ShittimChest {
 							.append(15000, 67, 130, 195)// 21 h 夜晚蓝
 							.append(18000, 12, 29, 71)// 0 h 深黑蓝
 							.append(21000, 67, 130, 195), // 3 h 夜晚蓝
-					Vec3LinearInterpolation
-							.begin(3000, 0.1)// 9 h
-							.append(9000, 0.1)// 15 h
-							.append(15000, 0.3)// 21 h
-							.append(18000, 0.7)// 0 h
-							.append(21000, 0.3) // 3 h
-							.append(22500, 0.3)// 4.5 h
+					ColorLinearInterpolation
+							.begin(3000, 0.1f)// 9 h
+							.append(9000, 0.1f)// 15 h
+							.append(15000, 0.3f)// 21 h
+							.append(18000, 0.7f)// 0 h
+							.append(21000, 0.3f) // 3 h
+							.append(22500, 0.3f)// 4.5 h
 			);
 		});
 	}

@@ -187,8 +187,8 @@ public class NearEarthObject {
 	private void updateTransform(float player_x, float player_z) {
 		Matrix4f incline = new Matrix4f();
 		incline.rotate(Axis.XP.rotationDegrees(-90.0f));// 绕正x轴旋转90°，让物体位于仰视视角
-		incline.rotate(Axis.YN.rotation(spin.angularSpeed(LevelRendererInternal.RenderLevel.LocalVars.time)));
-		Pos pos = orbit.position(LevelRendererInternal.RenderLevel.LocalVars.time);// 计算轨道坐标
+		incline.rotate(Axis.YN.rotation(spin.angularSpeed(LevelRendererInternal.RenderLevel.LocalVars.worldTime)));
+		Pos pos = orbit.position(LevelRendererInternal.RenderLevel.LocalVars.worldTime);// 计算轨道坐标
 		incline.translate(new Vector3f((pos.object_x - player_x) / pos.distance_decay, (player_z - pos.object_z) / pos.distance_decay, pos.view_height));
 		node.transform = incline;
 	}

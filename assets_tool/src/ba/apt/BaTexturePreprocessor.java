@@ -186,4 +186,46 @@ public class BaTexturePreprocessor {
 			e.printStackTrace();
 		}
 	}
+
+	/**
+	 * 灰度图并反相
+	 * 
+	 * @param src
+	 * @param dest
+	 */
+	public static final void makeShaderColorTexture(String src, String dest) {
+		try {
+			BufferedImage colorImage = ImageIO.read(new File(src));
+			int width = colorImage.getWidth();
+			int height = colorImage.getHeight();
+			int max_gray = 0;
+			for (int y = 0; y < height; y++) {
+				for (int x = 0; x < width; x++) {
+					int pixel = colorImage.getRGB(x, y);
+					int a = (pixel >> 24) & 0xff;
+					int r = (pixel >> 16) & 0xff;
+					int g = (pixel >> 8) & 0xff;
+					int b = pixel & 0xff;
+					int gray = (int) gray(r, g, b);
+					if (gray > max_gray)
+						max_gray = gray;
+					colorImage.setRGB(x, y, (a << 24) | (gray << 16) | (gray << 8) | gray);
+				}
+			}
+			double grayScale = 255.0 / max_gray;// 需要将原本图像灰度最大值改为255，其他灰度等比例缩放，防止灰度居中时反相颜色没有明显变化都是灰色
+			for (int y = 0; y < height; y++) {
+				for (int x = 0; x < width; x++) {
+					int pixel = colorImage.getRGB(x, y);
+					int a = (pixel >> 24) & 0xff;
+					int r = (pixel >> 16) & 0xff;
+					int gray = (int) (r * grayScale);
+					int inv = 255 - gray;
+					colorImage.setRGB(x, y, (a << 24) | (inv << 16) | (inv << 8) | inv);
+				}
+			}
+			ImageIO.write(colorImage, "PNG", new File(dest));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 }
