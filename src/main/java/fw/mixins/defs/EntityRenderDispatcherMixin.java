@@ -10,6 +10,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 
 import fw.mixins.internal.EntityRenderDispatcherInternal;
 import fw.mixins.internal.Internal;
+import fw.mixins.internal.TargetDescriptors;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
@@ -32,7 +33,7 @@ public abstract class EntityRenderDispatcherMixin implements ResourceManagerRelo
 		EntityRenderDispatcherInternal.Render.LocalVars.store((EntityRenderDispatcher) (Object) this, entity, partialTicks);
 	}
 
-	@Inject(method = "render", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;popPose()V", shift = Shift.BEFORE), cancellable = true)
+	@Inject(method = "render", at = @At(value = "INVOKE", target = TargetDescriptors.LPoseStack.popPose, shift = Shift.BEFORE), cancellable = true)
 	private void before_pose_popPose(Entity entity,
 			double x,
 			double y,

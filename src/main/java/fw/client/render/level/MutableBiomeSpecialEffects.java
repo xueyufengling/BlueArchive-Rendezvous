@@ -21,8 +21,11 @@ import net.minecraft.world.level.biome.AmbientMoodSettings;
 import net.minecraft.world.level.biome.AmbientParticleSettings;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.BiomeSpecialEffects;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.EventPriority;
 
+@OnlyIn(Dist.CLIENT)
 public class MutableBiomeSpecialEffects implements FieldRecoverable<MutableBiomeSpecialEffects> {
 	@FunctionalInterface
 	public static interface TickOperation {

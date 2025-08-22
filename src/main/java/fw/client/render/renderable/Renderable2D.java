@@ -2,9 +2,14 @@ package fw.client.render.renderable;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+
+@OnlyIn(Dist.CLIENT)
 public interface Renderable2D extends Renderable {
 	public void render(PoseStack poseStack, float x1, float y1);
 
+	@OnlyIn(Dist.CLIENT)
 	public abstract class Instance implements Renderable2D {
 		public float offset_x, offset_y;// 相对于渲染左上角点的位移
 		public float width_scale, height_scale;

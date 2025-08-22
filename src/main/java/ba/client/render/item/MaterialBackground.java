@@ -1,7 +1,10 @@
 package ba.client.render.item;
 
 import fw.client.render.item.ItemBackground;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
+@OnlyIn(Dist.CLIENT)
 public class MaterialBackground {
 	private static final ItemBackground T0 = ItemBackground.of("ba:textures/bg/item/item_t0.png");
 	private static final ItemBackground T1 = ItemBackground.of("ba:textures/bg/item/item_t1.png");

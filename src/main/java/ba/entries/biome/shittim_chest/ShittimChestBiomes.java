@@ -4,10 +4,12 @@ import java.util.List;
 
 import com.mojang.serialization.MapCodec;
 
+import ba.client.render.level.LevelRendering;
 import fw.client.render.level.MutableBiomeSpecialEffects;
 import fw.codec.annotation.CodecAutogen;
 import fw.codec.annotation.CodecTarget;
 import fw.codec.derived.DerivedCodecHolder;
+import fw.common.ColorRGBA;
 import fw.core.ExecuteIn;
 import fw.datagen.EntryHolder;
 import fw.datagen.annotation.RegistryEntry;
@@ -56,7 +58,8 @@ public class ShittimChestBiomes extends ExtBiomeSource {
 			0.2f,
 			Biome.TemperatureModifier.NONE,
 			0,
-			ExtBiome.buildBiomeSpecialEffects(0xD2EFFD, 0x47C6FA, 0x62DEFB, 0xA4E2FC, null),
+			ExtBiome.buildBiomeSpecialEffects(ColorRGBA.of(LevelRendering.COLOUR_INVASION_SKY).pack(), 0x47C6FA, 0x62DEFB, ColorRGBA.of(LevelRendering.COLOUR_INVASION_SKY).pack(), null),
+			// ExtBiome.buildBiomeSpecialEffects(0xD2EFFD, 0x47C6FA, 0x62DEFB, 0xA4E2FC, null),
 			MobSpawnSettings.EMPTY,
 			BiomeGenerationSettings.EMPTY));
 

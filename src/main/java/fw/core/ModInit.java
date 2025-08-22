@@ -12,10 +12,16 @@ import lyra.lang.DynamicConcurrentArrayList;
 import lyra.lang.JavaLang;
 import lyra.lang.internal.ReflectionBase;
 import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.Event;
+import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
-import net.neoforged.fml.event.lifecycle.FMLConstructModEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.common.EventBusSubscriber.Bus;
+import net.neoforged.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.neoforged.fml.javafmlmod.FMLModContainer;
+import net.neoforged.neoforge.registries.RegisterEvent;
 
 /**
  * 初始化函数注解、<br>
@@ -34,7 +40,7 @@ public @interface ModInit {
 	};
 
 	public static enum Stage {
-		PRE_INIT, POST_INIT, PRE_REGISTER, POST_REGISTER, CLIENT_CONNECT
+		PRE_INIT, POST_INIT, PRE_REGISTER, POST_REGISTER, LOAD_COMPLETE, CLIENT_CONNECT
 	}
 
 	/**
@@ -46,13 +52,30 @@ public @interface ModInit {
 	 */
 	Stage exec_stage() default Stage.PRE_INIT;
 
+	@EventBusSubscriber(modid = Core.ModId, bus = Bus.MOD)
 	public static class Initializer {
+
+		@SubscribeEvent(priority = EventPriority.HIGHEST)
+		private static final void preRegister(RegisterEvent event) {
+			ModInit.Initializer.executeAllInitFuncs(event, ModInit.Stage.PRE_REGISTER);
+		}
+
+		@SubscribeEvent(priority = EventPriority.LOWEST)
+		private static final void postRegister(RegisterEvent event) {
+			ModInit.Initializer.executeAllInitFuncs(event, ModInit.Stage.POST_REGISTER);
+		}
+
+		@SubscribeEvent(priority = EventPriority.HIGHEST)
+		private static final void preLoadComplete(FMLLoadCompleteEvent event) {
+			ModInit.Initializer.executeAllInitFuncs(event, ModInit.Stage.PRE_REGISTER);
+		}
+
 		/**
 		 * 防止在PRE_INIT注解函数中添加新的@ModInit注解类时报错并发修改List
 		 */
 		private static final DynamicConcurrentArrayList<Class<?>> modInitClasses = new DynamicConcurrentArrayList<>();
 
-		static final void executeAllInitFuncs(FMLConstructModEvent event, Stage run_stage) {
+		static final void executeAllInitFuncs(Event event, Stage run_stage) {
 			ModContainer mod = Core.Mod;
 			IEventBus bus = Core.ModBus;
 			Dist dist = Core.Env;
@@ -73,7 +96,7 @@ public @interface ModInit {
 													args[i] = bus;
 												else if (paramTypes[i] == Dist.class)
 													args[i] = dist;
-												else if (paramTypes[i] == FMLConstructModEvent.class)
+												else if (paramTypes[i] == Event.class)
 													args[i] = event;
 											}
 											try {

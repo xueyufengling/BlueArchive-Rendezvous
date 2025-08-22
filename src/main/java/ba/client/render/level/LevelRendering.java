@@ -3,7 +3,10 @@ package ba.client.render.level;
 import fw.client.render.level.BiomeColor;
 import fw.client.render.sky.SkyColor;
 import fw.client.render.sky.WeatherEffect;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
+@OnlyIn(Dist.CLIENT)
 public class LevelRendering {
 	public static int[] COLOUR_INVASION_SKY = new int[] { 191, 38, 76 };
 	public static int[] COLOUR_INVASION_CLOUD = new int[] { 204, 163, 204 };

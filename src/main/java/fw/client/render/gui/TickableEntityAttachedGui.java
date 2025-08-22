@@ -1,7 +1,10 @@
 package fw.client.render.gui;
 
 import fw.core.Tickable;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
+@OnlyIn(Dist.CLIENT)
 public interface TickableEntityAttachedGui extends Tickable {
 	@Override
 	public default Object tick(Object... args) {

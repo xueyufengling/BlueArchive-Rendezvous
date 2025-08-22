@@ -18,7 +18,10 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
+@OnlyIn(Dist.CLIENT)
 public class ItemModels {
 	// 储存了所有ItemDisplayContext各自对应的模型，以ItemDisplayContext的id为索引
 	private static final ArrayList<HashMap<String, ItemModel>> itemModels = new ArrayList<>();

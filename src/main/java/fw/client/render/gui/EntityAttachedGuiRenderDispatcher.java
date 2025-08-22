@@ -18,7 +18,10 @@ import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.world.entity.Entity;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
+@OnlyIn(Dist.CLIENT)
 public class EntityAttachedGuiRenderDispatcher extends RenderDispatcher<Gui> {
 	public static final EntityAttachedGuiRenderDispatcher DISPATCHER;
 

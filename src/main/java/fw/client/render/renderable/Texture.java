@@ -11,10 +11,13 @@ import fw.client.render.gui.GuiGraphicsContext;
 import fw.core.Core;
 import fw.resources.ResourceLocations;
 import net.minecraft.resources.ResourceLocation;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 /**
  * 纹理图片，内部UV坐标使用原点在左下角，向右向上为正的UV坐标系
  */
+@OnlyIn(Dist.CLIENT)
 public class Texture implements Cloneable {
 
 	@Override

@@ -12,7 +12,10 @@ import lyra.object.ObjectManipulator;
 import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.resources.ResourceLocation;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
+@OnlyIn(Dist.CLIENT)
 public class Sky {
 	public static final String SUN_LOCATION = "SUN_LOCATION";
 

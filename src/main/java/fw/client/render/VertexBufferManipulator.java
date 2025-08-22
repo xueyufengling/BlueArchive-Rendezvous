@@ -8,11 +8,14 @@ import com.mojang.blaze3d.vertex.VertexFormatElement;
 import lyra.klass.InnerKlass;
 import lyra.lang.InternalUnsafe;
 import lyra.object.ObjectManipulator;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 /**
  * 修改MeshData的顶点数据。<br>
  * 可用于在ByteBufferBuilder的build()储存顶点结果后使用此类修改顶点数据<br>
  */
+@OnlyIn(Dist.CLIENT)
 public class VertexBufferManipulator {
 	private VertexFormat vertex_attributes;
 

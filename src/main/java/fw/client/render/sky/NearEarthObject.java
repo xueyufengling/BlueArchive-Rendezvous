@@ -8,12 +8,15 @@ import com.mojang.math.Axis;
 import fw.client.render.scene.SceneGraphNode;
 import fw.mixins.internal.LevelRendererInternal;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 /**
  * 近地物体渲染追踪器<br>
  * 负责为指定物体设置变换矩阵<br>
  * 近地物体指玩家x、z坐标变化时物体会有形状剪切，y坐标变化时，物体在玩家视野中的位置固定不变。
  */
+@OnlyIn(Dist.CLIENT)
 public class NearEarthObject {
 	private SceneGraphNode node;
 

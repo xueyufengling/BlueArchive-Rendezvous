@@ -4,10 +4,13 @@ import com.mojang.blaze3d.vertex.PoseStack;
 
 import fw.core.Tickable;
 import net.minecraft.resources.ResourceLocation;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 /**
  * 一个可渲染的复合2D对象，由多个纹理图片组成，所有纹理按照列表顺序依次渲染，且各个层级之间没有偏移，绘制起点相同
  */
+@OnlyIn(Dist.CLIENT)
 public class CompositeRenderable2D implements Cloneable, Renderable2D, Tickable {
 	// 浅拷贝
 	@Override

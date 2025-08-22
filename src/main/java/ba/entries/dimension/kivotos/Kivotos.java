@@ -69,7 +69,6 @@ public class Kivotos {
 			SceneGraphNode inner1_halo1 = Sky.renderNearEarthObject("kivotos/halo/i1", halo30, orbit);
 			NearEarthObject.Orbit orbit2 = NearEarthObject.Orbit.circle(orbit, 80, 1.0f, omega);
 			SceneGraphNode inner1_inner1_halo1 = Sky.renderNearEarthObject("kivotos/halo/i1/i1", halo40, orbit2);
-			Sky.setFixedCelestialColor(1, 0, 0);
 			LevelRendering.renderColourInvasion();
 		});
 	}

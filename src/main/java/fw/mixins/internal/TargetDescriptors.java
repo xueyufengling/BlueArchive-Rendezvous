@@ -1,0 +1,39 @@
+package fw.mixins.internal;
+
+public class TargetDescriptors {
+	public static class LClientLevel {
+		public static final String getCloudColor = "Lnet/minecraft/client/multiplayer/ClientLevel;getCloudColor(F)Lnet/minecraft/world/phys/Vec3;";
+	}
+
+	public static class LLevelRenderer {
+		public static final String checkPoseStack = "Lnet/minecraft/client/renderer/LevelRenderer;checkPoseStack(Lcom/mojang/blaze3d/vertex/PoseStack;)V";
+	}
+
+	public static class LGuiGraphics {
+		public static final String renderItem = "Lnet/minecraft/client/gui/GuiGraphics;renderItem(Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/level/Level;Lnet/minecraft/world/item/ItemStack;IIII)V";
+	}
+
+	public static class LRenderSystem {
+		public static final String disableBlend = "Lcom/mojang/blaze3d/systems/RenderSystem;disableBlend()V";
+		public static final String setShaderColor = "Lcom/mojang/blaze3d/systems/RenderSystem;setShaderColor(FFFF)V";
+		public static final String clearColor = "Lcom/mojang/blaze3d/systems/RenderSystem;clearColor(FFFF)V";
+	}
+
+	public static class LPoseStack {
+		public static final String popPose = "Lcom/mojang/blaze3d/vertex/PoseStack;popPose()V";
+		public static final String pushPose = "Lcom/mojang/blaze3d/vertex/PoseStack;pushPose()V";
+		public static final String translate = "Lcom/mojang/blaze3d/vertex/PoseStack;translate(FFF)V";
+	}
+
+	public static class LBufferUploader {
+		public static final String drawWithShader = "Lcom/mojang/blaze3d/vertex/BufferUploader;drawWithShader(Lcom/mojang/blaze3d/vertex/MeshData;)V";
+	}
+
+	public static class LItemStack {
+		public static final String hasFoil = "Lnet/minecraft/world/item/ItemStack;hasFoil()Z";
+	}
+
+	public static class LBiome {
+		public static final String getWaterFogColor = "Lnet/minecraft/world/level/biome/Biome;getWaterFogColor()I";
+	}
+}

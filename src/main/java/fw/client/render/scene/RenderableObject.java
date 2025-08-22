@@ -15,10 +15,13 @@ import fw.client.render.renderable.Texture;
 import fw.resources.ResourceLocations;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.resources.ResourceLocation;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 /**
  * OpenGL可渲染对象
  */
+@OnlyIn(Dist.CLIENT)
 public class RenderableObject implements Renderable {
 	/**
 	 * buffer使用策略

@@ -5,10 +5,14 @@ import java.util.Iterator;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+
 /**
  * 根据优先级选择性地绘制复合2D对象，比CompositeRenderable2D更灵活。<br>
  * 支持动态添加和删除待渲染对象，但性能次于CompositeRenderable2D。<br>
  */
+@OnlyIn(Dist.CLIENT)
 public class ConditionalRenderable2D implements Cloneable, Renderable2D {
 	/**
 	 * 绘制策略

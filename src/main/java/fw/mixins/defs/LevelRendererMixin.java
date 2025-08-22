@@ -21,6 +21,7 @@ import fw.client.render.sky.WeatherEffect;
 import fw.common.ColorRGBA;
 import fw.mixins.internal.Internal;
 import fw.mixins.internal.LevelRendererInternal;
+import fw.mixins.internal.TargetDescriptors;
 import net.minecraft.client.Camera;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
@@ -47,19 +48,7 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
 		LevelRendererInternal.RenderLevel.LocalVars.store(level, deltaTracker);
 	}
 
-	@WrapOperation(method = "renderSky", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/ClientLevel;getSkyColor(Lnet/minecraft/world/phys/Vec3;F)Lnet/minecraft/world/phys/Vec3;"))
-	private Vec3 renderSky_modifyAfterGetSkyColor(ClientLevel level, Vec3 pos, float partialTick, Operation<Vec3> op) {
-		Vec3 orig = op.call(level, pos, partialTick);
-		return SkyColor.resolveSky(ColorRGBA.of(orig), level, partialTick, LevelRendererInternal.RenderLevel.LocalVars.camPosBiome, LevelRendererInternal.RenderLevel.LocalVars.camPos, LevelRendererInternal.RenderLevel.LocalVars.dayTime).vec3();
-	}
-
-	@WrapOperation(method = "renderSky", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/BufferUploader;drawWithShader(Lcom/mojang/blaze3d/vertex/MeshData;)V", ordinal = 0))
-	private void renderSky_modifyVertexBuffer(MeshData mesh, Operation<Void> orig) {
-		LevelColor.modifyVertexColor(mesh, SkyColor.sunriseColor);
-		orig.call(mesh);
-	}
-
-	@WrapOperation(method = "renderClouds", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/ClientLevel;getCloudColor(F)Lnet/minecraft/world/phys/Vec3;"))
+	@WrapOperation(method = "renderClouds", at = @At(value = "INVOKE", target = TargetDescriptors.LClientLevel.getCloudColor))
 	private Vec3 renderClouds_modifyAfterGetCloudColor(ClientLevel level, float partialTick, Operation<Vec3> op) {
 		Vec3 orig = op.call(level, partialTick);
 		return SkyColor.resolveCloud(ColorRGBA.of(orig), level, partialTick, LevelRendererInternal.RenderLevel.LocalVars.camPosBiome, LevelRendererInternal.RenderLevel.LocalVars.camPos, LevelRendererInternal.RenderLevel.LocalVars.dayTime).vec3();
@@ -71,13 +60,13 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
 		Internal.Callbacks.invoke(LevelRendererInternal.RenderLevel.Callbacks.before_return);
 	}
 
-	@Inject(method = "renderLevel", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/LevelRenderer;checkPoseStack(Lcom/mojang/blaze3d/vertex/PoseStack;)V", ordinal = 0, shift = Shift.BEFORE), cancellable = true)
+	@Inject(method = "renderLevel", at = @At(value = "INVOKE", target = TargetDescriptors.LLevelRenderer.checkPoseStack, ordinal = 0, shift = Shift.BEFORE), cancellable = true)
 	private void renderLevel_before_1st_checkPoseStack(DeltaTracker deltaTracker, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f frustumMatrix, Matrix4f projectionMatrix, CallbackInfo ci) {
 		LevelRendererInternal.RenderLevel.Args.store((LevelRenderer) (Object) this, deltaTracker, renderBlockOutline, camera, gameRenderer, lightTexture, frustumMatrix, projectionMatrix, ci);
 		Internal.Callbacks.invoke(LevelRendererInternal.RenderLevel.Callbacks.before_1st_checkPoseStack);
 	}
 
-	@Inject(method = "renderLevel", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;disableBlend()V", shift = Shift.BEFORE), cancellable = true)
+	@Inject(method = "renderLevel", at = @At(value = "INVOKE", target = TargetDescriptors.LRenderSystem.disableBlend, shift = Shift.BEFORE), cancellable = true)
 	private void renderLevel_before_RenderSystem_disableBlend(DeltaTracker deltaTracker, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f frustumMatrix, Matrix4f projectionMatrix, CallbackInfo ci) {
 		Internal.Callbacks.invoke(LevelRendererInternal.RenderLevel.Callbacks.before_RenderSystem_disableBlend);
 	}
@@ -98,9 +87,21 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
 		LevelRendererInternal.RenderSky.Args.store((LevelRenderer) (Object) this, frustumMatrix, projectionMatrix, partialTick, camera, isFoggy, skyFogSetup, ci);
 	}
 
-	@Inject(method = "renderSky", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;popPose()V", ordinal = 1, shift = Shift.AFTER), cancellable = true)
+	@Inject(method = "renderSky", at = @At(value = "INVOKE", target = TargetDescriptors.LPoseStack.popPose, ordinal = 1, shift = Shift.AFTER), cancellable = true)
 	private void renderSky_after_2nd_popPose(Matrix4f frustumMatrix, Matrix4f projectionMatrix, float partialTick, Camera camera, boolean isFoggy, Runnable skyFogSetup, CallbackInfo ci) {
 		Internal.Callbacks.invoke(LevelRendererInternal.RenderSky.Callbacks.after_2nd_popPose);
+	}
+
+	@WrapOperation(method = "renderSky", at = @At(value = "INVOKE", target = TargetDescriptors.LRenderSystem.setShaderColor))
+	private void renderSky_modifyAfterGetSkyColor(float r, float g, float b, float a, Operation<Void> op) {
+		ColorRGBA final_color = SkyColor.resolveSky(ColorRGBA.of(r, g, b, a), level, LevelRendererInternal.RenderLevel.LocalVars.partialTick, LevelRendererInternal.RenderLevel.LocalVars.camPosBiome, LevelRendererInternal.RenderLevel.LocalVars.camPos, LevelRendererInternal.RenderLevel.LocalVars.dayTime);
+		op.call(final_color.r, final_color.g, final_color.b, final_color.a);
+	}
+
+	@WrapOperation(method = "renderSky", at = @At(value = "INVOKE", target = TargetDescriptors.LBufferUploader.drawWithShader, ordinal = 0))
+	private void renderSky_modifyVertexBuffer(MeshData mesh, Operation<Void> orig) {
+		LevelColor.modifyVertexColor(mesh, SkyColor.sunriseColor);
+		orig.call(mesh);
 	}
 
 	/**
@@ -110,7 +111,7 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
 	 * @param alpha 与下雨有关
 	 * @param orig
 	 */
-	@WrapOperation(method = "renderSky", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;setShaderColor(FFFF)V", ordinal = 2))
+	@WrapOperation(method = "renderSky", at = @At(value = "INVOKE", target = TargetDescriptors.LRenderSystem.setShaderColor, ordinal = 2))
 	private void renderSky_modifySunMoonShaderColor(float red, float green, float blue, float alpha, Operation<Void> orig) {
 		float[] color = Sky.celestialColor.color(red, green, blue, alpha);
 		orig.call(color[0], color[1], color[2], color[3]);
@@ -122,19 +123,19 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
 	 * @param mesh
 	 * @param orig
 	 */
-	@WrapOperation(method = "renderSnowAndRain", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/BufferUploader;drawWithShader(Lcom/mojang/blaze3d/vertex/MeshData;)V", ordinal = 0))
+	@WrapOperation(method = "renderSnowAndRain", at = @At(value = "INVOKE", target = TargetDescriptors.LBufferUploader.drawWithShader, ordinal = 0))
 	private void renderSnowAndRain_modifyRainVertexBuffer(MeshData mesh, Operation<Void> orig) {
 		VertexBufferManipulator.modifyVertexColor(mesh, WeatherEffect.rainColorResolver);
 		orig.call(mesh);
 	}
 
-	@WrapOperation(method = "renderSnowAndRain", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/BufferUploader;drawWithShader(Lcom/mojang/blaze3d/vertex/MeshData;)V", ordinal = 1))
+	@WrapOperation(method = "renderSnowAndRain", at = @At(value = "INVOKE", target = TargetDescriptors.LBufferUploader.drawWithShader, ordinal = 1))
 	private void renderSnowAndRain_modifySnowVertexBuffer(MeshData mesh, Operation<Void> orig) {
 		VertexBufferManipulator.modifyVertexColor(mesh, WeatherEffect.snowColorResolver);
 		orig.call(mesh);
 	}
 
-	@WrapOperation(method = "renderSnowAndRain", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/BufferUploader;drawWithShader(Lcom/mojang/blaze3d/vertex/MeshData;)V", ordinal = 2))
+	@WrapOperation(method = "renderSnowAndRain", at = @At(value = "INVOKE", target = TargetDescriptors.LBufferUploader.drawWithShader, ordinal = 2))
 	private void renderSnowAndRain_modifyVertexBuffer(MeshData mesh, Operation<Void> orig) {
 		VertexBufferManipulator.modifyVertexColor(mesh, WeatherEffect.rainColorResolver);
 		orig.call(mesh);

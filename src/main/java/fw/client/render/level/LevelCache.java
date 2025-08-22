@@ -7,10 +7,13 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.BiomeColors;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.ColorResolver;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 /**
  * 客户端ClientLevel渲染相关数据缓存
  */
+@OnlyIn(Dist.CLIENT)
 public class LevelCache {
 	/**
 	 * 获取ClientLevel缓存的草地、树叶、水的ColorResolver

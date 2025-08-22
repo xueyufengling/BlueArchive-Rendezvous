@@ -9,10 +9,13 @@ import com.mojang.blaze3d.vertex.PoseStack;
 
 import fw.client.render.renderable.Renderable;
 import lyra.alpha.struct.Node;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 /**
  * 场景图节点，树结构组织RenderableObject
  */
+@OnlyIn(Dist.CLIENT)
 public class SceneGraphNode extends Node<String, RenderableObject> implements Renderable {
 	/**
 	 * 对象可见性，不可见则不渲染

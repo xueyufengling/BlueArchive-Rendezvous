@@ -12,7 +12,10 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 
 import lyra.lang.Handles;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
+@OnlyIn(Dist.CLIENT)
 public class TesselatorInstance {
 	public static Tesselator instance;
 	private static MethodHandle Tesselator_begin = null;

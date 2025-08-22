@@ -13,6 +13,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 
 import fw.mixins.internal.Internal;
 import fw.mixins.internal.ItemRendererInternal;
+import fw.mixins.internal.TargetDescriptors;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.resources.model.BakedModel;
@@ -27,7 +28,7 @@ public abstract class ItemRendererMixin implements ResourceManagerReloadListener
 		ItemRendererInternal.Render.Args.store((ItemRenderer) (Object) this, itemStack, displayContext, leftHand, poseStack, bufferSource, combinedLight, combinedOverlay, model, ci);
 	}
 
-	@Inject(method = "render", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;pushPose()V", shift = Shift.BEFORE), cancellable = true)
+	@Inject(method = "render", at = @At(value = "INVOKE", target = TargetDescriptors.LPoseStack.pushPose, shift = Shift.BEFORE), cancellable = true)
 	private void before_poseStack_pushPose(ItemStack itemStack, ItemDisplayContext displayContext, boolean leftHand, PoseStack poseStack, MultiBufferSource bufferSource, int combinedLight, int combinedOverlay, BakedModel model, CallbackInfo ci) {
 		ItemRendererInternal.Render.Args.store((ItemRenderer) (Object) this, itemStack, displayContext, leftHand, poseStack, bufferSource, combinedLight, combinedOverlay, model, ci);
 		Internal.Callbacks.invoke(ItemRendererInternal.Render.Callbacks.before_poseStack_pushPose);
@@ -39,13 +40,13 @@ public abstract class ItemRendererMixin implements ResourceManagerReloadListener
 		Internal.Callbacks.invoke(ItemRendererInternal.Render.Callbacks.before_return);
 	}
 
-	@ModifyVariable(method = "render", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;translate(FFF)V", shift = At.Shift.BY, by = -2), index = 8)
+	@ModifyVariable(method = "render", at = @At(value = "INVOKE", target = TargetDescriptors.LPoseStack.translate, shift = At.Shift.BY, by = -2), index = 8)
 	private BakedModel before_poseStack_translate(BakedModel orig) {
 		Internal.Callbacks.invoke(ItemRendererInternal.Render.Callbacks.before_poseStack_translate);
 		return ItemRendererInternal.Render.Args.p_model;
 	}
 
-	@WrapOperation(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;hasFoil()Z"))
+	@WrapOperation(method = "render", at = @At(value = "INVOKE", target = TargetDescriptors.LItemStack.hasFoil))
 	private boolean itemStack_hasFoil(ItemStack itemStack, Operation<Boolean> orig) {
 		return ItemRendererInternal.Render.hasFoil.hasFoil(itemStack);
 	}

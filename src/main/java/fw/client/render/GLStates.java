@@ -5,7 +5,10 @@ import org.lwjgl.opengl.GL11;
 import com.mojang.blaze3d.platform.GlStateManager;
 
 import lyra.object.ObjectManipulator;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
+@OnlyIn(Dist.CLIENT)
 public class GLStates {
 	public static final boolean ON_LINUX;
 	public static final int TEXTURE_COUNT;

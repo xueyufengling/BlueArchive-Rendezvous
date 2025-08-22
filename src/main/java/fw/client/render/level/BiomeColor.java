@@ -8,7 +8,10 @@ import net.minecraft.client.renderer.BiomeColors;
 import net.minecraft.world.level.ColorResolver;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
+@OnlyIn(Dist.CLIENT)
 public class BiomeColor {
 	public static final ColorResolver VANILLA_GRASS_COLOR_RESOLVER;
 	public static final ColorResolver VANILLA_FOLIAGE_COLOR_RESOLVER;

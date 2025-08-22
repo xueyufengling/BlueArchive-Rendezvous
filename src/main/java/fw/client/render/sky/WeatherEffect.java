@@ -5,7 +5,10 @@ import fw.resources.ResourceLocations;
 import lyra.object.ObjectManipulator;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.resources.ResourceLocation;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
+@OnlyIn(Dist.CLIENT)
 public class WeatherEffect {
 
 	public static VertexBufferManipulator.ColorResolver rainColorResolver;

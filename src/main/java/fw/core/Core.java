@@ -30,7 +30,6 @@ import net.neoforged.fml.event.lifecycle.FMLConstructModEvent;
 import net.neoforged.fml.event.lifecycle.ModLifecycleEvent;
 import net.neoforged.fml.javafmlmod.FMLModContainer;
 import net.neoforged.fml.loading.FMLLoader;
-import net.neoforged.neoforge.registries.RegisterEvent;
 
 @EventBusSubscriber(modid = Core.ModId, bus = Bus.MOD)
 public class Core {
@@ -126,16 +125,6 @@ public class Core {
 		RegistryEntry.DeferredEntryHolderRegister.registerAll();
 		RegistryFactory.registerAll();// 注册所有新添加的注册表及其条目
 		ModInit.Initializer.executeAllInitFuncs(event, ModInit.Stage.POST_INIT);
-	}
-
-	@SubscribeEvent(priority = EventPriority.HIGHEST)
-	private static final void preRegister(RegisterEvent event) {
-		ModInit.Initializer.executeAllInitFuncs(null, ModInit.Stage.PRE_REGISTER);
-	}
-
-	@SubscribeEvent(priority = EventPriority.LOWEST)
-	private static final void postRegister(RegisterEvent event) {
-		ModInit.Initializer.executeAllInitFuncs(null, ModInit.Stage.POST_REGISTER);
 	}
 
 	/**

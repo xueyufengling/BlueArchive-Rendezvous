@@ -3,7 +3,10 @@ package fw.client.render.gui;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import fw.client.render.renderable.CompositeRenderable2D;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
+@OnlyIn(Dist.CLIENT)
 public class Gui extends CompositeRenderable2D {
 	@Override
 	public Gui clone() {

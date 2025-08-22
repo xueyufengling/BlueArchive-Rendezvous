@@ -8,7 +8,10 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import lyra.lang.InternalUnsafe;
 import lyra.lang.Reflection;
 import lyra.object.ObjectManipulator;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
+@OnlyIn(Dist.CLIENT)
 public class PoseStacks {
 	private static final Field ArrayDeque_elements;
 	private static final Field ArrayDeque_head;
