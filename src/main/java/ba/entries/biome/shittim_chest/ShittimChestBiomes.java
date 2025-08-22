@@ -58,8 +58,7 @@ public class ShittimChestBiomes extends ExtBiomeSource {
 			0.2f,
 			Biome.TemperatureModifier.NONE,
 			0,
-			ExtBiome.buildBiomeSpecialEffects(ColorRGBA.of(LevelRendering.COLOUR_INVASION_SKY).pack(), 0x47C6FA, 0x62DEFB, ColorRGBA.of(LevelRendering.COLOUR_INVASION_SKY).pack(), null),
-			// ExtBiome.buildBiomeSpecialEffects(0xD2EFFD, 0x47C6FA, 0x62DEFB, 0xA4E2FC, null),
+			ExtBiome.buildBiomeSpecialEffects(0xD2EFFD, 0x47C6FA, 0x62DEFB, 0xA4E2FC, null),
 			MobSpawnSettings.EMPTY,
 			BiomeGenerationSettings.EMPTY));
 

@@ -6,6 +6,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import fw.client.render.VertexBufferManipulator;
 import fw.client.render.scene.RenderableObject;
 import fw.client.render.scene.SceneGraphNode;
+import fw.client.render.sky.NearEarthObject.Pos;
 import fw.mixins.internal.LevelRendererInternal;
 import fw.resources.ResourceLocations;
 import lyra.object.ObjectManipulator;
@@ -114,9 +115,15 @@ public class Sky {
 		return node;
 	}
 
-	public static SceneGraphNode renderFixedNearEarthObject(String path, RenderableObject obj, float object_x, float object_z, float view_height) {
+	public static SceneGraphNode renderFixedNearEarthObject(String path, RenderableObject obj, float object_x, float object_y, float object_z) {
 		SceneGraphNode node = render(path, obj);
-		NearEarthObject.bind(node, object_x, object_z, view_height);
+		NearEarthObject.bind(node, object_x, object_y, object_z);
+		return node;
+	}
+
+	public static SceneGraphNode renderFixedNearEarthObject(String path, RenderableObject obj, float object_x, float object_y, float object_z, Pos.ViewHeight final_view_height) {
+		SceneGraphNode node = render(path, obj);
+		NearEarthObject.bind(node, object_x, object_y, object_z, final_view_height);
 		return node;
 	}
 
