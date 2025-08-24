@@ -1,6 +1,6 @@
 package fw.client.render.sky;
 
-import fw.client.render.VertexBufferManipulator;
+import fw.client.render.gl.VertexBufferManipulator;
 import fw.resources.ResourceLocations;
 import lyra.object.ObjectManipulator;
 import net.minecraft.client.renderer.LevelRenderer;

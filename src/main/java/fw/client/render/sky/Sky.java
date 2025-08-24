@@ -3,9 +3,9 @@ package fw.client.render.sky;
 import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import fw.client.render.VertexBufferManipulator;
-import fw.client.render.scene.RenderableObject;
-import fw.client.render.scene.SceneGraphNode;
+import fw.client.render.gl.RenderableObject;
+import fw.client.render.gl.SceneGraphNode;
+import fw.client.render.gl.VertexBufferManipulator;
 import fw.client.render.sky.NearEarthObject.Pos;
 import fw.mixins.internal.LevelRendererInternal;
 import fw.resources.ResourceLocations;

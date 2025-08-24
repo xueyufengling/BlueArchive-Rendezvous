@@ -7,6 +7,9 @@ public class TargetDescriptors {
 
 	public static class LLevelRenderer {
 		public static final String checkPoseStack = "Lnet/minecraft/client/renderer/LevelRenderer;checkPoseStack(Lcom/mojang/blaze3d/vertex/PoseStack;)V";
+		public static final String renderSky = "Lnet/minecraft/client/renderer/LevelRenderer;renderSky(Lorg/joml/Matrix4f;Lorg/joml/Matrix4f;FLnet/minecraft/client/Camera;ZLjava/lang/Runnable;)V";
+		public static final String renderDebug = "Lnet/minecraft/client/renderer/LevelRenderer;renderDebug(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;Lnet/minecraft/client/Camera;)V";
+
 	}
 
 	public static class LGuiGraphics {
@@ -25,6 +28,10 @@ public class TargetDescriptors {
 		public static final String translate = "Lcom/mojang/blaze3d/vertex/PoseStack;translate(FFF)V";
 	}
 
+	public static class LVertexBuffer {
+		public static final String unbind = "Lcom/mojang/blaze3d/vertex/VertexBuffer;unbind()V";
+	}
+
 	public static class LBufferUploader {
 		public static final String drawWithShader = "Lcom/mojang/blaze3d/vertex/BufferUploader;drawWithShader(Lcom/mojang/blaze3d/vertex/MeshData;)V";
 	}
@@ -35,5 +42,9 @@ public class TargetDescriptors {
 
 	public static class LBiome {
 		public static final String getWaterFogColor = "Lnet/minecraft/world/level/biome/Biome;getWaterFogColor()I";
+	}
+
+	public static class LProfilerFiller {
+		public static final String popPush = "Lnet/minecraft/util/profiling/ProfilerFiller;popPush(Ljava/lang/String;)V";
 	}
 }

@@ -1,5 +1,11 @@
 package fw.mixins.defs;
 
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
+
 import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -13,7 +19,8 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.vertex.MeshData;
 
-import fw.client.render.VertexBufferManipulator;
+import fw.client.render.gl.PixelsBuffer;
+import fw.client.render.gl.VertexBufferManipulator;
 import fw.client.render.level.LevelColor;
 import fw.client.render.sky.Sky;
 import fw.client.render.sky.SkyColor;
@@ -45,7 +52,7 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
 	@Inject(method = "renderLevel", at = @At(value = "HEAD"))
 	private void renderLevel_initParams(DeltaTracker deltaTracker, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f frustumMatrix, Matrix4f projectionMatrix, CallbackInfo ci) {
 		LevelRendererInternal.RenderLevel.Args.store((LevelRenderer) (Object) this, deltaTracker, renderBlockOutline, camera, gameRenderer, lightTexture, frustumMatrix, projectionMatrix, ci);
-		LevelRendererInternal.RenderLevel.LocalVars.store(level, deltaTracker);
+		LevelRendererInternal.RenderLevel.LocalVars.store(minecraft, level, deltaTracker);
 	}
 
 	@WrapOperation(method = "renderClouds", at = @At(value = "INVOKE", target = TargetDescriptors.LClientLevel.getCloudColor))
@@ -72,6 +79,38 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
 	}
 
 	/**
+	 * 在Iris渲染天空阶段之后
+	 * 
+	 * @param frustumMatrix
+	 * @param projectionMatrix
+	 * @param partialTick
+	 * @param camera
+	 * @param isFoggy
+	 * @param skyFogSetup
+	 * @param ci
+	 */
+	@Inject(method = "renderLevel", at = @At(value = "INVOKE", target = TargetDescriptors.LProfilerFiller.popPush, ordinal = 6, shift = Shift.BEFORE), cancellable = true)
+	private void renderLevel_before_popPush_fog(DeltaTracker deltaTracker, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f frustumMatrix, Matrix4f projectionMatrix, CallbackInfo ci) {
+		Internal.Callbacks.invoke(LevelRendererInternal.RenderLevel.Callbacks.before_popPush_fog);
+		PixelsBuffer pixels = PixelsBuffer.main();
+		if (pixels.map()) {
+			int w = pixels.width();
+			int h = pixels.height();
+			for (int x = 0; x < w; ++x)
+				for (int y = 0; y < h; ++y) {
+					pixels.setColor(x, y, ColorRGBA.of(1f, 1f, 1f, 0.5f));
+				}
+			pixels.unmap();
+			pixels.write();
+		}
+	}
+
+	@Inject(method = "renderLevel", at = @At(value = "INVOKE", target = TargetDescriptors.LLevelRenderer.renderDebug, shift = Shift.BEFORE), cancellable = true)
+	private void renderLevel_before_renderDebug(DeltaTracker deltaTracker, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f frustumMatrix, Matrix4f projectionMatrix, CallbackInfo ci) {
+		Internal.Callbacks.invoke(LevelRendererInternal.RenderLevel.Callbacks.before_renderDebug);
+	}
+
+	/**
 	 * renderSky()
 	 * 
 	 * @param frustumMatrix
@@ -90,6 +129,16 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
 	@Inject(method = "renderSky", at = @At(value = "INVOKE", target = TargetDescriptors.LPoseStack.popPose, ordinal = 1, shift = Shift.AFTER), cancellable = true)
 	private void renderSky_after_2nd_popPose(Matrix4f frustumMatrix, Matrix4f projectionMatrix, float partialTick, Camera camera, boolean isFoggy, Runnable skyFogSetup, CallbackInfo ci) {
 		Internal.Callbacks.invoke(LevelRendererInternal.RenderSky.Callbacks.after_2nd_popPose);
+	}
+
+	@Inject(method = "renderSky", at = @At(value = "INVOKE", target = TargetDescriptors.LVertexBuffer.unbind, ordinal = 0, shift = Shift.AFTER), cancellable = true)
+	private void renderSky_after_skyBuffer_draw(Matrix4f frustumMatrix, Matrix4f projectionMatrix, float partialTick, Camera camera, boolean isFoggy, Runnable skyFogSetup, CallbackInfo ci) {
+		Internal.Callbacks.invoke(LevelRendererInternal.RenderSky.Callbacks.after_skyBuffer_draw);
+	}
+
+	@Inject(method = "renderSky", at = @At(value = "INVOKE", target = TargetDescriptors.LVertexBuffer.unbind, ordinal = 2, shift = Shift.AFTER), cancellable = true)
+	private void renderSky_after_darkBuffer_draw(Matrix4f frustumMatrix, Matrix4f projectionMatrix, float partialTick, Camera camera, boolean isFoggy, Runnable skyFogSetup, CallbackInfo ci) {
+		Internal.Callbacks.invoke(LevelRendererInternal.RenderSky.Callbacks.after_darkBuffer_draw);
 	}
 
 	@WrapOperation(method = "renderSky", at = @At(value = "INVOKE", target = TargetDescriptors.LRenderSystem.setShaderColor))

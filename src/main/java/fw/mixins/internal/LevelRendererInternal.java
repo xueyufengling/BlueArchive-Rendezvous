@@ -7,6 +7,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import net.minecraft.client.Camera;
 import net.minecraft.client.DeltaTracker;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.LevelRenderer;
@@ -45,6 +46,7 @@ public class LevelRendererInternal {
 		}
 
 		public static class LocalVars {
+			public static Minecraft minecraft;
 			public static ClientLevel level;
 			public static Vec3 camPos;
 			public static Holder<Biome> camPosBiome;
@@ -59,7 +61,8 @@ public class LevelRendererInternal {
 			 */
 			public static float dayTime;
 
-			public static final void store(ClientLevel level, DeltaTracker deltaTracker) {
+			public static final void store(Minecraft minecraft, ClientLevel level, DeltaTracker deltaTracker) {
+				LocalVars.minecraft = minecraft;
 				LocalVars.level = level;
 				// 局部变量
 				Vec3 pos = Args.gameRenderer.getMainCamera().getPosition();
@@ -97,6 +100,18 @@ public class LevelRendererInternal {
 
 			public static void addBeforeRenderSystemDisableBlendCallback(Callback func) {
 				before_RenderSystem_disableBlend.add(func);
+			}
+
+			public static ArrayList<Callback> before_popPush_fog = new ArrayList<>();
+
+			public static void addBefore_popPush_fog(Callback func) {
+				before_popPush_fog.add(func);
+			}
+
+			public static ArrayList<Callback> before_renderDebug = new ArrayList<>();
+
+			public static void addBefore_renderDebug(Callback func) {
+				before_renderDebug.add(func);
 			}
 		}
 	}
@@ -139,6 +154,21 @@ public class LevelRendererInternal {
 			public static ArrayList<Callback> after_2nd_popPose = new ArrayList<>();
 
 			public static void addAfter2nd_popPose(Callback func) {
+				after_2nd_popPose.add(func);
+			}
+
+			public static ArrayList<Callback> after_skyBuffer_draw = new ArrayList<>();
+
+			/**
+			 * 装了Iris后整个renderSky函数将由光影着色器渲染，而现有的光影几乎都会丢弃OpenGL管线传入的颜色而使用其内部硬编码颜色计算，在此阶段内的渲染将可能失效。
+			 */
+			public static void addAfter_skyBuffer_draw(Callback func) {
+				after_2nd_popPose.add(func);
+			}
+
+			public static ArrayList<Callback> after_darkBuffer_draw = new ArrayList<>();
+
+			public static void addAfter_darkBuffer_draw(Callback func) {
 				after_2nd_popPose.add(func);
 			}
 		}

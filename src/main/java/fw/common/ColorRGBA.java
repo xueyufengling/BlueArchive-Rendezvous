@@ -97,6 +97,15 @@ public class ColorRGBA {
 		return pack(r, g, b, a);
 	}
 
+	/**
+	 * OpenGL的RGBA8数据格式
+	 * 
+	 * @return
+	 */
+	public int packBGRA() {
+		return pack(b, g, r, a);
+	}
+
 	public Vec3 vec3() {
 		return new Vec3(r, g, b);
 	}
@@ -224,4 +233,10 @@ public class ColorRGBA {
 	public static final Vec3 normalizedVec3(Color color) {
 		return new Vec3(color.getRed() / 255.0, color.getGreen() / 255.0, color.getBlue() / 255.0);
 	}
+
+	public static final ColorRGBA WHITE = ColorRGBA.of(1.0f, 1.0f, 1.0f, 1.0f);
+
+	public static final ColorRGBA BLACK = ColorRGBA.of(0.0f, 0.0f, 0.0f, 1.0f);
+
+	public static final ColorRGBA TRANSPARENT = ColorRGBA.of(0.0f, 0.0f, 0.0f, 0.0f);
 }

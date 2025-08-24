@@ -1,4 +1,4 @@
-package fw.client.render.scene;
+package fw.client.render.gl;
 
 import java.util.function.Consumer;
 
@@ -8,25 +8,16 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import fw.client.render.renderable.Renderable;
+import fw.common.ColorRGBA;
 import lyra.alpha.struct.Node;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
 /**
- * 场景图节点，树结构组织RenderableObject
+ * 场景图节点，树结构组织RenderableRenderableObject.Instance
  */
 @OnlyIn(Dist.CLIENT)
-public class SceneGraphNode extends Node<String, RenderableObject> implements Renderable {
-	/**
-	 * 对象可见性，不可见则不渲染
-	 */
-	public boolean visiable = true;
-
-	/**
-	 * 该节点的变换矩阵，此变换矩阵将应用在所有子节点及其嵌套节点上<br>
-	 * 默认恒等矩阵，不进行任何变换
-	 */
-	public Matrix4f transform = new Matrix4f();
+public class SceneGraphNode extends Node<String, RenderableObject.Instance> implements Renderable {
 
 	private Consumer<SceneGraphNode> preRenderOperation;
 
@@ -37,14 +28,13 @@ public class SceneGraphNode extends Node<String, RenderableObject> implements Re
 	 */
 	private SceneGraphNode(String name) {
 		super(name);
-		this.visiable = false;
 	}
 
-	private SceneGraphNode(String name, RenderableObject renderable) {
+	private SceneGraphNode(String name, RenderableObject.Instance renderable) {
 		super(name, renderable);
 	}
 
-	private SceneGraphNode(String name, Node<String, RenderableObject> parent) {
+	private SceneGraphNode(String name, Node<String, RenderableObject.Instance> parent) {
 		super(name, parent);
 	}
 
@@ -53,11 +43,12 @@ public class SceneGraphNode extends Node<String, RenderableObject> implements Re
 	 */
 	private SceneGraphNode() {
 		this("root");
+		this.setValue(RenderableObject.Instance.empty(true));
 	}
 
 	@Override
-	protected Node<String, RenderableObject> newNode(String name, Node<String, RenderableObject> parent) {
-		return new SceneGraphNode(name, parent);
+	protected Node<String, RenderableObject.Instance> newNode(String name, Node<String, RenderableObject.Instance> parent) {
+		return new SceneGraphNode(name, parent).setValue(RenderableObject.Instance.empty(true));// 默认节点可渲染对象为null
 	}
 
 	private static String[] parsePath(String path) {
@@ -70,7 +61,7 @@ public class SceneGraphNode extends Node<String, RenderableObject> implements Re
 	 * @return
 	 */
 	public static final SceneGraphNode createSceneGraph() {
-		return new SceneGraphNode();
+		return (SceneGraphNode) new SceneGraphNode();
 	}
 
 	/**
@@ -85,14 +76,18 @@ public class SceneGraphNode extends Node<String, RenderableObject> implements Re
 
 	public final SceneGraphNode createNode(String path, Matrix4f transform) {
 		SceneGraphNode group = createNode(path);
-		group.transform = transform;
+		group.value.setTransform(transform);
 		return group;
 	}
 
-	public final SceneGraphNode createRenderableNode(String path, RenderableObject renderable) {
+	public final SceneGraphNode createRenderableNode(String path, RenderableObject.Instance renderable) {
 		SceneGraphNode node = createNode(path);
 		node.value = renderable;
 		return node;
+	}
+
+	public final SceneGraphNode createRenderableNode(String path, RenderableObject renderable) {
+		return createRenderableNode(path, renderable.newInstance());
 	}
 
 	/**
@@ -113,20 +108,10 @@ public class SceneGraphNode extends Node<String, RenderableObject> implements Re
 	 * @param projectionMatrix
 	 */
 	private void doRender(PoseStack poseStack, Matrix4f frustumMatrix, Matrix4f projectionMatrix) {
-		poseStack.pushPose();
 		if (preRenderOperation != null)
 			preRenderOperation.accept(this);
-		poseStack.mulPose(this.transform);// 应用节点变换
-		if (this.visiable && this.value != null) {
-			float[] prevColor = RenderSystem.getShaderColor();
-			RenderSystem.setShaderColor(shaderColor[0], shaderColor[1], shaderColor[2], shaderColor[3]);// 设置其顶点颜色
-			this.value.render(poseStack, projectionMatrix);// 渲染本节点
-			RenderSystem.setShaderColor(prevColor[0], prevColor[1], prevColor[2], prevColor[3]);// 恢复顶点颜色
-		}
-		poseStack.popPose();
+		this.value.render(poseStack, projectionMatrix);// 渲染本节点
 	}
-
-	private float[] shaderColor = new float[] { 1.0f, 1.0f, 1.0f, 1.0f };
 
 	/**
 	 * 设置顶点的纹理颜色各个通道的贡献比例。<br>
@@ -138,12 +123,32 @@ public class SceneGraphNode extends Node<String, RenderableObject> implements Re
 	 * @param a
 	 * @return
 	 */
-	public SceneGraphNode setTexColorChannelRatio(float r, float g, float b, float a) {
-		shaderColor[0] = r;
-		shaderColor[1] = g;
-		shaderColor[2] = b;
-		shaderColor[3] = a;
+	public SceneGraphNode setTexColorChannelContribution(float r, float g, float b, float a) {
+		this.value.setShaderUniformColor(ColorRGBA.of(r, g, b, a));
 		return this;
+	}
+
+	public SceneGraphNode setTexColorChannelContribution(ColorRGBA shaderColor) {
+		this.value.setShaderUniformColor(shaderColor);
+		return this;
+	}
+
+	public SceneGraphNode setTransform(Matrix4f transform) {
+		this.value.setTransform(transform);
+		return this;
+	}
+
+	public Matrix4f getTransform() {
+		return this.value.getTransform();
+	}
+
+	public SceneGraphNode setVisible(boolean visible) {
+		this.value.setVisible(visible);
+		return this;
+	}
+
+	public boolean isVisible() {
+		return this.value.isVisible();
 	}
 
 	/**
@@ -159,7 +164,6 @@ public class SceneGraphNode extends Node<String, RenderableObject> implements Re
 		this.traverseChildrenFromTop((SceneGraphNode node) -> {
 			node.doRender(poseStack, frustumMatrix, projectionMatrix);// 迭代子节点的子节点
 		});
-		RenderSystem.disableBlend();
 	}
 
 	public void render(PoseStack poseStack, Matrix4f projectionMatrix) {

@@ -8,7 +8,6 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexFormat;
 
-import fw.client.render.GLStates;
 import fw.client.render.TesselatorInstance;
 import fw.resources.ResourceLocations;
 import net.minecraft.client.Minecraft;
@@ -117,8 +116,6 @@ public class GuiGraphicsContext {
 	public static void blitImage(PoseStack poseStack, ResourceLocation atlasLocation, float x1, float x2, float y1, float y2, float blitOffset, float minU, float maxU, float minV, float maxV) {
 		RenderSystem.setShaderTexture(0, (atlasLocation));
 		RenderSystem.setShader(GameRenderer::getPositionTexShader);
-		boolean depth_test = GLStates.depthEnabled();
-		boolean blend = GLStates.blendEnabled();
 		RenderSystem.disableDepthTest();
 		RenderSystem.enableBlend();
 		Matrix4f matrix4f = poseStack.last().pose();
@@ -128,8 +125,6 @@ public class GuiGraphicsContext {
 		TesselatorInstance.posUvVertex(bufferBuilder, matrix4f, x2, y2, blitOffset, maxU, maxV);
 		TesselatorInstance.posUvVertex(bufferBuilder, matrix4f, x2, y1, blitOffset, maxU, minV);
 		TesselatorInstance.drawBufferBuilder(bufferBuilder);
-		GLStates.setBlendEnabled(blend);
-		GLStates.setDepthEnabled(depth_test);
 	}
 
 	public static void blitImage(MultiBufferSource bufferSource, RenderType type, PoseStack poseStack, ResourceLocation atlasLocation, float x1, float x2, float y1, float y2, float blitOffset, float minU, float maxU, float minV, float maxV) {

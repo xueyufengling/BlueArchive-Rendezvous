@@ -2,7 +2,7 @@ package fw.client.render.level;
 
 import com.mojang.blaze3d.vertex.MeshData;
 
-import fw.client.render.VertexBufferManipulator;
+import fw.client.render.gl.VertexBufferManipulator;
 import fw.common.ColorRGBA;
 import fw.common.MappedResolver;
 import fw.common.MultiResolver;

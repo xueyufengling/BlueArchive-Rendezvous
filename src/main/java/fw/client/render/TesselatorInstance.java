@@ -104,6 +104,14 @@ public class TesselatorInstance {
 		setColor(setUv((BufferBuilder) addVertex(bufferBuilder, x, y, z), u, v), r, g, b, a);
 	}
 
+	public static void posColorVertex(BufferBuilder bufferBuilder, float x, float y, float z, float r, float g, float b, float a) {
+		setColor(addVertex(bufferBuilder, x, y, z), r, g, b, a);
+	}
+
+	public static void posUvVertex(BufferBuilder bufferBuilder, float x, float y, float z, float u, float v) {
+		setUv((BufferBuilder) addVertex(bufferBuilder, x, y, z), u, v);
+	}
+
 	public static void posUvColorVertex(BufferBuilder bufferBuilder, Matrix4f pose, float x, float y, float z, float u, float v, float r, float g, float b, float a) {
 		setColor(setUv((BufferBuilder) addVertex(bufferBuilder, pose, x, y, z), u, v), r, g, b, a);
 	}

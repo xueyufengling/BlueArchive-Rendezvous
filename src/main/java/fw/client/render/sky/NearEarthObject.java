@@ -5,7 +5,7 @@ import org.joml.Vector3f;
 
 import com.mojang.math.Axis;
 
-import fw.client.render.scene.SceneGraphNode;
+import fw.client.render.gl.SceneGraphNode;
 import fw.mixins.internal.LevelRendererInternal;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
@@ -319,7 +319,7 @@ public class NearEarthObject {
 				offset_x / pos.x_offset_decay.calc(pos.object_x, offset_x, pos.object_y, offset_y, pos.object_z, offset_z),
 				offset_z / pos.z_offset_decay.calc(pos.object_x, offset_x, pos.object_y, offset_y, pos.object_z, offset_z),
 				pos.final_view_height.calc(pos.object_x, offset_x, pos.object_y, offset_y, pos.object_z, offset_z)));
-		node.transform = incline;
+		node.setTransform(incline);
 	}
 
 	private void updateTransform() {
