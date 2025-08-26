@@ -35,16 +35,22 @@ public class ScreenShader extends Shader {
 			screen_quad_vbo = GL30.glGenBuffers();
 			GL30.glBindVertexArray(screen_quad_vao);// 绑定VAO
 			GL30.glBindBuffer(GL30.GL_ARRAY_BUFFER, screen_quad_vbo);// 为VAO绑定VBO
+			/**
+			 * 顶点顺序需要保证三角形顶点逆时针排列，避免反面向前被Backface-cull剔除
+			 * TRIANGLE_STRP的正面为第一个三角形的正面
+			 */
 			GL30.glBufferData(GL30.GL_ARRAY_BUFFER, new float[] {
-					-1.0f, -1.0f, 1.0f, 0.0f, 0.0f,
-					-1.0f, 1.0f, 1.0f, 0.0f, 1.0f,
-					1.0f, -1.0f, 1.0f, 1.0f, 0.0f,
-					1.0f, 1.0f, 1.0f, 1.0f, 1.0f
+					-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+					1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+					-1.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+					1.0f, 1.0f, 0.0f, 1.0f, 1.0f
 			}, GL30.GL_STATIC_DRAW);
 			GL30.glVertexAttribPointer(0, 3, GL30.GL_FLOAT, false, 5 * GL_FLOAT_SIZE, 0);
 			GL30.glEnableVertexAttribArray(0);
 			GL30.glVertexAttribPointer(1, 2, GL30.GL_FLOAT, false, 5 * GL_FLOAT_SIZE, 3 * GL_FLOAT_SIZE);
 			GL30.glEnableVertexAttribArray(1);
+			GL30.glBindBuffer(GL30.GL_ARRAY_BUFFER, 0);
+			GL30.glBindVertexArray(0);
 			inited_screen = true;
 		}
 	}

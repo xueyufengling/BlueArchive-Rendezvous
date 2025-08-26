@@ -78,6 +78,7 @@ public class EquivalentFramebuffer extends MainTarget {
 	}
 
 	public void blitToTarget() {
+		// super.blitToScreen(width, height);
 		framebuffer_render.render();
 	}
 }
