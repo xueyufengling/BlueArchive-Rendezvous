@@ -3,10 +3,12 @@ package fw.client.render.sky;
 import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import fw.client.render.gl.RenderableObject;
-import fw.client.render.gl.SceneGraphNode;
-import fw.client.render.gl.VertexBufferManipulator;
+import fw.client.render.gl.FramebufferRenderer;
+import fw.client.render.gl.EquivalentFramebuffer;
 import fw.client.render.sky.NearEarthObject.Pos;
+import fw.client.render.vanilla.RenderableObject;
+import fw.client.render.vanilla.SceneGraphNode;
+import fw.client.render.vanilla.VertexBufferManipulator;
 import fw.mixins.internal.LevelRendererInternal;
 import fw.resources.ResourceLocations;
 import lyra.object.ObjectManipulator;
@@ -150,5 +152,19 @@ public class Sky {
 		SceneGraphNode node = render(path, obj);
 		NearEarthObject.bind(node, NearEarthObject.Orbit.circle(center_x, center_z, radius, view_height, angular_speed));
 		return node;
+	}
+
+	private static EquivalentFramebuffer skyFramebuffer;
+
+	/**
+	 * 天空渲染专用帧缓冲
+	 * 
+	 * @return
+	 */
+	public static EquivalentFramebuffer skyFramebuffer() {
+		if (skyFramebuffer == null) {
+			skyFramebuffer = EquivalentFramebuffer.createFromMain();
+		}
+		return skyFramebuffer;
 	}
 }

@@ -1,4 +1,4 @@
-package fw.client.render.gl;
+package fw.client.render.vanilla;
 
 import org.joml.Matrix4f;
 
@@ -9,7 +9,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexBuffer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 
-import fw.client.render.TesselatorInstance;
 import fw.client.render.renderable.Renderable;
 import fw.common.ColorRGBA;
 import fw.resources.ResourceLocations;

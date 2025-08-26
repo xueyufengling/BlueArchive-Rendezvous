@@ -1,4 +1,4 @@
-package fw.client.render.gl;
+package fw.client.render.vanilla;
 
 import java.util.function.Consumer;
 

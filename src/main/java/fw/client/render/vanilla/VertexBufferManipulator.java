@@ -1,4 +1,4 @@
-package fw.client.render.gl;
+package fw.client.render.vanilla;
 
 import com.mojang.blaze3d.vertex.ByteBufferBuilder;
 import com.mojang.blaze3d.vertex.MeshData;

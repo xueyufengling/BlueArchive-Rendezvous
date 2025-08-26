@@ -1,4 +1,4 @@
-package fw.client.render;
+package fw.client.render.vanilla;
 
 import java.lang.reflect.Field;
 import java.util.ArrayDeque;

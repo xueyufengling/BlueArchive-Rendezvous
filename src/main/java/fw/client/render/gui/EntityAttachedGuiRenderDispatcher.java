@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 
-import fw.client.render.RenderDispatcher;
+import fw.client.render.vanilla.RenderDispatcher;
 import fw.mixins.internal.EntityRenderDispatcherInternal;
 import fw.mixins.internal.LevelRendererInternal;
 import net.minecraft.client.Camera;

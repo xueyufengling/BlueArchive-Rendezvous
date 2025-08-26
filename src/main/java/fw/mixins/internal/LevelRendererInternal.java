@@ -108,11 +108,13 @@ public class LevelRendererInternal {
 				before_popPush_fog.add(func);
 			}
 
-			public static ArrayList<Callback> before_renderDebug = new ArrayList<>();
+			public static ArrayList<Callback> after_popPush_sky = new ArrayList<>();
 
-			public static void addBefore_renderDebug(Callback func) {
-				before_renderDebug.add(func);
+			public static void addAfter_popPush_sky(Callback func) {
+				after_popPush_sky.add(func);
 			}
+
+			public static int c = 0;
 		}
 	}
 

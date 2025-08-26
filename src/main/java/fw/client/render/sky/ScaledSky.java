@@ -8,9 +8,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 
-import fw.client.render.gl.RenderableObject;
-import fw.client.render.gl.RenderableObjects;
 import fw.client.render.renderable.Renderable;
+import fw.client.render.vanilla.RenderableObject;
+import fw.client.render.vanilla.RenderableObjects;
 import fw.common.ColorRGBA;
 import fw.mixins.internal.LevelRendererInternal;
 import net.minecraft.client.Camera;

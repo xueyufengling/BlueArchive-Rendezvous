@@ -3,14 +3,15 @@ package ba.client.render.level;
 import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import fw.client.render.gl.PixelsBuffer;
-import fw.client.render.gl.RenderableObject;
-import fw.client.render.gl.RenderableObjects;
-import fw.client.render.gl.SceneGraphNode;
+import fw.client.render.gl.FramebufferRenderer;
+import fw.client.render.gl.ScreenShader;
 import fw.client.render.level.BiomeColor;
 import fw.client.render.renderable.Texture;
 import fw.client.render.sky.NearEarthObject;
 import fw.client.render.sky.NearEarthObject.Pos;
+import fw.client.render.vanilla.RenderableObject;
+import fw.client.render.vanilla.RenderableObjects;
+import fw.client.render.vanilla.SceneGraphNode;
 import fw.client.render.sky.Sky;
 import fw.client.render.sky.WeatherEffect;
 import fw.common.ColorRGBA;
@@ -42,14 +43,27 @@ public class LevelRendering {
 
 	static {
 		LevelRendererInternal.RenderLevel.Callbacks.addBefore_popPush_fog((LevelRenderer this_, DeltaTracker deltaTracker, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f frustumMatrix, Matrix4f projectionMatrix, CallbackInfo ci) -> {
- 
+
 		});
 	}
+
+	public static final String colour_invasion_shader = "#version 330 core\n" +
+			"uniform sampler2D Sampler0;\n" +
+			"in vec2 TexCoord;\n" +
+			"out vec4 FragColor;\n" +
+			"void main()\n" +
+			"{\n" +
+			"   vec4 color = texture(Sampler0, TexCoord);\n" +
+			"   float gray = 0.299 * color.r + 0.587 * color.g + 0.114 * color.b;\n" +
+			"   vec3 MaskColor = vec3(0.749, 0.149, 0.298);\n" +
+			"   FragColor = vec4(MaskColor * (1 - gray) + vec3(color) * gray, color.a);\n" +
+			"}";
 
 	@SuppressWarnings("unused")
 	@ModInit(exec_stage = ModInit.Stage.CLIENT_CONNECT)
 	private static void initHalos() {
 		ExecuteIn.Client(() -> {
+			Sky.skyFramebuffer().setShader(ScreenShader.createShaderProgram(colour_invasion_shader, "Sampler0"));
 			// 光环初始化
 			float halo_z = 0.4f;
 			Pos.ViewHeight final_view_height = Pos.ViewHeight.lerpDecayTo(500, 1, 50, 0.5f);

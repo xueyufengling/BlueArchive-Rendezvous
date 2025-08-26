@@ -8,7 +8,7 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexFormat;
 
-import fw.client.render.TesselatorInstance;
+import fw.client.render.vanilla.TesselatorInstance;
 import fw.resources.ResourceLocations;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;

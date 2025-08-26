@@ -1,4 +1,4 @@
-package fw.client.render;
+package fw.client.render.vanilla;
 
 import java.lang.invoke.MethodHandle;
 import java.util.ArrayList;

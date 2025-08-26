@@ -5,7 +5,7 @@ import org.joml.Vector3f;
 
 import com.mojang.math.Axis;
 
-import fw.client.render.gl.SceneGraphNode;
+import fw.client.render.vanilla.SceneGraphNode;
 import fw.mixins.internal.LevelRendererInternal;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
