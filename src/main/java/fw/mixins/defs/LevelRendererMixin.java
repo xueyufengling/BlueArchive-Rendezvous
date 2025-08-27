@@ -1,7 +1,6 @@
 package fw.mixins.defs;
 
 import org.joml.Matrix4f;
-import org.lwjgl.opengl.GL30;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -14,8 +13,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.vertex.MeshData;
 
-import ba.client.render.level.LevelRendering;
-import fw.client.render.gl.EquivalentFramebuffer;
+import fw.client.render.gl.InterceptFramebuffer;
 import fw.client.render.level.LevelColor;
 import fw.client.render.sky.Sky;
 import fw.client.render.sky.SkyColor;
@@ -74,10 +72,9 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
 		Internal.Callbacks.invoke(LevelRendererInternal.RenderLevel.Callbacks.before_RenderSystem_disableBlend);
 	}
 
-	@Inject(method = "renderLevel", at = @At(value = "INVOKE", target = TargetDescriptors.LProfilerFiller.popPush, ordinal = 5, shift = Shift.AFTER), cancellable = true)
-	private void renderLevel_after_popPush_sky(DeltaTracker deltaTracker, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f frustumMatrix, Matrix4f projectionMatrix, CallbackInfo ci) {
-		Sky.skyFramebuffer().bind();// 将天空渲染在自定义帧缓冲内
-		Internal.Callbacks.invoke(LevelRendererInternal.RenderLevel.Callbacks.after_popPush_sky);
+	@Inject(method = "renderSky", at = @At(value = "HEAD"), cancellable = true)
+	private void renderSky_interceptFramebuffer(Matrix4f frustumMatrix, Matrix4f projectionMatrix, float partialTick, Camera camera, boolean isFoggy, Runnable skyFogSetup, CallbackInfo ci) {
+		InterceptFramebuffer.bind("sky");// 将天空渲染在自定义帧缓冲内
 	}
 
 	/**
@@ -91,10 +88,9 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
 	 * @param skyFogSetup
 	 * @param ci
 	 */
-	@Inject(method = "renderLevel", at = @At(value = "INVOKE", target = TargetDescriptors.LProfilerFiller.popPush, ordinal = 6, shift = Shift.BEFORE), cancellable = true)
-	private void renderLevel_before_popPush_fog(DeltaTracker deltaTracker, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f frustumMatrix, Matrix4f projectionMatrix, CallbackInfo ci) {
-		Sky.skyFramebuffer().blitToTarget();
-		Internal.Callbacks.invoke(LevelRendererInternal.RenderLevel.Callbacks.before_popPush_fog);
+	@Inject(method = "renderSky", at = @At(value = "RETURN"), cancellable = true)
+	private void renderSky_blitInterceptFramebuffer(Matrix4f frustumMatrix, Matrix4f projectionMatrix, float partialTick, Camera camera, boolean isFoggy, Runnable skyFogSetup, CallbackInfo ci) {
+		InterceptFramebuffer.blitToTarget("sky", Sky.sky_postprocess_shader);
 	}
 
 	/**

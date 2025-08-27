@@ -4,7 +4,8 @@ import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import fw.client.render.gl.FramebufferRenderer;
-import fw.client.render.gl.EquivalentFramebuffer;
+import fw.client.render.gl.InterceptRenderTarget;
+import fw.client.render.gl.ScreenShader;
 import fw.client.render.sky.NearEarthObject.Pos;
 import fw.client.render.vanilla.RenderableObject;
 import fw.client.render.vanilla.SceneGraphNode;
@@ -154,17 +155,14 @@ public class Sky {
 		return node;
 	}
 
-	private static EquivalentFramebuffer skyFramebuffer;
-
 	/**
-	 * 天空渲染专用帧缓冲
+	 * 天空渲染专用
 	 * 
 	 * @return
 	 */
-	public static EquivalentFramebuffer skyFramebuffer() {
-		if (skyFramebuffer == null) {
-			skyFramebuffer = EquivalentFramebuffer.createFromMain();
-		}
-		return skyFramebuffer;
+	public static ScreenShader sky_postprocess_shader = ScreenShader.SCREEN_BLIT_SHADER;
+
+	public static final void setSkyPostprocessShader(ScreenShader sky_postprocess_shader) {
+		Sky.sky_postprocess_shader = sky_postprocess_shader;
 	}
 }

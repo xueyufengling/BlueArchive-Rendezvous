@@ -15,6 +15,8 @@ public class ScreenShader extends Shader {
 		return new ScreenShader(fragment_shader_source, samplerUniform);
 	}
 
+	public static final ScreenShader SCREEN_BLIT_SHADER = createShaderProgram(Shader.pt_texture_fragment_shader, "Texture0");
+
 	private static int screen_quad_vao = 0;
 
 	/**
@@ -78,9 +80,11 @@ public class ScreenShader extends Shader {
 	 */
 	public void renderScreen(int texture) {
 		beginUse();
+		GL30.glDisable(GL30.GL_CULL_FACE);// 渲染到屏幕时关闭面剔除
 		GL30.glActiveTexture(GL30.GL_TEXTURE0);
 		GL30.glBindTexture(GL30.GL_TEXTURE_2D, texture);
 		GL30.glDrawArrays(GL30.GL_TRIANGLE_STRIP, 0, 4);
+		GL30.glEnable(GL30.GL_CULL_FACE);
 		endUse();
 	}
 

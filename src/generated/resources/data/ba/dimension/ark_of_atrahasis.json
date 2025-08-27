@@ -1,0 +1,11 @@
+{
+  "type": "ba:ark_of_atrahasis",
+  "generator": {
+    "type": "minecraft:noise",
+    "biome_source": {
+      "type": "minecraft:fixed",
+      "biome": "minecraft:forest"
+    },
+    "settings": "ba:ark_of_atrahasis"
+  }
+}

@@ -119,9 +119,20 @@ public class Shader {
 			"out vec2 TexCoord;\n" +
 			"void main()\n" +
 			"{\n" +
-			"	gl_Position=vec4(position,1.0);\n" +
-			"	TexCoord=texcoord;\n" +
+			"	gl_Position = vec4(position, 1.0);\n" +
+			"	TexCoord = texcoord;\n" +
 			"}";
+
+	public static final String pt_texture_fragment_shader = "#version 330 core\n" +
+			"in vec2 TexCoord;\n" +
+			"uniform sampler2D Texture0;\n" +
+			"out vec4 FragColor;\n" +
+			"void main()\n" +
+			"{\n" +
+			"	FragColor = texture(Texture0, TexCoord);\n" +
+			"}";
+
+	public static final Shader PASS_PT_SHADER = Shader.build(pt_pass_vertex_shader, pt_texture_fragment_shader);
 
 	public static Shader build(String vertex_shader_source, String fragment_shader_source) {
 		return new Shader(vertex_shader_source, fragment_shader_source);

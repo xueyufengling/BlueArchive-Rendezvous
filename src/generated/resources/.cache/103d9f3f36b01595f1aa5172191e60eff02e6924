@@ -1,9 +1,12 @@
-// 1.21.1	2025-08-22T20:54:51.4054955	Registries
+// 1.21.1	2025-08-27T09:32:28.4057374	Registries
+ddf5dbab9e514a847feb2286dd370b4f5edff57d data/ba/dimension/ark_of_atrahasis.json
 4921dc5be3d76290c68ab6ea515cd12fab008056 data/ba/dimension/kivotos.json
 69738f91cc44350fed31e19168b09dd70814209a data/ba/dimension/shittim_chest.json
+beb9fdc17e9fdd8a8f37e70d7c6dcaf5bac0c2b1 data/ba/dimension_type/ark_of_atrahasis.json
 bdf615feb9e72d91641e0e3fcf31db4edc957cc9 data/ba/dimension_type/kivotos.json
 ec3e7f001ff1c41ec1ce5bfa707ed382ee0b607b data/ba/dimension_type/shittim_chest.json
-843d7d348290fcacf3da2eb8ce0c3c19c891eaf2 data/ba/worldgen/biome/shittim_chest.json
+b690fb16b7f873166a3525cfa809dc3e5f7deb2b data/ba/worldgen/biome/shittim_chest.json
+504b086c96440cc64bcbf9d20c3e07f8fc00b198 data/ba/worldgen/noise_settings/ark_of_atrahasis.json
 f598605db01a860a1c7fb712786634fd1fd75409 data/ba/worldgen/noise_settings/kivotos.json
 fe16dd98668aba59ac6aac601149221c8ba60e2e data/ba/worldgen/noise_settings/shittim_chest.json
 39020f271ccd47d87c1b61043e9a2f48969d44c8 data/ba/worldgen/processor_list/arona_class_room.json

@@ -11,35 +11,30 @@ import net.minecraft.client.Minecraft;
  * 用于替换目标帧缓冲，使得本该渲染到目标帧缓冲的图形渲染在本帧缓冲上<br>
  * 并且可以使用blitToTarget()将渲染在本帧缓冲上的内容写入目标帧缓冲(将禁用混合和深度测试)。
  */
-public class EquivalentFramebuffer extends MainTarget {
+public class InterceptRenderTarget extends MainTarget {
 	private RenderTarget target_framebuffer;
 	private FramebufferRenderer framebuffer_render;
 
-	private EquivalentFramebuffer(RenderTarget target_framebuffer) {
+	private InterceptRenderTarget(RenderTarget target_framebuffer) {
 		super(target_framebuffer.width, target_framebuffer.height);
-		GL30.glBindTexture(GL30.GL_TEXTURE_2D, super.colorTextureId);
-		GL30.glTexParameteri(GL30.GL_TEXTURE_2D, GL30.GL_TEXTURE_MAX_LEVEL, 0);// 设置无Mipmap
-		GL30.glTexParameteri(GL30.GL_TEXTURE_2D, GL30.GL_TEXTURE_MIN_LOD, 0);
-		GL30.glTexParameteri(GL30.GL_TEXTURE_2D, GL30.GL_TEXTURE_MAX_LOD, 0);
-		GL30.glBindTexture(GL30.GL_TEXTURE_2D, 0);
 		this.target_framebuffer = target_framebuffer;
-		this.framebuffer_render = FramebufferRenderer.createFrom(this, target_framebuffer);
+		this.framebuffer_render = FramebufferRenderer.createFrom(super.colorTextureId, target_framebuffer.frameBufferId);
 	}
 
-	public static EquivalentFramebuffer createFrom(RenderTarget target_framebuffer) {
-		return new EquivalentFramebuffer(target_framebuffer);
+	public static InterceptRenderTarget createFrom(RenderTarget target_framebuffer) {
+		return new InterceptRenderTarget(target_framebuffer);
 	}
 
 	private static MainTarget mainFramebuffer;
 
-	public static final MainTarget mainFramebuffer() {
+	public static final MainTarget mainTarget() {
 		if (mainFramebuffer == null)
 			mainFramebuffer = (MainTarget) Minecraft.getInstance().getMainRenderTarget();
 		return mainFramebuffer;
 	}
 
-	public static EquivalentFramebuffer createFromMain() {
-		return new EquivalentFramebuffer(mainFramebuffer());
+	public static InterceptRenderTarget createFromMain() {
+		return new InterceptRenderTarget(mainTarget());
 	}
 
 	/**
@@ -54,7 +49,8 @@ public class EquivalentFramebuffer extends MainTarget {
 		int width = target_framebuffer.width;
 		int height = target_framebuffer.height;
 		if (recorded_width != width || recorded_height != height) {
-			super.resize(width, height, Minecraft.ON_OSX);
+			this.destroyBuffers();
+			this.createBuffers(width, height, Minecraft.ON_OSX);
 			recorded_width = width;
 			recorded_height = height;
 		}
@@ -64,21 +60,16 @@ public class EquivalentFramebuffer extends MainTarget {
 		framebuffer_render.setShader(framebuffer_process_shader);
 	}
 
-	@Override
-	public void bindWrite(boolean viewport) {
+	/**
+	 * 拦截渲染到当前上下文帧缓冲的操作并渲染到本帧缓冲中
+	 */
+	public void intercept() {
 		checkSize();
-		super.bindWrite(viewport);
-		GL30.glClear(GL30.GL_COLOR_BUFFER_BIT | GL30.GL_DEPTH_BUFFER_BIT);
-	}
-
-	public void bind() {
-		// checkSize();
 		GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, this.frameBufferId);
 		GL30.glClear(GL30.GL_COLOR_BUFFER_BIT | GL30.GL_DEPTH_BUFFER_BIT);
 	}
 
 	public void blitToTarget() {
-		// super.blitToScreen(width, height);
 		framebuffer_render.render();
 	}
 }
