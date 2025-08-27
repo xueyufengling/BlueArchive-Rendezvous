@@ -47,4 +47,13 @@ public class TargetDescriptors {
 	public static class LProfilerFiller {
 		public static final String popPush = "Lnet/minecraft/util/profiling/ProfilerFiller;popPush(Ljava/lang/String;)V";
 	}
+
+	public static class LFogRenderer {
+		public static final String levelFogColor = "Lnet/minecraft/client/renderer/FogRenderer;levelFogColor()V";
+	}
+
+	public static class LIrisRenderingPipeline {
+		public static final String beginLevelRendering = "Lnet/irisshaders/iris/pipeline/IrisRenderingPipeline;beginLevelRendering()V";
+		public static final String setPhase = "Lnet/irisshaders/iris/pipeline/IrisRenderingPipeline;setPhase(Lnet/irisshaders/iris/pipeline/WorldRenderingPhase;)V";
+	}
 }

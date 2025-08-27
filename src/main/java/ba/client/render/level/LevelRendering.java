@@ -1,8 +1,5 @@
 package ba.client.render.level;
 
-import org.joml.Matrix4f;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
 import fw.client.render.gl.ScreenShader;
 import fw.client.render.level.BiomeColor;
 import fw.client.render.renderable.Texture;
@@ -15,12 +12,6 @@ import fw.client.render.vanilla.RenderableObjects;
 import fw.client.render.vanilla.SceneGraphNode;
 import fw.core.ExecuteIn;
 import fw.core.ModInit;
-import fw.mixins.internal.LevelRendererInternal;
-import net.minecraft.client.Camera;
-import net.minecraft.client.DeltaTracker;
-import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.client.renderer.LightTexture;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
@@ -39,12 +30,6 @@ public class LevelRendering {
 		BiomeColor.setFixedGrayScaleFogColor(COLOUR_INVASION_SKY[0], COLOUR_INVASION_SKY[1], COLOUR_INVASION_SKY[2]);
 	}
 
-	static {
-		LevelRendererInternal.RenderLevel.Callbacks.addBefore_popPush_fog((LevelRenderer this_, DeltaTracker deltaTracker, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f frustumMatrix, Matrix4f projectionMatrix, CallbackInfo ci) -> {
-
-		});
-	}
-
 	public static final String colour_invasion_shader = "#version 330 core\n" +
 			"uniform sampler2D Texture0;\n" +
 			"in vec2 TexCoord;\n" +
@@ -61,15 +46,6 @@ public class LevelRendering {
 			"   vec3 ReferenceColor = vec3(0.426, 0.741, 0.831);\n" +
 			"   float mask_gray = gray(ReferenceColor);\n" +
 			"   FragColor = vec4(MaskColor * (color_gray / mask_gray), color.a);\n" +
-			"}";
-
-	public static final String shader = "#version 330 core\n" +
-			"in vec2 TexCoord;\n" +
-			"uniform sampler2D Texture0;\n" +
-			"out vec4 FragColor;\n" +
-			"void main()\n" +
-			"{\n" +
-			"	FragColor = vec4(1,0,0, 1);\n" +
 			"}";
 
 	@SuppressWarnings("unused")

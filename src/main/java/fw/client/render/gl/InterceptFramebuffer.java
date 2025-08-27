@@ -5,64 +5,99 @@ import java.util.HashMap;
 import org.lwjgl.opengl.GL30;
 
 /**
- * 拦截上下文帧缓冲
+ * 拦截上下文帧缓冲，并在渲染结束后将拦截的渲染结果写回目标帧缓冲
  */
 public class InterceptFramebuffer extends Framebuffer {
-	public FramebufferRenderer framebuffer_render;
-
-	private static final HashMap<String, InterceptFramebuffer> interceptFramebuffers = new HashMap<>();
+	private FramebufferRenderer framebuffer_render;
 
 	public InterceptFramebuffer() {
 		framebuffer_render = FramebufferRenderer.createUnbound();
 	}
 
-	private InterceptFramebuffer updateFramebufferRenderer(int target_framebuffer) {
+	private InterceptFramebuffer update(int target_framebuffer) {
 		framebuffer_render.setSourceColorAttachment(super.framebuffer, super.color_attachment);
 		framebuffer_render.setTargetFramebuffer(target_framebuffer);
 		return this;
 	}
 
-	private static InterceptFramebuffer intercept(String name, int target_framebuffer) {
-		int width = Framebuffer.framebufferWidth(target_framebuffer);// 每次获取时先判断尺寸是否改变
-		int height = Framebuffer.framebufferHeight(target_framebuffer);
-		return ((InterceptFramebuffer) interceptFramebuffers.computeIfAbsent(name, (String s) -> new InterceptFramebuffer()).resize(width, height)).updateFramebufferRenderer(target_framebuffer);
+	/**
+	 * 设定目标帧缓冲
+	 * 
+	 * @param target_framebuffer
+	 * @return
+	 */
+	public InterceptFramebuffer capture(int target_framebuffer) {
+		int color_attachment = Framebuffer.currentBindColorAttachment(target_framebuffer);
+		int width = Framebuffer.textureWidth(color_attachment, 0);// 每次获取时先判断尺寸是否改变
+		int height = Framebuffer.textureHeight(color_attachment, 0);
+		return ((InterceptFramebuffer) this.resize(width, height)).update(target_framebuffer);
 	}
 
-	public static InterceptFramebuffer intercept(String name) {
-		return intercept(name, Framebuffer.currentBindFramebuffer());
-	}
-
-	public static InterceptFramebuffer of(String name) {
-		return (InterceptFramebuffer) interceptFramebuffers.get(name);
-	}
-
-	public void setShader(ScreenShader framebuffer_process_shader) {
-		framebuffer_render.setShader(framebuffer_process_shader);
+	/**
+	 * 捕捉上下文帧缓冲
+	 * 
+	 * @return
+	 */
+	public InterceptFramebuffer capture() {
+		return capture(Framebuffer.currentBindFramebuffer());
 	}
 
 	/**
 	 * 拦截渲染到当前上下文帧缓冲的操作并渲染到本帧缓冲中
 	 */
-	public void bind() {
+	public void intercept() {
 		GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, super.framebuffer);
 		GL30.glClear(GL30.GL_COLOR_BUFFER_BIT | GL30.GL_DEPTH_BUFFER_BIT);
 	}
 
-	public static void bind(String name) {
-		InterceptFramebuffer.intercept(name).bind();
-	}
-
-	public void blitToTarget() {
+	/**
+	 * 写回拦截的结果
+	 * 
+	 * @param blitShader
+	 */
+	public void writeback(ScreenShader blitShader) {
+		framebuffer_render.setShader(blitShader);
 		framebuffer_render.render();
+		GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, framebuffer_render.target_framebuffer);// 将渲染目标帧缓冲交还
 	}
 
-	public static void blitToTarget(String name, ScreenShader blitShader) {
-		InterceptFramebuffer framebuffer = InterceptFramebuffer.of(name);
-		framebuffer.setShader(blitShader);
-		framebuffer.blitToTarget();
+	public void writeback() {
+		writeback(ScreenShader.SCREEN_BLIT_SHADER);
 	}
 
-	public static void blitToTarget(String name) {
-		blitToTarget(name, ScreenShader.SCREEN_BLIT_SHADER);
+	private static final HashMap<String, InterceptFramebuffer> interceptFramebuffers = new HashMap<>();
+
+	public static InterceptFramebuffer capture(String name, int target_framebuffer) {
+		return interceptFramebuffers.computeIfAbsent(name, (String s) -> new InterceptFramebuffer()).capture(target_framebuffer);
+	}
+
+	public static InterceptFramebuffer capture(String name) {
+		return capture(name, Framebuffer.currentBindFramebuffer());
+	}
+
+	public static InterceptFramebuffer of(String name) {
+		return interceptFramebuffers.get(name);
+	}
+
+	/**
+	 * 拦截上下文帧缓冲，在此语句后所有渲染操作均写入本帧缓冲
+	 * 
+	 * @param name
+	 */
+	public static void intercept(String name) {
+		InterceptFramebuffer.capture(name).intercept();
+	}
+
+	/**
+	 * 恢复上下文帧缓冲，在此语句时所有拦截的渲染操作均写入目标帧缓冲
+	 * 
+	 * @param name
+	 */
+	public static void writeback(String name, ScreenShader blitShader) {
+		InterceptFramebuffer.of(name).writeback(blitShader);
+	}
+
+	public static void writeback(String name) {
+		writeback(name, ScreenShader.SCREEN_BLIT_SHADER);
 	}
 }

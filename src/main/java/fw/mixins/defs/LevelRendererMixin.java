@@ -72,9 +72,9 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
 		Internal.Callbacks.invoke(LevelRendererInternal.RenderLevel.Callbacks.before_RenderSystem_disableBlend);
 	}
 
-	@Inject(method = "renderSky", at = @At(value = "HEAD"), cancellable = true)
+	@Inject(method = "renderSky", at = @At(value = "HEAD"))
 	private void renderSky_interceptFramebuffer(Matrix4f frustumMatrix, Matrix4f projectionMatrix, float partialTick, Camera camera, boolean isFoggy, Runnable skyFogSetup, CallbackInfo ci) {
-		InterceptFramebuffer.bind("sky");// 将天空渲染在自定义帧缓冲内
+		InterceptFramebuffer.intercept("sky");// 将天空渲染在自定义帧缓冲内
 	}
 
 	/**
@@ -88,9 +88,9 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
 	 * @param skyFogSetup
 	 * @param ci
 	 */
-	@Inject(method = "renderSky", at = @At(value = "RETURN"), cancellable = true)
+	@Inject(method = "renderSky", at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/LevelRenderer;SUN_LOCATION:Lnet/minecraft/resources/ResourceLocation;", shift = Shift.BEFORE))
 	private void renderSky_blitInterceptFramebuffer(Matrix4f frustumMatrix, Matrix4f projectionMatrix, float partialTick, Camera camera, boolean isFoggy, Runnable skyFogSetup, CallbackInfo ci) {
-		InterceptFramebuffer.blitToTarget("sky", Sky.sky_postprocess_shader);
+		InterceptFramebuffer.writeback("sky", Sky.sky_postprocess_shader);
 	}
 
 	/**
