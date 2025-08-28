@@ -4,8 +4,6 @@ import java.nio.ByteBuffer;
 
 import org.lwjgl.opengl.GL30;
 
-import com.mojang.blaze3d.pipeline.MainTarget;
-
 import net.minecraft.client.Minecraft;
 
 /**
@@ -162,6 +160,14 @@ public class Framebuffer {
 		return GL30.glGetInteger(GL30.GL_FRAMEBUFFER_BINDING);
 	}
 
+	public static int currentBindReadFramebuffer() {
+		return GL30.glGetInteger(GL30.GL_READ_FRAMEBUFFER_BINDING);
+	}
+
+	public static int currentBindWriteFramebuffer() {
+		return GL30.glGetInteger(GL30.GL_DRAW_FRAMEBUFFER_BINDING);
+	}
+
 	/**
 	 * 获取帧缓冲绑定的颜色附件
 	 * 
@@ -181,25 +187,17 @@ public class Framebuffer {
 		return currentBindColorAttachment(framebuffer, 0);
 	}
 
-	public static int textureWidth(int texture, int mipmapLevel) {
-		GL30.glBindTexture(GL30.GL_TEXTURE_2D, texture);
-		int width = GL30.glGetTexLevelParameteri(GL30.GL_TEXTURE_2D, mipmapLevel, GL30.GL_TEXTURE_WIDTH);
-		GL30.glBindTexture(GL30.GL_TEXTURE_2D, 0);
-		return width;
-	}
-
-	public static int textureHeight(int texture, int mipmapLevel) {
-		GL30.glBindTexture(GL30.GL_TEXTURE_2D, texture);
-		int height = GL30.glGetTexLevelParameteri(GL30.GL_TEXTURE_2D, mipmapLevel, GL30.GL_TEXTURE_HEIGHT);
-		GL30.glBindTexture(GL30.GL_TEXTURE_2D, 0);
-		return height;
-	}
-
 	public static int framebufferWidth(int framebuffer) {
-		return textureWidth(currentBindColorAttachment(framebuffer), 0);
+		return Texture2D.textureWidth(currentBindColorAttachment(framebuffer), 0);
 	}
 
 	public static int framebufferHeight(int framebuffer) {
-		return textureHeight(currentBindColorAttachment(framebuffer), 0);
+		return Texture2D.textureHeight(currentBindColorAttachment(framebuffer), 0);
+	}
+
+	public static float[] currentClearColor() {
+		float[] color = new float[4];
+		GL30.glGetFloatv(GL30.GL_COLOR_CLEAR_VALUE, color);
+		return color;
 	}
 }

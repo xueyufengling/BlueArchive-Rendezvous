@@ -122,8 +122,8 @@ public class RenderableObject implements Renderable {
 		public void render(RenderableObject obj, Matrix4f frustumMatrix, Matrix4f projectionMatrix);
 
 		public static RenderFunc POSITION_TEX_COLOR = (RenderableObject obj, Matrix4f frustumMatrix, Matrix4f projectionMatrix) -> {
-			RenderSystem.setShaderTexture(0, obj.texture);// 绑定ColorMap
 			obj.vertices.bind();
+			RenderSystem.setShaderTexture(0, obj.texture);// 绑定ColorMap
 			obj.vertices.drawWithShader(frustumMatrix, projectionMatrix, GameRenderer.getPositionTexColorShader());
 			VertexBuffer.unbind();
 		};

@@ -3,13 +3,12 @@ package fw.client.render.sky;
 import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import fw.client.render.gl.FramebufferRenderer;
-import fw.client.render.gl.InterceptRenderTarget;
 import fw.client.render.gl.ScreenShader;
 import fw.client.render.sky.NearEarthObject.Pos;
 import fw.client.render.vanilla.RenderableObject;
 import fw.client.render.vanilla.SceneGraphNode;
 import fw.client.render.vanilla.VertexBufferManipulator;
+import fw.ext.client.render.iris.IrisPostprocess;
 import fw.mixins.internal.LevelRendererInternal;
 import fw.resources.ResourceLocations;
 import lyra.object.ObjectManipulator;
@@ -164,5 +163,7 @@ public class Sky {
 
 	public static final void setSkyPostprocessShader(ScreenShader sky_postprocess_shader) {
 		Sky.sky_postprocess_shader = sky_postprocess_shader;
+		IrisPostprocess.setPostprocessShader("CLOUDS", sky_postprocess_shader);// 云是transform渲染的，需要在天空的基础上二次渲染，因此只能云和天空一起处理
 	}
+
 }

@@ -137,4 +137,61 @@ public class Shader {
 	public static Shader build(String vertex_shader_source, String fragment_shader_source) {
 		return new Shader(vertex_shader_source, fragment_shader_source);
 	}
+
+	/**
+	 * RGB颜色空间转HSL颜色空间
+	 */
+	public static final String rgb2hsl = "vec3 rgb2hsl(vec3 rgb) {\n"
+			+ "    float r = rgb.r;\n"
+			+ "    float g = rgb.g;\n"
+			+ "    float b = rgb.b;\n"
+			+ "    float max = max(max(r, g), b);\n"
+			+ "    float min = min(min(r, g), b);\n"
+			+ "    float h, s, l = (max + min) / 2.0;\n"
+			+ "    if (max == min) {\n"
+			+ "        h = s = 0.0;\n"
+			+ "    } else {\n"
+			+ "        float d = max - min;\n"
+			+ "        s = l > 0.5 ? d / (2.0 - max - min) : d / (max + min);\n"
+			+ "        if (max == r) {\n"
+			+ "            h = 60 * (g - b) / d + (g < b ? 360.0 : 0.0);\n"
+			+ "        } else if (max == g) {\n"
+			+ "            h = 60 * (b - r) / d + 120.0;\n"
+			+ "        } else {\n"
+			+ "            h = 60 * (r - g) / d + 240.0;\n"
+			+ "        }\n"
+			+ "        h /= 6.0;\n"
+			+ "    }\n"
+			+ "    return vec3(h, s, l);\n"
+			+ "}\n";
+
+	/**
+	 * 色相转RGB工具函数
+	 */
+	public static final String hue2rgb = "float hue2rgb(float p, float q, float t) {\n"
+			+ "    if (t < 0.0) t += 1.0;\n"
+			+ "    if (t > 1.0) t -= 1.0;\n"
+			+ "    if (t < 1.0/6.0) return p + (q - p) * 6.0 * t;\n"
+			+ "    if (t < 1.0/2.0) return q;\n"
+			+ "    if (t < 2.0/3.0) return p + (q - p) * (2.0/3.0 - t) * 6.0;\n"
+			+ "    return p;\n"
+			+ "}\n";
+
+	/**
+	 * HSL颜色空间转RGB颜色空间
+	 * H取值0-360，S、L取值0-1
+	 */
+	public static final String hsl2rgb = hue2rgb + "vec3 hsl2rgb(vec3 hsl) {\n"
+			+ "    float h = hsl.x / 360.0;\n"
+			+ "    float s = hsl.y;\n"
+			+ "    float l = hsl.z;\n"
+			+ "    if (s == 0.0) {\n"
+			+ "        return vec3(l, l, l);\n"
+			+ "    }\n"
+			+ "    float q = l < 0.5 ? l * (1.0 + s) : l + s - l * s;\n"
+			+ "    float p = 2.0 * l - q;\n"
+			+ "    return vec3(hue2rgb(p, q, h + 1.0/3.0), hue2rgb(p, q, h), hue2rgb(p, q, h - 1.0/3.0));\n"
+			+ "}\n";
+
+	public static final String hsl_model = rgb2hsl + hsl2rgb;
 }

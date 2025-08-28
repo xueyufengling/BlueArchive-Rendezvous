@@ -65,10 +65,6 @@ public class FramebufferRenderer {
 		return new FramebufferRenderer(source_framebuffer, target_framebuffer);
 	}
 
-	public static FramebufferRenderer createFromTargetMain(int source_framebuffer) {
-		return createFrom(source_framebuffer, InterceptRenderTarget.mainTarget().frameBufferId);
-	}
-
 	public static FramebufferRenderer createUnbound() {
 		return new FramebufferRenderer();
 	}
@@ -95,13 +91,27 @@ public class FramebufferRenderer {
 		return framebuffer_process_shader;
 	}
 
-	public final void render() {
+	/**
+	 * 将源纹理渲染到整个目标帧缓冲上
+	 * 
+	 * @param blend 是否与目标混合
+	 */
+	public final void render(boolean blend) {
 		int prev_framebuffer = Framebuffer.currentBindFramebuffer();
 		GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, target_framebuffer);
 		GL30.glDisable(GL30.GL_DEPTH_TEST);
-		GL30.glDisable(GL30.GL_BLEND);// 关闭混合，缓冲区结果只有渲染的QUAD
-		framebuffer_process_shader.renderScreen(source_framebuffer_color_attachment);
-		GL30.glEnable(GL30.GL_BLEND);
+		if (blend) {
+			GL30.glDisable(GL30.GL_BLEND);// 关闭混合，缓冲区结果只有渲染的QUAD
+			framebuffer_process_shader.renderScreen(source_framebuffer_color_attachment);
+			GL30.glEnable(GL30.GL_BLEND);
+		} else {
+			GL30.glEnable(GL30.GL_BLEND);
+			framebuffer_process_shader.renderScreen(source_framebuffer_color_attachment);
+		}
 		GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, prev_framebuffer);
+	}
+
+	public final void render() {
+		render(false);
 	}
 }

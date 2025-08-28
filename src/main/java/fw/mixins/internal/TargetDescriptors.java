@@ -52,8 +52,38 @@ public class TargetDescriptors {
 		public static final String levelFogColor = "Lnet/minecraft/client/renderer/FogRenderer;levelFogColor()V";
 	}
 
-	public static class LIrisRenderingPipeline {
-		public static final String beginLevelRendering = "Lnet/irisshaders/iris/pipeline/IrisRenderingPipeline;beginLevelRendering()V";
-		public static final String setPhase = "Lnet/irisshaders/iris/pipeline/IrisRenderingPipeline;setPhase(Lnet/irisshaders/iris/pipeline/WorldRenderingPhase;)V";
+	public static class Iris {
+
+		public static class LIrisRenderingPipeline {
+			public static final String beginLevelRendering = "Lnet/irisshaders/iris/pipeline/IrisRenderingPipeline;beginLevelRendering()V";
+			public static final String setPhase = "Lnet/irisshaders/iris/pipeline/IrisRenderingPipeline;setPhase(Lnet/irisshaders/iris/pipeline/WorldRenderingPhase;)V";
+		}
+
+		public static class LCompositeRenderer {
+			public static final String renderAll = "Lnet/irisshaders/iris/pipeline/CompositeRenderer;renderAll()V";
+		}
+
+		public static class LGlFramebuffer {
+			public static final String bind = "Lnet/irisshaders/iris/gl/framebuffer/GlFramebuffer;bind()V";
+		}
+
+		public static class LHorizonRenderer {
+			public static final String renderHorizon = "Lnet/irisshaders/iris/pathways/HorizonRenderer;renderHorizon(Lorg/joml/Matrix4fc;Lorg/joml/Matrix4fc;Lnet/minecraft/client/renderer/ShaderInstance;)V";
+		}
+
+		public static class LFullScreenQuadRenderer {
+			public static final String renderQuad = "Lnet/irisshaders/iris/pathways/FullScreenQuadRenderer;renderQuad()V";
+		}
+
+		public static class LExtendedShader {
+			/**
+			 * Iris着色器更新uniform及绑定帧缓冲
+			 */
+			public static final String apply = "Lnet/irisshaders/iris/pipeline/programs/ExtendedShader;apply()V";
+			/**
+			 * Iris渲染结束并绑回MainRenderTarget
+			 */
+			public static final String clear = "Lnet/irisshaders/iris/pipeline/programs/ExtendedShader;clear()V";
+		}
 	}
 }

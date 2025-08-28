@@ -74,7 +74,8 @@ public class ScreenShader extends Shader {
 	}
 
 	/**
-	 * 使用本着色器渲染texture纹理QUAD到屏幕帧缓冲
+	 * 使用本着色器渲染texture纹理QUAD到屏幕帧缓冲<br>
+	 * 不关心深度测试、混合
 	 * 
 	 * @param texture
 	 */

@@ -1,6 +1,7 @@
 package ba.client.render.level;
 
 import fw.client.render.gl.ScreenShader;
+import fw.client.render.gl.Shader;
 import fw.client.render.level.BiomeColor;
 import fw.client.render.renderable.Texture;
 import fw.client.render.sky.NearEarthObject;
@@ -26,33 +27,33 @@ public class LevelRendering {
 
 	public static final void renderColourInvasion() {
 		WeatherEffect.setRainColor(255, 0, 0);
+		Sky.setSkyPostprocessShader(colour_invasion_sky_shader);
 		BiomeColor.setFixedWaterFogColor(COLOUR_INVASION_SKY[0], COLOUR_INVASION_SKY[1], COLOUR_INVASION_SKY[2]);
 		BiomeColor.setFixedGrayScaleFogColor(COLOUR_INVASION_SKY[0], COLOUR_INVASION_SKY[1], COLOUR_INVASION_SKY[2]);
 	}
 
-	public static final String colour_invasion_shader = "#version 330 core\n" +
+	private static final String colour_invasion_sky_shader_source = "#version 330 core\n" +
 			"uniform sampler2D Texture0;\n" +
 			"in vec2 TexCoord;\n" +
 			"out vec4 FragColor;\n\n" +
-			"float gray(vec3 color)\n" +
-			"{\n" +
-			"   return 0.299 * color.r + 0.587 * color.g + 0.114 * color.b;\n" +
-			"}\n\n" +
+			Shader.hsl_model +
 			"void main()\n" +
 			"{\n" +
 			"   vec4 color = texture(Texture0, TexCoord);\n" +
-			"   float color_gray = gray(vec3(color));\n" +
-			"   vec3 MaskColor = vec3(0.749, 0.149, 0.298);\n" +
-			"   vec3 ReferenceColor = vec3(0.426, 0.741, 0.831);\n" +
-			"   float mask_gray = gray(ReferenceColor);\n" +
-			"   FragColor = vec4(MaskColor * (color_gray / mask_gray), color.a);\n" +
+			"   vec3 hsl = rgb2hsl(vec3(color));\n" +
+			"   hsl.x = 0;\n" +
+			"   hsl.y -= 0.3;\n" +
+			"   hsl.z -= 0.3;\n" +
+			"   FragColor = vec4(hsl2rgb(hsl), color.a);\n" +
 			"}";
+
+	private static ScreenShader colour_invasion_sky_shader;
 
 	@SuppressWarnings("unused")
 	@ModInit(exec_stage = ModInit.Stage.CLIENT_CONNECT)
 	private static void initHalos() {
 		ExecuteIn.Client(() -> {
-			Sky.setSkyPostprocessShader(ScreenShader.createShaderProgram(colour_invasion_shader, "Texture0"));
+			colour_invasion_sky_shader = ScreenShader.createShaderProgram(colour_invasion_sky_shader_source, "Texture0");
 			// 光环初始化
 			float halo_z = 0.4f;
 			Pos.ViewHeight final_view_height = Pos.ViewHeight.lerpDecayTo(500, 1, 50, 0.5f);
@@ -72,7 +73,7 @@ public class LevelRendering {
 			SceneGraphNode inner1_halo1 = Sky.renderNearEarthObject("kivotos/halo/i1", halo30, orbit);
 			NearEarthObject.Orbit orbit2 = NearEarthObject.Orbit.circle(orbit, 80, omega, final_view_height);
 			SceneGraphNode inner1_inner1_halo1 = Sky.renderNearEarthObject("kivotos/halo/i1/i1", halo40, orbit2);
-			// LevelRendering.renderColourInvasion();
+			LevelRendering.renderColourInvasion();
 		});
 	}
 }
