@@ -83,6 +83,10 @@ public class RenderableObject implements Renderable {
 		this(primitive, DefaultVertexFormat.POSITION_COLOR);
 	}
 
+	public RenderableObject(VertexFormat vertex_attributes) {
+		this(VertexFormat.Mode.TRIANGLE_STRIP, vertex_attributes);
+	}
+
 	/**
 	 * 只使用位置-颜色着色器
 	 */

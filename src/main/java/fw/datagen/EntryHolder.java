@@ -62,7 +62,7 @@ public class EntryHolder<T> {
 	 */
 	@FunctionalInterface
 	public static interface BootstrapValue<T> {
-		public T value(BootstrapContext<T> contexts, RegistryAccess registryAccess);
+		public T value(BootstrapContext<T> context, RegistryAccess registryAccess);
 	}
 
 	public final String namespace;

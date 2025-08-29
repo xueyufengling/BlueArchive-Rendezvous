@@ -7,10 +7,11 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.Holder;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 
-@OnlyIn(Dist.CLIENT)
+/**
+ * 不支持Iris光影包，仅支持原版渲染
+ */
+@Deprecated
 public class SkyColor {
 	/**
 	 * 修改最终的实际渲染颜色

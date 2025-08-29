@@ -1,7 +1,5 @@
 package fw.client.render.vanilla;
 
-import java.util.function.Consumer;
-
 import org.joml.Matrix4f;
 
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -9,7 +7,9 @@ import com.mojang.blaze3d.vertex.PoseStack;
 
 import fw.client.render.renderable.Renderable;
 import fw.common.ColorRGBA;
+import fw.mixins.internal.LevelRendererInternal;
 import lyra.alpha.struct.Node;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
@@ -19,7 +19,7 @@ import net.neoforged.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public class SceneGraphNode extends Node<String, RenderableObject.Instance> implements Renderable {
 
-	private Consumer<SceneGraphNode> preRenderOperation;
+	private UpdateOperation preRenderOperation;
 
 	/**
 	 * 只有变换的组节点
@@ -91,12 +91,26 @@ public class SceneGraphNode extends Node<String, RenderableObject.Instance> impl
 	}
 
 	/**
+	 * 渲染前的更新操作，通常用于修改变换
+	 */
+	@FunctionalInterface
+	public static interface UpdateOperation {
+		/**
+		 * 实时计算轨道
+		 * 
+		 * @param time tick为单位
+		 * @return
+		 */
+		public abstract void update(SceneGraphNode node, float cam_x, float cam_y, float cam_z, float time);
+	}
+
+	/**
 	 * 设置渲染前执行的操作
 	 * 
 	 * @param preRenderOperation
 	 * @return
 	 */
-	public final SceneGraphNode setPreRenderOperation(Consumer<SceneGraphNode> preRenderOperation) {
+	public final SceneGraphNode setUpdate(UpdateOperation preRenderOperation) {
 		this.preRenderOperation = preRenderOperation;
 		return this;
 	}
@@ -108,8 +122,10 @@ public class SceneGraphNode extends Node<String, RenderableObject.Instance> impl
 	 * @param projectionMatrix
 	 */
 	private void doRender(PoseStack poseStack, Matrix4f frustumMatrix, Matrix4f projectionMatrix) {
-		if (preRenderOperation != null)
-			preRenderOperation.accept(this);
+		if (preRenderOperation != null) {
+			Vec3 pos = LevelRendererInternal.RenderLevel.LocalVars.camPos;
+			preRenderOperation.update(this, (float) pos.x, (float) pos.y, (float) pos.z, LevelRendererInternal.RenderLevel.LocalVars.worldTime);
+		}
 		this.value.render(poseStack, projectionMatrix);// 渲染本节点
 	}
 

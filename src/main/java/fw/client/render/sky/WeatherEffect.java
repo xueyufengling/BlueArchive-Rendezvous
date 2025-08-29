@@ -1,6 +1,8 @@
 package fw.client.render.sky;
 
+import fw.client.render.gl.ScreenShader;
 import fw.client.render.vanilla.VertexBufferManipulator;
+import fw.ext.client.render.iris.IrisPostprocess;
 import fw.resources.ResourceLocations;
 import lyra.object.ObjectManipulator;
 import net.minecraft.client.renderer.LevelRenderer;
@@ -75,4 +77,7 @@ public class WeatherEffect {
 		ObjectManipulator.setStaticObject(LevelRenderer.class, SNOW_LOCATION, ResourceLocations.build(namespacedLoc));
 	}
 
+	public static final void setWeatherPostprocessShader(ScreenShader sky_postprocess_shader) {
+		IrisPostprocess.setPostprocessShader("RAIN_SNOW", sky_postprocess_shader);
+	}
 }

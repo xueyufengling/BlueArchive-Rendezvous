@@ -7,7 +7,6 @@ import com.mojang.math.Axis;
 
 import fw.client.render.vanilla.SceneGraphNode;
 import fw.mixins.internal.LevelRendererInternal;
-import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
@@ -293,8 +292,8 @@ public class NearEarthObject {
 
 	public static final NearEarthObject bind(SceneGraphNode node, Orbit orbit) {
 		NearEarthObject track = new NearEarthObject(node, orbit);
-		node.setPreRenderOperation((SceneGraphNode n) -> {
-			track.updateTransform();
+		node.setUpdate((SceneGraphNode dest_node, float cam_x, float cam_y, float cam_z, float time) -> {
+			track.updateTransform(cam_x, cam_y, cam_z, time);
 		});
 		return track;
 	}
@@ -307,10 +306,10 @@ public class NearEarthObject {
 		return bind(node, Orbit.fixed(object_x, object_y, object_z, final_view_height));
 	}
 
-	private void updateTransform(float player_x, float player_y, float player_z) {
+	private void updateTransform(float player_x, float player_y, float player_z, float time) {
 		Matrix4f incline = new Matrix4f();
 		incline.rotate(Axis.XP.rotationDegrees(-90.0f));// 绕正x轴旋转90°，让物体位于仰视视角
-		incline.rotate(Axis.YN.rotation(spin.angularSpeed(LevelRendererInternal.RenderLevel.LocalVars.worldTime)));
+		incline.rotate(Axis.YN.rotation(spin.angularSpeed(time)));
 		Pos pos = orbit.position(LevelRendererInternal.RenderLevel.LocalVars.worldTime);// 计算轨道坐标
 		float offset_x = pos.object_x - player_x;
 		float offset_z = player_z - pos.object_z;
@@ -320,10 +319,5 @@ public class NearEarthObject {
 				offset_z / pos.z_offset_decay.calc(pos.object_x, offset_x, pos.object_y, offset_y, pos.object_z, offset_z),
 				pos.final_view_height.calc(pos.object_x, offset_x, pos.object_y, offset_y, pos.object_z, offset_z)));
 		node.setTransform(incline);
-	}
-
-	private void updateTransform() {
-		Vec3 pos = LevelRendererInternal.RenderLevel.LocalVars.camPos;
-		updateTransform((float) pos.x, (float) pos.y, (float) pos.z);
 	}
 }

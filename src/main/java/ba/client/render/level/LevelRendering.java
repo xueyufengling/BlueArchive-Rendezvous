@@ -1,5 +1,9 @@
 package ba.client.render.level;
 
+import org.joml.Matrix4f;
+
+import com.mojang.math.Axis;
+
 import fw.client.render.gl.ScreenShader;
 import fw.client.render.gl.Shader;
 import fw.client.render.level.BiomeColor;
@@ -11,6 +15,7 @@ import fw.client.render.sky.WeatherEffect;
 import fw.client.render.vanilla.RenderableObject;
 import fw.client.render.vanilla.RenderableObjects;
 import fw.client.render.vanilla.SceneGraphNode;
+import fw.common.ColorRGBA;
 import fw.core.ExecuteIn;
 import fw.core.ModInit;
 import net.neoforged.api.distmarker.Dist;
@@ -27,7 +32,9 @@ public class LevelRendering {
 
 	public static final void renderColourInvasion() {
 		WeatherEffect.setRainColor(255, 0, 0);
+		WeatherEffect.setWeatherPostprocessShader(colour_invasion_sky_shader);
 		Sky.setSkyPostprocessShader(colour_invasion_sky_shader);
+		BiomeColor.setFixedWaterColor(COLOUR_INVASION_SKY[0], COLOUR_INVASION_SKY[1], COLOUR_INVASION_SKY[2]);
 		BiomeColor.setFixedWaterFogColor(COLOUR_INVASION_SKY[0], COLOUR_INVASION_SKY[1], COLOUR_INVASION_SKY[2]);
 		BiomeColor.setFixedGrayScaleFogColor(COLOUR_INVASION_SKY[0], COLOUR_INVASION_SKY[1], COLOUR_INVASION_SKY[2]);
 	}
@@ -73,7 +80,14 @@ public class LevelRendering {
 			SceneGraphNode inner1_halo1 = Sky.renderNearEarthObject("kivotos/halo/i1", halo30, orbit);
 			NearEarthObject.Orbit orbit2 = NearEarthObject.Orbit.circle(orbit, 80, omega, final_view_height);
 			SceneGraphNode inner1_inner1_halo1 = Sky.renderNearEarthObject("kivotos/halo/i1/i1", halo40, orbit2);
-			LevelRendering.renderColourInvasion();
+
+			SceneGraphNode missile = Sky.render("missile", RenderableObjects.gradualColorDroplet(1, 3, 10, ColorRGBA.WHITE, ColorRGBA.ORANGE));
+			missile.setUpdate((SceneGraphNode node, float cam_x, float cam_y, float cam_z, float time) -> {
+				Matrix4f incline = new Matrix4f();
+				incline.rotate(Axis.XP.rotationDegrees(-70.0f));// 绕正x轴旋转90°，让物体位于仰视视角
+				node.setTransform(incline);
+			});
+			// LevelRendering.renderColourInvasion();
 		});
 	}
 }

@@ -163,7 +163,9 @@ public class Sky {
 
 	public static final void setSkyPostprocessShader(ScreenShader sky_postprocess_shader) {
 		Sky.sky_postprocess_shader = sky_postprocess_shader;
+		IrisPostprocess.setPostprocessShader("CUSTOM_SKY", sky_postprocess_shader);
 		IrisPostprocess.setPostprocessShader("CLOUDS", sky_postprocess_shader);// 云是transform渲染的，需要在天空的基础上二次渲染，因此只能云和天空一起处理
+		IrisPostprocess.setPostprocessShader("SUNSET", sky_postprocess_shader);
 	}
 
 }

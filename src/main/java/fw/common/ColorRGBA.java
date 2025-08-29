@@ -184,6 +184,17 @@ public class ColorRGBA {
 		return this;
 	}
 
+	/**
+	 * 颜色插值
+	 * 
+	 * @param normalized 目标颜色比重
+	 * @param dest       目标颜色
+	 * @return
+	 */
+	public ColorRGBA interplote(float normalized, ColorRGBA dest) {
+		return this.mul(1 - normalized).add(dest.mul(normalized));
+	}
+
 	public static final int[] parseAsInt(int pixel) {
 		return new int[] {
 				(pixel >> 16) & 0xff, // r
@@ -237,6 +248,8 @@ public class ColorRGBA {
 	public static final ColorRGBA WHITE = ColorRGBA.of(1.0f, 1.0f, 1.0f, 1.0f);
 
 	public static final ColorRGBA BLACK = ColorRGBA.of(0.0f, 0.0f, 0.0f, 1.0f);
+
+	public static final ColorRGBA ORANGE = ColorRGBA.of(1.0f, 0.647f, 0.0f, 1.0f);
 
 	public static final ColorRGBA TRANSPARENT = ColorRGBA.of(0.0f, 0.0f, 0.0f, 0.0f);
 }
