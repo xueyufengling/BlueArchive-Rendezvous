@@ -1,13 +1,13 @@
 package ba.entries.dimension.kivotos;
 
-import fw.codec.annotation.AsDataField;
-import fw.codec.annotation.CodecAutogen;
-import fw.codec.annotation.CodecTarget;
-import fw.math.field.ScalarField;
-import fw.terrain.algorithm.ErosionOperator;
-import fw.terrain.algorithm.FractalNoise;
-import fw.terrain.algorithm.FractalOctaveSimplexNoiseHeightMap;
-import fw.terrain.algorithm.OctaveSimplexNoise;
+import lepus.math.field.ScalarField;
+import lepus.mc.codec.annotation.AsDataField;
+import lepus.mc.codec.annotation.CodecAutogen;
+import lepus.mc.codec.annotation.CodecTarget;
+import lepus.mc.terrain.algorithm.ErosionOperator;
+import lepus.mc.terrain.algorithm.FractalNoise;
+import lepus.mc.terrain.algorithm.FractalOctaveSimplexNoiseHeightMap;
+import lepus.mc.terrain.algorithm.OctaveSimplexNoise;
 import net.minecraft.util.KeyDispatchDataCodec;
 
 public class KivotosHeightMap extends FractalOctaveSimplexNoiseHeightMap {

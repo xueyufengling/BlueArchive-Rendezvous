@@ -4,12 +4,12 @@ import java.util.List;
 import java.util.OptionalLong;
 
 import ba.entries.biome.shittim_chest.ShittimChestBiomes;
-import fw.client.render.sky.SkyColor;
-import fw.core.ExecuteIn;
-import fw.datagen.EntryHolder;
-import fw.datagen.annotation.RegistryEntry;
-import fw.dimension.ExtDimension;
-import fw.math.interpolation.ColorLinearInterpolation;
+import lepus.math.interpolation.ColorLinearInterpolation;
+import lepus.mc.client.render.sky.SkyColor;
+import lepus.mc.core.ExecuteIn;
+import lepus.mc.datagen.EntryHolder;
+import lepus.mc.datagen.annotation.RegistryEntry;
+import lepus.mc.dimension.ExtDimension;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.RegistryAccess;

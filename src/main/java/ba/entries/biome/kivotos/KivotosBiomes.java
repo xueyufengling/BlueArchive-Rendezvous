@@ -4,9 +4,9 @@ import java.util.List;
 
 import com.mojang.serialization.MapCodec;
 
-import fw.codec.annotation.CodecAutogen;
-import fw.codec.derived.DerivedCodecHolder;
-import fw.terrain.biome.ExtBiomeSource;
+import lepus.mc.codec.annotation.CodecAutogen;
+import lepus.mc.codec.derived.DerivedCodecHolder;
+import lepus.mc.terrain.biome.ExtBiomeSource;
 import net.minecraft.core.Holder;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.world.level.biome.Biome;

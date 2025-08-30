@@ -3,10 +3,10 @@ package ba.entries.dimension.ark_of_atrahasis;
 import java.util.List;
 import java.util.OptionalLong;
 
-import fw.datagen.EntryHolder;
-import fw.datagen.annotation.RegistryEntry;
-import fw.dimension.ExtDimension;
-import fw.terrain.biome.ExtBiome;
+import lepus.mc.datagen.EntryHolder;
+import lepus.mc.datagen.annotation.RegistryEntry;
+import lepus.mc.dimension.ExtDimension;
+import lepus.mc.terrain.biome.ExtBiome;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.RegistryAccess;

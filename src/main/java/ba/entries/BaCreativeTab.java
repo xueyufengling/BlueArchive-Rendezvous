@@ -1,8 +1,8 @@
 package ba.entries;
 
-import fw.datagen.annotation.LangDatagen;
-import fw.datagen.annotation.Translation;
-import fw.items.ExtCreativeTab;
+import lepus.mc.datagen.annotation.LangDatagen;
+import lepus.mc.datagen.annotation.Translation;
+import lepus.mc.items.ExtCreativeTab;
 
 public enum BaCreativeTab implements ExtCreativeTab {
 	@LangDatagen(translations = { @Translation(locale = "en_us", text = "BlueArchive Key Items"), @Translation(locale = "zh_cn", text = "蔚蓝档案 重要物品") })

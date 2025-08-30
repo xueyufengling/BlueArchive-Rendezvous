@@ -1,6 +1,6 @@
 package ba.world.terrain;
 
-import fw.core.Core;
+import lepus.mc.core.Core;
 import net.minecraft.resources.ResourceLocation;
 
 public enum TerrainEffect {

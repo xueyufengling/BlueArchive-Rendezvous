@@ -30,7 +30,7 @@ more situation can be inferred from [liscense terms](LICENSE-BlueArchive-Rendezv
 
 3. Do not make any form of profit and prevent others from making profits through licensing. <br>
 
-    In addition, the code of this mod mainly relies on [Lyra](https://github.com/xueyufengling/Lyra) and [CoreFramework](https://github.com/xueyufengling/BlueArchive-Rendezvous/tree/main/src/main/java/fw) for implementation. These libraries do not involve specific mod logic and are only introduced as utilities for mod development. The source code is fully owned by the developer and distributed in accordance with relevant licenses. It will not be deleted due to any external factors.<br>
+    In addition, the code of this mod mainly relies on [Lyra](https://github.com/xueyufengling/Lyra) and [Lepus](https://github.com/xueyufengling/BlueArchive-Rendezvous/tree/main/src/main/java/lepus) for implementation. These libraries do not involve specific mod logic and are only introduced as utilities for mod development. The source code is fully owned by the developer and distributed in accordance with relevant licenses. It will not be deleted due to any external factors.<br>
 
     The copyright of all components of the mod, including source code, maps, buildings, models, etc., belongs to the relevant contributors themselves. For details, please see the list of contributors below.<br>
 

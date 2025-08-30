@@ -30,7 +30,7 @@ c. 搭建一个以本模组为主要功能的服务器并向玩家收取费用�
 
 3. 不进行任何形式的盈利并通过许可阻止他人的盈利行为。<br>
 
-    此外，本模组的代码主要依赖于[Lyra](https://github.com/xueyufengling/Lyra)和[CoreFramework](https://github.com/xueyufengling/BlueArchive-Rendezvous/tree/main/src/main/java/fw)实现，这些库不涉及具体的模组逻辑，仅作为模组开发的工具而引入，其源代码由开发者享有完全的知识产权并按照相关的许可进行分发，不会因为任何外部因素删除。<br>
+    此外，本模组的代码主要依赖于[Lyra](https://github.com/xueyufengling/Lyra)和[Lepus](https://github.com/xueyufengling/BlueArchive-Rendezvous/tree/main/src/main/java/lepus)实现，这些库不涉及具体的模组逻辑，仅作为模组开发的工具而引入，其源代码由开发者享有完全的知识产权并按照相关的许可进行分发，不会因为任何外部因素删除。<br>
 
     模组的全部构成，包括源代码、地图、建筑、模型等，其版权均属于相关贡献者本身，具体可参见下方贡献者列表。<br>
 

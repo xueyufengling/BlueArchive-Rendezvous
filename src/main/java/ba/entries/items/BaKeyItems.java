@@ -1,10 +1,10 @@
 package ba.entries.items;
 
 import ba.entries.BaCreativeTab;
-import fw.datagen.annotation.ItemDatagen;
-import fw.datagen.annotation.LangDatagen;
-import fw.datagen.annotation.Translation;
-import fw.items.ExtItem;
+import lepus.mc.datagen.annotation.ItemDatagen;
+import lepus.mc.datagen.annotation.LangDatagen;
+import lepus.mc.datagen.annotation.Translation;
+import lepus.mc.items.ExtItem;
 import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.registries.DeferredItem;
 

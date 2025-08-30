@@ -1,6 +1,6 @@
 package ba.client.render.item;
 
-import fw.client.render.item.ItemBackground;
+import lepus.mc.client.render.item.ItemBackground;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 

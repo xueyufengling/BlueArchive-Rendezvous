@@ -6,12 +6,12 @@ import com.mojang.logging.LogUtils;
 
 import ba.entries.dimension.kivotos.Kivotos;
 import ba.entries.dimension.shittim_chest.ShittimChest;
-import fw.core.Core;
-import fw.core.ExecuteIn;
-import fw.core.ModInit;
-import fw.datagen.annotation.LangDatagen;
-import fw.datagen.annotation.Translation;
-import fw.dimension.Dimensions;
+import lepus.mc.core.Core;
+import lepus.mc.core.ExecuteIn;
+import lepus.mc.core.ModInit;
+import lepus.mc.datagen.annotation.LangDatagen;
+import lepus.mc.datagen.annotation.Translation;
+import lepus.mc.dimension.Dimensions;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.common.Mod;
 
@@ -41,6 +41,6 @@ public class ModEntry {
 			Dimensions.redirectOverworld(ShittimChest.ID);
 			Logger.info("Running on client-side, overworld redirected to Shittim Chest");
 		});
-		// Dimensions.redirectOverworld(Kivotos.ID);
+		Dimensions.redirectOverworld(Kivotos.ID);
 	}
 }

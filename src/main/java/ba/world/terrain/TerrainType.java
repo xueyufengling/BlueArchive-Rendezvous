@@ -2,9 +2,9 @@ package ba.world.terrain;
 
 import com.mojang.serialization.Codec;
 
-import fw.codec.annotation.CodecAutogen;
-import fw.codec.annotation.CodecEntry;
-import fw.codec.annotation.IntRange;
+import lepus.mc.codec.annotation.CodecAutogen;
+import lepus.mc.codec.annotation.CodecEntry;
+import lepus.mc.codec.annotation.IntRange;
 
 public enum TerrainType {
 	/**
