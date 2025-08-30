@@ -20,6 +20,7 @@ import fw.client.render.sky.SkyColor;
 import fw.client.render.sky.WeatherEffect;
 import fw.client.render.vanilla.VertexBufferManipulator;
 import fw.common.ColorRGBA;
+import fw.ext.client.render.iris.IrisPostprocess;
 import fw.mixins.internal.Internal;
 import fw.mixins.internal.LevelRendererInternal;
 import fw.mixins.internal.TargetDescriptors;
@@ -47,12 +48,6 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
 	private void renderLevel_initParams(DeltaTracker deltaTracker, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f frustumMatrix, Matrix4f projectionMatrix, CallbackInfo ci) {
 		LevelRendererInternal.RenderLevel.Args.store((LevelRenderer) (Object) this, deltaTracker, renderBlockOutline, camera, gameRenderer, lightTexture, frustumMatrix, projectionMatrix, ci);
 		LevelRendererInternal.RenderLevel.LocalVars.store(minecraft, level, deltaTracker);
-	}
-
-	@WrapOperation(method = "renderClouds", at = @At(value = "INVOKE", target = TargetDescriptors.LClientLevel.getCloudColor))
-	private Vec3 renderClouds_modifyAfterGetCloudColor(ClientLevel level, float partialTick, Operation<Vec3> op) {
-		Vec3 orig = op.call(level, partialTick);
-		return SkyColor.resolveCloud(ColorRGBA.of(orig), level, partialTick, LevelRendererInternal.RenderLevel.LocalVars.camPosBiome, LevelRendererInternal.RenderLevel.LocalVars.camPos, LevelRendererInternal.RenderLevel.LocalVars.dayTime).vec3();
 	}
 
 	@Inject(method = "renderLevel", at = @At(value = "RETURN", shift = Shift.BEFORE), cancellable = true)
@@ -90,7 +85,7 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
 	 */
 	@Inject(method = "renderSky", at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/LevelRenderer;SUN_LOCATION:Lnet/minecraft/resources/ResourceLocation;", shift = Shift.BEFORE))
 	private void renderSky_blitInterceptFramebuffer(Matrix4f frustumMatrix, Matrix4f projectionMatrix, float partialTick, Camera camera, boolean isFoggy, Runnable skyFogSetup, CallbackInfo ci) {
-		InterceptCopyFramebuffer.writeback("sky", Sky.sky_postprocess_shader);
+		InterceptCopyFramebuffer.writeback("sky", IrisPostprocess.finalPostProcess);
 	}
 
 	/**

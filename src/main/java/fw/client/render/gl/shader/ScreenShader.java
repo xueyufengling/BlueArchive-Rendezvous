@@ -1,4 +1,4 @@
-package fw.client.render.gl;
+package fw.client.render.gl.shader;
 
 import org.lwjgl.opengl.GL30;
 
@@ -6,7 +6,7 @@ import org.lwjgl.opengl.GL30;
  * 顶点着色器固定为NDC坐标系传递顶点着色器
  */
 public class ScreenShader extends Shader {
-	private ScreenShader(String fragment_shader_source, String samplerUniform) {
+	protected ScreenShader(String fragment_shader_source, String samplerUniform) {
 		super(Shader.pt_pass_vertex_shader, fragment_shader_source);
 		this.setUniform(samplerUniform, 0);// 初始化着色器GL_TEXTURE0的uniform采样器
 	}

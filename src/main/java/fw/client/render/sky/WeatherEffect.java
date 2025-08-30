@@ -1,6 +1,6 @@
 package fw.client.render.sky;
 
-import fw.client.render.gl.ScreenShader;
+import fw.client.render.gl.shader.ScreenShader;
 import fw.client.render.vanilla.VertexBufferManipulator;
 import fw.ext.client.render.iris.IrisPostprocess;
 import fw.resources.ResourceLocations;
@@ -78,6 +78,6 @@ public class WeatherEffect {
 	}
 
 	public static final void setWeatherPostprocessShader(ScreenShader sky_postprocess_shader) {
-		IrisPostprocess.setPostprocessShader("RAIN_SNOW", sky_postprocess_shader);
+		IrisPostprocess.setPhasePostprocessShader("RAIN_SNOW", sky_postprocess_shader);
 	}
 }

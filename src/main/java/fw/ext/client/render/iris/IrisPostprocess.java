@@ -2,12 +2,18 @@ package fw.ext.client.render.iris;
 
 import java.util.HashMap;
 
-import fw.client.render.gl.ScreenShader;
+import fw.client.render.gl.shader.ScreenShader;
 
 public class IrisPostprocess {
-	public static final HashMap<String, ScreenShader> postProcess = new HashMap<>();
+	public static final HashMap<String, ScreenShader> phasePostProcess = new HashMap<>();
 
-	public static void setPostprocessShader(String phase, ScreenShader shader) {
-		postProcess.put(phase, shader);
+	public static void setPhasePostprocessShader(String phase, ScreenShader shader) {
+		phasePostProcess.put(phase, shader);
+	}
+
+	public static ScreenShader finalPostProcess;
+
+	public static void setFinalPostProcess(ScreenShader shader) {
+		finalPostProcess = shader;
 	}
 }

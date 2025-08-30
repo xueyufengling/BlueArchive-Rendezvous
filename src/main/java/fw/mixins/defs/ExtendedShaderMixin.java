@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import fw.client.render.gl.InterceptCopyFramebuffer;
 import fw.client.render.gl.InterceptOperationFramebuffer;
-import fw.client.render.gl.ScreenShader;
+import fw.client.render.gl.shader.ScreenShader;
 import fw.ext.client.render.iris.IrisPostprocess;
 import net.irisshaders.iris.Iris;
 
@@ -30,7 +30,7 @@ public class ExtendedShaderMixin {
 	private void apply_interceptIrisFramebuffer(CallbackInfo ci) {
 		String phase = Iris.getPipelineManager().getPipelineNullable().getPhase().name();
 		this.phase_str = phase;
-		ScreenShader postprocessShader = IrisPostprocess.postProcess.get(phase);
+		ScreenShader postprocessShader = IrisPostprocess.phasePostProcess.get(phase);
 		this.postprocessShader = postprocessShader;
 		if (postprocessShader != null) {
 			this.intercepted = true;

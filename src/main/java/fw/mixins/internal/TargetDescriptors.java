@@ -20,6 +20,11 @@ public class TargetDescriptors {
 		public static final String disableBlend = "Lcom/mojang/blaze3d/systems/RenderSystem;disableBlend()V";
 		public static final String setShaderColor = "Lcom/mojang/blaze3d/systems/RenderSystem;setShaderColor(FFFF)V";
 		public static final String clearColor = "Lcom/mojang/blaze3d/systems/RenderSystem;clearColor(FFFF)V";
+		public static final String activeTexture = "Lcom/mojang/blaze3d/systems/RenderSystem;activeTexture(I)V";
+	}
+
+	public static class LRenderTarget {
+		public static final String bindWrite = "Lcom/mojang/blaze3d/pipeline/RenderTarget;bindWrite(Z)V";
 	}
 
 	public static class LPoseStack {

@@ -6,7 +6,6 @@ import org.joml.Vector3f;
 import com.mojang.math.Axis;
 
 import fw.client.render.vanilla.SceneGraphNode;
-import fw.mixins.internal.LevelRendererInternal;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
@@ -310,7 +309,7 @@ public class NearEarthObject {
 		Matrix4f incline = new Matrix4f();
 		incline.rotate(Axis.XP.rotationDegrees(-90.0f));// 绕正x轴旋转90°，让物体位于仰视视角
 		incline.rotate(Axis.YN.rotation(spin.angularSpeed(time)));
-		Pos pos = orbit.position(LevelRendererInternal.RenderLevel.LocalVars.worldTime);// 计算轨道坐标
+		Pos pos = orbit.position(time);// 计算轨道坐标
 		float offset_x = pos.object_x - player_x;
 		float offset_z = player_z - pos.object_z;
 		float offset_y = pos.object_y - player_y;

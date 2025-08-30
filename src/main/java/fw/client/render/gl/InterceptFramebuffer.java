@@ -2,6 +2,8 @@ package fw.client.render.gl;
 
 import org.lwjgl.opengl.GL30;
 
+import fw.client.render.gl.shader.ScreenShader;
+
 /**
  * 拦截上下文帧缓冲，不拷贝被拦截的帧缓冲，并在渲染结束后将拦截的渲染结果写回目标帧缓冲
  */
@@ -71,5 +73,20 @@ public abstract class InterceptFramebuffer extends Framebuffer {
 
 	public final void writeback(boolean blend) {
 		writeback(ScreenShader.SCREEN_BLIT_SHADER, blend);
+	}
+
+	/**
+	 * 对当前上下文帧缓冲进行后处理
+	 * 
+	 * @param blitShader
+	 * @param blend
+	 */
+	public final void postprocess(ScreenShader blitShader, boolean blend) {
+		this.capture();
+		this.writeback(blitShader, blend);
+	}
+
+	public final void postprocess(ScreenShader blitShader) {
+		this.postprocess(blitShader, false);
 	}
 }

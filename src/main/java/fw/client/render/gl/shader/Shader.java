@@ -1,4 +1,4 @@
-package fw.client.render.gl;
+package fw.client.render.gl.shader;
 
 import org.lwjgl.opengl.GL30;
 
@@ -27,6 +27,22 @@ public class Shader {
 
 	public void use() {
 		GL30.glUseProgram(program_id);
+	}
+
+	public int uniformLocation(String name) {
+		return GL30.glGetUniformLocation(program_id, name);
+	}
+
+	public void setUniform(int loc, int value) {
+		this.beginUse();
+		GL30.glUniform1i(loc, value);
+		this.endUse();
+	}
+
+	public void setUniform(int loc, float value) {
+		this.beginUse();
+		GL30.glUniform1f(loc, value);
+		this.endUse();
 	}
 
 	public void setUniform(String name, int value) {

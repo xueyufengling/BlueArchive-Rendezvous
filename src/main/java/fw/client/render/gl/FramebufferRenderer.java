@@ -2,6 +2,8 @@ package fw.client.render.gl;
 
 import org.lwjgl.opengl.GL30;
 
+import fw.client.render.gl.shader.ScreenShader;
+
 /**
  * 读取帧缓冲颜色附件，并重新渲染进去
  */

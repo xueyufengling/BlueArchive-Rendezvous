@@ -4,6 +4,8 @@ import java.util.HashMap;
 
 import org.lwjgl.opengl.GL30;
 
+import fw.client.render.gl.shader.ScreenShader;
+
 /**
  * 拦截上下文帧缓冲，并将拦截的帧缓冲内容拷贝到本帧缓冲中
  */
