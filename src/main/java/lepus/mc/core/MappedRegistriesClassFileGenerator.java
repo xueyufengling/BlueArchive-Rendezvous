@@ -90,7 +90,7 @@ public class MappedRegistriesClassFileGenerator {
 	public static final String bootstrapClsName = "BootstrapRegistries";
 	public static final String dynamicClsName = "DynamicRegistries";
 
-	@EventBusSubscriber(modid = Core.ModId, bus = Bus.MOD)
+	@EventBusSubscriber(bus = Bus.MOD)
 	private static class BootstrapGenerator {
 		static ArrayList<ResourceKey<? extends Registry<?>>> bootstrapRegistries = new ArrayList<>();
 
@@ -106,7 +106,7 @@ public class MappedRegistriesClassFileGenerator {
 		}
 	}
 
-	@EventBusSubscriber(modid = Core.ModId, bus = Bus.GAME)
+	@EventBusSubscriber(bus = Bus.GAME)
 	private static class DynamicGenerator {
 		/**
 		 * 服务器启动后再收集加载的注册表

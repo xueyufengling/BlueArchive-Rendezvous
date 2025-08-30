@@ -1,5 +1,6 @@
 package ba.entries.dimension.kivotos;
 
+import ba.ModEntry;
 import lepus.math.field.ScalarField;
 import lepus.mc.codec.annotation.AsDataField;
 import lepus.mc.codec.annotation.CodecAutogen;
@@ -16,7 +17,7 @@ public class KivotosHeightMap extends FractalOctaveSimplexNoiseHeightMap {
 		CodecAutogen.CodecGenerator.Codec();
 	}
 
-	@CodecAutogen(null_if_empty = true, register = true, warn_if_register_failed = true)
+	@CodecAutogen(namespace = ModEntry.ModId, null_if_empty = true, register = true, warn_if_register_failed = true)
 	public static final KeyDispatchDataCodec<KivotosHeightMap> CODEC = null;
 
 	/**

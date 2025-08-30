@@ -1,6 +1,5 @@
 package lepus.mc.event;
 
-import lepus.mc.core.Core;
 import lepus.mc.core.ServerInstance;
 import lyra.object.ObjectManipulator;
 import net.minecraft.server.MinecraftServer;
@@ -13,7 +12,7 @@ import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 
-@EventBusSubscriber(modid = Core.ModId)
+@EventBusSubscriber
 public enum ServerLifecycleTrigger implements EventTrigger<ServerLifecycleTrigger.Operation> {
 	BEFORE_SERVER_START(EventPriority.HIGH), // 未加载世界
 	AFTER_SERVER_LOAD_LEVEL(EventPriority.LOW), // 加载完世界

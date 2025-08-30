@@ -26,10 +26,6 @@ public class RegistryFactory {
 		return deferredRegister(registry.key(), modId);
 	}
 
-	public static <T> DeferredRegister<T> deferredRegister(Registry<T> registry) {
-		return deferredRegister(registry, Core.ModId);
-	}
-
 	/**
 	 * 获取注册表，所有通过该方法获取的注册表将缓存至Map，并且都可以通过registerAll()一次性全部自动注册到ModBus。<br>
 	 * 如果有注册表已经被注册到ModBus，那么将忽略该注册表。
@@ -50,10 +46,6 @@ public class RegistryFactory {
 				return DeferredRegister.create((ResourceKey<? extends Registry<T>>) resKey, mod_id);
 		});
 		return deferredRegister;
-	}
-
-	public static <T> DeferredRegister<T> deferredRegister(ResourceKey<? extends Registry<T>> registryKey) {
-		return deferredRegister(registryKey, Core.ModId);
 	}
 
 	public static void register(DeferredRegister<?> register, IEventBus modBus) {

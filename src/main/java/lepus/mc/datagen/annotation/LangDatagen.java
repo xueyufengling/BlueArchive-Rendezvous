@@ -1,3 +1,4 @@
+
 package lepus.mc.datagen.annotation;
 
 import java.lang.annotation.ElementType;
@@ -48,7 +49,7 @@ public @interface LangDatagen {
 						if (locale.equals(translation.locale())) {// 当前Translation的语言是LangProvider的语言
 							String final_text = null;
 							if (value instanceof Localizable localizable) {// 优先使用Localizable指定的key
-								if (this.namespace.equals(localizable.localizationNamespace())) {
+								if (this.namespace.equals(localizable.namespace())) {
 									final_text = Translation.Resolver.resolveText(translation);
 									if (final_text != null)
 										super.add(localizable.localizationKey(), final_text);

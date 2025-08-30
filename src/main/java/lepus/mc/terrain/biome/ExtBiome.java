@@ -3,7 +3,6 @@ package lepus.mc.terrain.biome;
 import java.util.ArrayList;
 import java.util.Set;
 
-import lepus.mc.core.Core;
 import lepus.mc.core.registry.registries.server.DynamicRegistries;
 import lepus.mc.datagen.EntryHolder;
 import lepus.mc.resources.ResourceKeys;
@@ -35,16 +34,6 @@ public class ExtBiome {
 	}
 
 	/**
-	 * 获取本模组的生物群系
-	 * 
-	 * @param key 不带命名空间的key
-	 * @return
-	 */
-	public static final Holder<Biome> modBiome(String key) {
-		return DynamicRegistries.BIOME.getHolderOrThrow(ResourceKeys.build(Registries.BIOME, Core.ModId, key));
-	}
-
-	/**
 	 * 数据注册阶段获取生物群系的Holder
 	 * 数据生成时使用,用于获取目标key的Holder.<br>
 	 * 数据包注册表的Holder要进入服务器才能获取，这里是获取启动时的Holder，即BootstrapContext的Holder。<br>
@@ -55,17 +44,6 @@ public class ExtBiome {
 	 */
 	public static final Holder<Biome> datagenStageHolder(BootstrapContext<?> context, String key) {
 		return context.lookup(Registries.BIOME).getOrThrow(ResourceKeys.build(Registries.BIOME, key));
-	}
-
-	/**
-	 * 数据注册阶段获取生物群系的Holder
-	 * 
-	 * @param context
-	 * @param key     不带命名空间的key
-	 * @return
-	 */
-	public static final Holder<Biome> datagenStageModHolder(BootstrapContext<?> context, String key) {
-		return context.lookup(Registries.BIOME).getOrThrow(ResourceKeys.build(Registries.BIOME, Core.ModId, key));
 	}
 
 	/**

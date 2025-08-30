@@ -1,6 +1,5 @@
 package lepus.mc.event;
 
-import lepus.mc.core.Core;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.world.level.LevelAccessor;
 import net.neoforged.bus.api.EventPriority;
@@ -8,7 +7,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.level.LevelEvent;
 
-@EventBusSubscriber(modid = Core.ModId)
+@EventBusSubscriber
 public enum LevelTrigger implements EventTrigger<LevelTrigger.LevelTickOperation> {
 	SERVER_LEVEL_LOAD(EventPriority.HIGH), // 服务器世界加载
 	SERVER_LEVEL_UNLOAD(EventPriority.LOW), // 服务器世界卸载

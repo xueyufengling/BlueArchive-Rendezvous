@@ -1,6 +1,5 @@
 package lepus.mc.event;
 
-import lepus.mc.core.Core;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.MultiPlayerGameMode;
 import net.minecraft.client.player.LocalPlayer;
@@ -16,7 +15,7 @@ import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;;
  * 客户端生命周期的网络事件管理
  */
 @OnlyIn(Dist.CLIENT)
-@EventBusSubscriber(modid = Core.ModId)
+@EventBusSubscriber
 public enum ClientPlayerNetworkTrigger implements EventTrigger<ClientPlayerNetworkTrigger.Operation> {
 	CLIENT_LOGGING_IN(EventPriority.LOW), // 世界更新前
 	CLIENT_LOGGING_OUT(EventPriority.LOW); // 世界更新后

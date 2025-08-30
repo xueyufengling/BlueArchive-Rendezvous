@@ -1,10 +1,10 @@
 package lepus.mc.blocks;
 
-import lepus.mc.core.Core;
 import lepus.mc.core.registry.RegistryMap;
 import lepus.mc.core.registry.RegistryMap.BlockMap;
 import lepus.mc.datagen.Localizable;
 import lepus.mc.items.ExtCreativeTab;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -43,39 +43,23 @@ public class ExtBlock extends Block implements Localizable {
 
 	@Override
 	public String localizationKey() {
-		return Localizable.stdLocalizationKey(this.getDescriptionId());
+		return Localizable.localizationKey(BuiltInRegistries.BLOCK.wrapAsHolder(this));
 	}
 
 	public static final DeferredBlock<ExtBlock> register(String name, BlockBehaviour.Properties blockProperties, ExtCreativeTab creativeTab) {
 		return BLOCKS.registerBlock(name, () -> new ExtBlock(blockProperties), creativeTab);
 	}
 
-	public static final DeferredBlock<ExtBlock> registerMod(String name, BlockBehaviour.Properties blockProperties, ExtCreativeTab creativeTab) {
-		return register(Core.modNamespacedId(name), blockProperties, creativeTab);
-	}
-
 	public static final DeferredBlock<ExtBlock> register(String name, BlockBehaviour.Properties blockProperties) {
 		return register(name, blockProperties, null);
-	}
-
-	public static final DeferredBlock<ExtBlock> registerMod(String name, BlockBehaviour.Properties blockProperties) {
-		return registerMod(name, blockProperties, null);
 	}
 
 	public static final DeferredBlock<ExtBlock> register(String name, ExtCreativeTab creativeTab) {
 		return register(name, defaultBlockBehaviourProperties(), creativeTab);
 	}
 
-	public static final DeferredBlock<ExtBlock> registerMod(String name, ExtCreativeTab creativeTab) {
-		return registerMod(name, defaultBlockBehaviourProperties(), creativeTab);
-	}
-
 	public static final DeferredBlock<ExtBlock> register(String name) {
 		return register(name, (ExtCreativeTab) null);
-	}
-
-	public static final DeferredBlock<ExtBlock> registerMod(String name) {
-		return registerMod(name, (ExtCreativeTab) null);
 	}
 
 	/**
@@ -91,10 +75,6 @@ public class ExtBlock extends Block implements Localizable {
 		return register(name, blockBehaviourPropertiesOf(block), creativeTab);
 	}
 
-	public static final DeferredBlock<ExtBlock> registerMod(String name, BlockBehaviour block, ExtCreativeTab creativeTab) {
-		return registerMod(name, blockBehaviourPropertiesOf(block), creativeTab);
-	}
-
 	/**
 	 * 以指定方块行为创建一个方块，可用Blocks类中的静态Block字段作为参数传入<br>
 	 * 创建完成后不会加入创造物品栏，例如各种流体方块就可以不注册到创造物品栏
@@ -105,9 +85,5 @@ public class ExtBlock extends Block implements Localizable {
 	 */
 	public static final DeferredBlock<ExtBlock> register(String name, BlockBehaviour block) {
 		return register(name, block, null);
-	}
-
-	public static final DeferredBlock<ExtBlock> registerMod(String name, BlockBehaviour block) {
-		return registerMod(name, block, null);
 	}
 }

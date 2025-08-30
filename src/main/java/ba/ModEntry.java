@@ -18,7 +18,10 @@ import net.neoforged.fml.common.Mod;
 @Mod(value = ModEntry.ModId)
 public class ModEntry {
 	public static final String ModName = "BlueArchive: Rendezvous";
+
 	public static final String ModId = "ba";
+
+	public static final String ModIdPrefix = ModId + ":";
 
 	public static final Logger Logger = LogUtils.getLogger();
 

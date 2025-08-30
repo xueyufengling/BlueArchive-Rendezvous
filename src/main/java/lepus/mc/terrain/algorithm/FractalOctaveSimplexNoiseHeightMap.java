@@ -3,21 +3,11 @@ package lepus.mc.terrain.algorithm;
 import java.util.List;
 
 import lepus.mc.codec.annotation.AsDataField;
-import lepus.mc.codec.annotation.CodecAutogen;
 import lepus.mc.codec.annotation.CodecEntry;
 import lepus.mc.codec.annotation.CodecTarget;
 import lepus.mc.terrain.HeightMap;
-import net.minecraft.util.KeyDispatchDataCodec;
 
 public class FractalOctaveSimplexNoiseHeightMap extends HeightMap {
-
-	static {
-		CodecAutogen.CodecGenerator.Codec();
-	}
-
-	@CodecAutogen(null_if_empty = true, register = true, warn_if_register_failed = true)
-	public static final KeyDispatchDataCodec<FractalOctaveSimplexNoiseHeightMap> CODEC = null;
-
 	@Override
 	public FractalOctaveSimplexNoiseHeightMap clone() {
 		FractalOctaveSimplexNoiseHeightMap result = (FractalOctaveSimplexNoiseHeightMap) super.clone();

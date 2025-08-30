@@ -1,6 +1,5 @@
 package lepus.mc.event;
 
-import lepus.mc.core.Core;
 import lepus.mc.core.ServerInstance;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -9,7 +8,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
-@EventBusSubscriber(modid = Core.ModId)
+@EventBusSubscriber
 public enum ServerTickTrigger implements EventTrigger<ServerTickTrigger.TickOperation> {
 	PRE_SERVER_TICK(EventPriority.HIGH), // 世界更新前
 	POST_SERVER_TICK(EventPriority.LOW); // 世界更新后

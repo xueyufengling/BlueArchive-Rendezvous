@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.mojang.serialization.MapCodec;
 
+import ba.ModEntry;
 import lepus.mc.codec.annotation.CodecAutogen;
 import lepus.mc.codec.derived.DerivedCodecHolder;
 import lepus.mc.terrain.biome.ExtBiomeSource;
@@ -19,7 +20,7 @@ public class KivotosBiomes extends ExtBiomeSource {
 		DerivedCodecHolder.CODEC();
 	}
 
-	@CodecAutogen(null_if_empty = true)
+	@CodecAutogen(namespace = ModEntry.ModId, null_if_empty = true)
 	public static final MapCodec<? extends BiomeSource> CODEC = null;
 
 	protected static final List<String> biomes = List.of("minecraft:forest", "minecraft:jungle", "minecraft:desert");

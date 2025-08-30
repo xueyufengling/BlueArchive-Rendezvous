@@ -31,7 +31,7 @@ public class RegistryFieldsInitializer {
 	/**
 	 * 游戏启动阶段加载的注册表，这些注册表依然是MappedRegistry，但在启动时加载
 	 */
-	@EventBusSubscriber(modid = Core.ModId, bus = Bus.MOD)
+	@EventBusSubscriber(bus = Bus.MOD)
 	class Bootstrap {
 		@SuppressWarnings("rawtypes")
 		@SubscribeEvent(priority = EventPriority.HIGHEST) // 最高优先级以获取注册表
@@ -82,7 +82,7 @@ public class RegistryFieldsInitializer {
 	}
 
 	@OnlyIn(Dist.CLIENT)
-	@EventBusSubscriber(modid = Core.ModId, bus = Bus.MOD)
+	@EventBusSubscriber(bus = Bus.MOD)
 	class DynamicClient {
 		@SubscribeEvent(priority = EventPriority.HIGHEST) // 最高优先级以获取注册表
 		private static void onRegister(FMLConstructModEvent event) {

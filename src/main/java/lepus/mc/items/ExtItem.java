@@ -1,9 +1,9 @@
 package lepus.mc.items;
 
-import lepus.mc.core.Core;
 import lepus.mc.core.registry.RegistryMap;
 import lepus.mc.core.registry.RegistryMap.ItemMap;
 import lepus.mc.datagen.Localizable;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.registries.DeferredItem;
@@ -28,15 +28,11 @@ public class ExtItem extends Item implements Localizable {
 
 	@Override
 	public String localizationKey() {
-		return Localizable.stdLocalizationKey(this.getDescriptionId());
+		return Localizable.localizationKey(BuiltInRegistries.ITEM.wrapAsHolder(this));
 	}
 
 	public static final DeferredItem<Item> register(String name, ExtCreativeTab creativeTab) {
 		return ITEMS.registerItem(name, () -> new ExtItem(), creativeTab);
-	}
-
-	public static final DeferredItem<Item> registerMod(String name, ExtCreativeTab creativeTab) {
-		return register(Core.modNamespacedId(name), creativeTab);
 	}
 
 	public static final DeferredItem<Item> register(String name) {

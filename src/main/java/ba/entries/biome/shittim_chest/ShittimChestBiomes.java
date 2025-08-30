@@ -4,8 +4,7 @@ import java.util.List;
 
 import com.mojang.serialization.MapCodec;
 
-import ba.client.render.level.LevelRendering;
-import lepus.graphics.ColorRGBA;
+import ba.ModEntry;
 import lepus.math.interpolation.ColorLinearInterpolation;
 import lepus.mc.client.render.level.MutableBiomeSpecialEffects;
 import lepus.mc.codec.annotation.CodecAutogen;
@@ -49,7 +48,7 @@ public class ShittimChestBiomes extends ExtBiomeSource {
 		});
 	}
 
-	@CodecAutogen(null_if_empty = true, warn_if_register_failed = true)
+	@CodecAutogen(namespace = ModEntry.ModId, null_if_empty = true, warn_if_register_failed = true)
 	public static final MapCodec<? extends BiomeSource> CODEC = null;
 
 	@RegistryEntry

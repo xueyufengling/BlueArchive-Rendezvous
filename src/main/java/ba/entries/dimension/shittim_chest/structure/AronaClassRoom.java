@@ -2,6 +2,7 @@ package ba.entries.dimension.shittim_chest.structure;
 
 import com.mojang.serialization.MapCodec;
 
+import ba.ModEntry;
 import ba.entries.biome.shittim_chest.ShittimChestBiomes;
 import lepus.mc.codec.annotation.CodecAutogen;
 import lepus.mc.codec.annotation.CodecTarget;
@@ -33,7 +34,7 @@ public class AronaClassRoom extends ExtStructure {
 		RegistryEntry.RegistriesProvider.forDatagen();
 	}
 
-	@CodecAutogen(null_if_empty = false, register = true)
+	@CodecAutogen(namespace = ModEntry.ModId, null_if_empty = false, register = true)
 	public static final MapCodec<AronaClassRoom> CODEC = null;
 
 	@CodecTarget

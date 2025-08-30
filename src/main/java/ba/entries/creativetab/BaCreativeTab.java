@@ -1,4 +1,4 @@
-package ba.entries;
+package ba.entries.creativetab;
 
 import lepus.mc.datagen.annotation.LangDatagen;
 import lepus.mc.datagen.annotation.Translation;

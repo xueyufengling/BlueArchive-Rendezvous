@@ -52,7 +52,7 @@ public @interface ModInit {
 	 */
 	Stage exec_stage() default Stage.PRE_INIT;
 
-	@EventBusSubscriber(modid = Core.ModId, bus = Bus.MOD)
+	@EventBusSubscriber(bus = Bus.MOD)
 	public static class Initializer {
 
 		@SubscribeEvent(priority = EventPriority.HIGHEST)

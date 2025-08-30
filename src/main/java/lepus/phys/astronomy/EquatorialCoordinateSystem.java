@@ -1,4 +1,4 @@
-package lepus.mc.phys.astronomy;
+package lepus.phys.astronomy;
 
 /**
  * 天球坐标系

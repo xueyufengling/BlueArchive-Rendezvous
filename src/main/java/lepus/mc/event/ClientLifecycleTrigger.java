@@ -1,6 +1,5 @@
 package lepus.mc.event;
 
-import lepus.mc.core.Core;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.world.level.LevelAccessor;
@@ -16,7 +15,7 @@ import net.neoforged.neoforge.event.level.LevelEvent;;
  * LevelEvent.Load先于ClientPlayerNetworkEvent.LoggingIn触发，即先加载世界再创建玩家
  */
 @OnlyIn(Dist.CLIENT)
-@EventBusSubscriber(modid = Core.ModId)
+@EventBusSubscriber
 public enum ClientLifecycleTrigger implements EventTrigger<ClientLifecycleTrigger.Operation> {
 	CLIENT_CONNECT(EventPriority.LOW), // 世界更新前
 	CLIENT_DISCONNECT(EventPriority.LOW); // 世界更新后

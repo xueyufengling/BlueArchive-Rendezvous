@@ -24,7 +24,9 @@ public interface ExtCreativeTab extends BaseClass<ExtCreativeTab.Definition>, Lo
 	 * 物品栏的定义
 	 */
 	class Definition extends BaseClass.Definition<ExtCreativeTab> {
-
+		/**
+		 * 创造模式物品栏ID，带命名空间
+		 */
 		public final String id;
 		public final DeferredHolder<CreativeModeTab, CreativeModeTab> deferredHolder;
 

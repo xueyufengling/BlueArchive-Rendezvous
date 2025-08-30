@@ -8,7 +8,6 @@ import javax.imageio.ImageIO;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import lepus.mc.client.render.gui.GuiGraphicsContext;
-import lepus.mc.core.Core;
 import lepus.mc.resources.ResourceLocations;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
@@ -104,7 +103,7 @@ public class Texture implements Cloneable {
 	}
 
 	public static BufferedImage bufferedImage(String loc) {
-		return bufferedImage(Core.modResourceLocation(loc));
+		return bufferedImage(ResourceLocations.build(loc));
 	}
 
 	private void initImageSize(ResourceLocation loc) {

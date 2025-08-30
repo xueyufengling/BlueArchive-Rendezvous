@@ -90,14 +90,4 @@ public abstract class ExtBiomeSource extends BiomeSource implements MapCodecHold
 	protected static final Holder<Biome> biome(String key) {
 		return ExtBiome.getBiome(key);
 	}
-
-	/**
-	 * 获取本mod的生物群系Holder
-	 * 
-	 * @param key
-	 * @return
-	 */
-	protected static final Holder<Biome> modBiome(String key) {
-		return ExtBiome.modBiome(key);
-	}
 }

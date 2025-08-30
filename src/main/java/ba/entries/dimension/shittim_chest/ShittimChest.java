@@ -29,6 +29,7 @@ import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 import net.minecraft.world.level.levelgen.NoiseRouter;
 import net.minecraft.world.level.levelgen.NoiseSettings;
 
+@SuppressWarnings("deprecation")
 public class ShittimChest {
 
 	public static final String ID = "ba:shittim_chest";

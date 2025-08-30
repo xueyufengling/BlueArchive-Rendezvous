@@ -45,7 +45,15 @@ public @interface CodecAutogen {
 	public static final String classSimpleName = "'classSimpleName'";
 
 	/**
-	 * Codec的注册名称
+	 * 如果需要注册，则需要指定命名空间；不需要注册留空即可。<br>
+	 * 如果register()指定为true则该项不可为null或""
+	 * 
+	 * @return
+	 */
+	String namespace() default "";
+
+	/**
+	 * Codec的注册名称，不带命名空间
 	 * 
 	 * @return
 	 */
@@ -596,14 +604,14 @@ public @interface CodecAutogen {
 		 * @return
 		 */
 		@SuppressWarnings({ "rawtypes", "unchecked" })
-		public static final DeferredHolder generateAndRegisterHolder(String codecName, Class<?> target, MethodHandle buildMethod, Class<?> registryType, boolean null_if_empty, boolean include_base) {
+		public static final DeferredHolder generateAndRegisterHolder(String namespace, String codecName, Class<?> target, MethodHandle buildMethod, Class<?> registryType, boolean null_if_empty, boolean include_base) {
 			Object CODEC = generate(target, buildMethod, null_if_empty, include_base);
 			if (CODEC == null)
 				return null;
 			TypeWrapper<DeferredHolder> holderWrapper = TypeWrapper.wrap();
 			RegistryWalker.walkMapCodecRegistries((Field f, ResourceKey registryKey, Class<?> codecType) -> {
 				if (Reflection.is(registryType, codecType)) {// 当注册表MapCodec的泛型参数和传入的registryType匹配时注册
-					holderWrapper.value = RegistryFactory.deferredRegister(registryKey).register(codecName, () -> CODEC);
+					holderWrapper.value = RegistryFactory.deferredRegister(registryKey, namespace).register(codecName, () -> CODEC);
 				}
 				return true;
 			});
@@ -614,22 +622,25 @@ public @interface CodecAutogen {
 		 * 生成目标类的CODEC并注册到相应的注册表中，并返回CODEC，可用于给静态字段初始化
 		 * 
 		 * @param <T>
+		 * @param namespace    如果要注册则传入命名空间
 		 * @param codecName    注册名称
 		 * @param target       要生成CODEC的类
 		 * @param registryType 要将CODEC注册到哪个类型
 		 * @return
 		 */
 		@SuppressWarnings({ "rawtypes", "unchecked" })
-		private static final Object generateAndRegister(String codecName, Class<?> target, MethodHandle buildMethod, Class<?> registryType, boolean null_if_empty, boolean register, boolean warn_if_register_failed, boolean include_base) {
+		private static final Object generateAndRegister(String namespace, String codecName, Class<?> target, MethodHandle buildMethod, Class<?> registryType, boolean null_if_empty, boolean register, boolean warn_if_register_failed, boolean include_base) {
 			Object CODEC = generate(target, buildMethod, null_if_empty, include_base);
 			if (CODEC == null)
 				return null;
-			Core.logInfo("Generated CODEC " + CODEC + " for " + target);
+			Core.logInfo("Generated CODEC for " + target + " -> " + CODEC);
 			if (register || isMarkedAsAutoRegister(target)) {
+				if (namespace == null || "".equals(namespace))// 如果要注册则namespace不可留空
+					throw new IllegalArgumentException("CODEC " + codecName + " for target " + target + " need a non-empty namespace to register.");
 				Placeholders.TypeWrapper<Boolean> registered = Placeholders.TypeWrapper.wrap(false);
 				RegistryWalker.walkMapCodecRegistries((Field f, ResourceKey registryKey, Class<?> codecType) -> {
 					if (Reflection.is(registryType, codecType)) {// 当注册表MapCodec的泛型参数和传入的registryType匹配时注册
-						RegistryFactory.deferredRegister(registryKey).register(codecName, () -> CODEC);
+						RegistryFactory.deferredRegister(registryKey, namespace).register(codecName, () -> CODEC);
 						registered.value = true;
 						Core.logInfo("Registered CODEC " + codecName + " in registry [" + registryKey.location() + "].");
 					}
@@ -665,7 +676,7 @@ public @interface CodecAutogen {
 					if (classSimpleName.equals(registerName))
 						registerName = Codecs.defaultCodecRegisterName(codecClass);
 					Core.logInfo("Starting to generate CODEC for @CodecAutogen " + f);
-					Object CODEC = generateAndRegister(registerName, codecClass, internalBuildMethod, GenericTypes.getFirstGenericType(f), annotation.null_if_empty(), annotation.register(), annotation.warn_if_register_failed(), annotation.include_base());
+					Object CODEC = generateAndRegister(annotation.namespace(), registerName, codecClass, internalBuildMethod, GenericTypes.getFirstGenericType(f), annotation.null_if_empty(), annotation.register(), annotation.warn_if_register_failed(), annotation.include_base());
 					if (isKeyDispatchDataCodec)
 						CODEC = KeyDispatchDataCodec.of((MapCodec) CODEC);
 					ObjectManipulator.setObject(codecClass, f, CODEC);

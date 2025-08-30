@@ -1,6 +1,5 @@
 package lepus.mc.event;
 
-import lepus.mc.core.Core;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.neoforged.bus.api.EventPriority;
@@ -8,7 +7,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 
-@EventBusSubscriber(modid = Core.ModId)
+@EventBusSubscriber
 public enum ClientTickTrigger implements EventTrigger<ClientTickTrigger.TickOperation> {
 	PRE_CLIENT_TICK(EventPriority.HIGH), // 世界更新前
 	POST_CLIENT_TICK(EventPriority.LOW); // 世界更新后

@@ -1,6 +1,7 @@
 package ba.world.terrain;
 
-import lepus.mc.core.Core;
+import ba.ModEntry;
+import lepus.mc.resources.ResourceLocations;
 import net.minecraft.resources.ResourceLocation;
 
 public enum TerrainEffect {
@@ -17,7 +18,7 @@ public enum TerrainEffect {
 	public final float shieldBlockRate;
 
 	private TerrainEffect(String icon_path, String evaluation, float damageDealt, float shieldBlockRate) {
-		this.icon = Core.modResourceLocation(icon_path);
+		this.icon = ResourceLocations.build(ModEntry.ModId, icon_path);
 		this.evaluation = evaluation;
 		this.damageDealt = damageDealt;
 		this.shieldBlockRate = shieldBlockRate;

@@ -87,7 +87,7 @@ public @interface RegistryEntry {
 		}
 	}
 
-	@EventBusSubscriber(modid = Core.ModId, bus = Bus.GAME)
+	@EventBusSubscriber(bus = Bus.GAME)
 	public static class RuntimeEntryHolderRegister {
 		/**
 		 * 注册给定类中的所有EntryHolder到运行时的注册表。

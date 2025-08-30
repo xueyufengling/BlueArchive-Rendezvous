@@ -80,8 +80,6 @@ public class PixelsBuffer {
 		return new PixelsBuffer(framebuffer);
 	}
 
-	private static PixelsBuffer mainPixelsBuffer;
-
 	public int width() {
 		return framebuffer.width();
 	}
