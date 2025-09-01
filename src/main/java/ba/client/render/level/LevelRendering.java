@@ -6,15 +6,15 @@ import com.mojang.math.Axis;
 
 import lepus.graphics.ColorRGBA;
 import lepus.graphics.shader.HSLPostprocessShader;
+import lepus.mc.client.render.RenderableObject;
+import lepus.mc.client.render.RenderableObjects;
+import lepus.mc.client.render.SceneGraphNode;
 import lepus.mc.client.render.level.BiomeColor;
 import lepus.mc.client.render.renderable.Texture;
 import lepus.mc.client.render.sky.NearEarthObject;
 import lepus.mc.client.render.sky.Sky;
 import lepus.mc.client.render.sky.WeatherEffect;
 import lepus.mc.client.render.sky.NearEarthObject.Pos;
-import lepus.mc.client.render.vanilla.RenderableObject;
-import lepus.mc.client.render.vanilla.RenderableObjects;
-import lepus.mc.client.render.vanilla.SceneGraphNode;
 import lepus.mc.core.ExecuteIn;
 import lepus.mc.core.ModInit;
 import lepus.mc.ext.client.render.iris.IrisPostprocess;

@@ -4,10 +4,10 @@ import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import lepus.graphics.shader.ScreenShader;
+import lepus.mc.client.render.RenderableObject;
+import lepus.mc.client.render.SceneGraphNode;
+import lepus.mc.client.render.VertexBufferManipulator;
 import lepus.mc.client.render.sky.NearEarthObject.Pos;
-import lepus.mc.client.render.vanilla.RenderableObject;
-import lepus.mc.client.render.vanilla.SceneGraphNode;
-import lepus.mc.client.render.vanilla.VertexBufferManipulator;
 import lepus.mc.ext.client.render.iris.IrisPostprocess;
 import lepus.mc.mixins.internal.LevelRendererInternal;
 import lepus.mc.resources.ResourceLocations;

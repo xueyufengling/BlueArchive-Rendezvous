@@ -9,9 +9,9 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import lepus.graphics.ColorRGBA;
+import lepus.mc.client.render.RenderableObject;
+import lepus.mc.client.render.RenderableObjects;
 import lepus.mc.client.render.renderable.Renderable;
-import lepus.mc.client.render.vanilla.RenderableObject;
-import lepus.mc.client.render.vanilla.RenderableObjects;
 import lepus.mc.mixins.internal.LevelRendererInternal;
 import net.minecraft.client.Camera;
 import net.minecraft.client.DeltaTracker;

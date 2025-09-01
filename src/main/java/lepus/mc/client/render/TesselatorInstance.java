@@ -1,4 +1,4 @@
-package lepus.mc.client.render.vanilla;
+package lepus.mc.client.render;
 
 import java.lang.invoke.MethodHandle;
 

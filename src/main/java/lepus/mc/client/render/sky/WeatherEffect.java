@@ -1,7 +1,7 @@
 package lepus.mc.client.render.sky;
 
 import lepus.graphics.shader.ScreenShader;
-import lepus.mc.client.render.vanilla.VertexBufferManipulator;
+import lepus.mc.client.render.VertexBufferManipulator;
 import lepus.mc.ext.client.render.iris.IrisPostprocess;
 import lepus.mc.resources.ResourceLocations;
 import lyra.object.ObjectManipulator;

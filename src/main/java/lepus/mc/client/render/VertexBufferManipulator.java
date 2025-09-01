@@ -1,4 +1,4 @@
-package lepus.mc.client.render.vanilla;
+package lepus.mc.client.render;
 
 import com.mojang.blaze3d.vertex.ByteBufferBuilder;
 import com.mojang.blaze3d.vertex.MeshData;

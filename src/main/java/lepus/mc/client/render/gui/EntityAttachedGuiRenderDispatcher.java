@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 
-import lepus.mc.client.render.vanilla.RenderDispatcher;
+import lepus.mc.client.render.RenderDispatcher;
 import lepus.mc.mixins.internal.EntityRenderDispatcherInternal;
 import lepus.mc.mixins.internal.LevelRendererInternal;
 import net.minecraft.client.Camera;

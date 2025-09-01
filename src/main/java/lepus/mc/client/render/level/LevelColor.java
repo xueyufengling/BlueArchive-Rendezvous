@@ -4,7 +4,7 @@ import com.mojang.blaze3d.vertex.MeshData;
 
 import lepus.graphics.ColorRGBA;
 import lepus.math.interpolation.ColorLinearInterpolation;
-import lepus.mc.client.render.vanilla.VertexBufferManipulator;
+import lepus.mc.client.render.VertexBufferManipulator;
 import lepus.mc.common.MappedResolver;
 import lepus.mc.common.MultiResolver;
 import lepus.mc.mixins.internal.LevelRendererInternal;

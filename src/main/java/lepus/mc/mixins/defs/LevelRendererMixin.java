@@ -15,11 +15,11 @@ import com.mojang.blaze3d.vertex.MeshData;
 
 import lepus.graphics.ColorRGBA;
 import lepus.graphics.InterceptCopyFramebuffer;
+import lepus.mc.client.render.VertexBufferManipulator;
 import lepus.mc.client.render.level.LevelColor;
 import lepus.mc.client.render.sky.Sky;
 import lepus.mc.client.render.sky.SkyColor;
 import lepus.mc.client.render.sky.WeatherEffect;
-import lepus.mc.client.render.vanilla.VertexBufferManipulator;
 import lepus.mc.ext.client.render.iris.IrisPostprocess;
 import lepus.mc.mixins.internal.Internal;
 import lepus.mc.mixins.internal.LevelRendererInternal;

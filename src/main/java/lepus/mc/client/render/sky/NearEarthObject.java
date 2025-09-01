@@ -5,7 +5,7 @@ import org.joml.Vector3f;
 
 import com.mojang.math.Axis;
 
-import lepus.mc.client.render.vanilla.SceneGraphNode;
+import lepus.mc.client.render.SceneGraphNode;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 
