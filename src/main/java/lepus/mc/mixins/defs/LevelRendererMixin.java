@@ -67,6 +67,11 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
 		Internal.Callbacks.invoke(LevelRendererInternal.RenderLevel.Callbacks.before_RenderSystem_disableBlend);
 	}
 
+	@Inject(method = "renderLevel", at = @At(value = "INVOKE", target = TargetDescriptors.LProfilerFiller.popPush, ordinal = 5, shift = Shift.AFTER), cancellable = true)
+	private void renderLevel_after_popPush_sky(DeltaTracker deltaTracker, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f frustumMatrix, Matrix4f projectionMatrix, CallbackInfo ci) {
+		Internal.Callbacks.invoke(LevelRendererInternal.RenderLevel.Callbacks.after_popPush_sky);
+	}
+
 	@Inject(method = "renderSky", at = @At(value = "HEAD"))
 	private void renderSky_interceptFramebuffer(Matrix4f frustumMatrix, Matrix4f projectionMatrix, float partialTick, Camera camera, boolean isFoggy, Runnable skyFogSetup, CallbackInfo ci) {
 		InterceptCopyFramebuffer.intercept("sky");// 将天空渲染在自定义帧缓冲内
@@ -102,11 +107,6 @@ public abstract class LevelRendererMixin implements ResourceManagerReloadListene
 	@Inject(method = "renderSky", at = @At(value = "HEAD"))
 	private void renderSky_initParams(Matrix4f frustumMatrix, Matrix4f projectionMatrix, float partialTick, Camera camera, boolean isFoggy, Runnable skyFogSetup, CallbackInfo ci) {
 		LevelRendererInternal.RenderSky.Args.store((LevelRenderer) (Object) this, frustumMatrix, projectionMatrix, partialTick, camera, isFoggy, skyFogSetup, ci);
-	}
-
-	@Inject(method = "renderSky", at = @At(value = "INVOKE", target = TargetDescriptors.LPoseStack.popPose, ordinal = 1, shift = Shift.AFTER), cancellable = true)
-	private void renderSky_after_2nd_popPose(Matrix4f frustumMatrix, Matrix4f projectionMatrix, float partialTick, Camera camera, boolean isFoggy, Runnable skyFogSetup, CallbackInfo ci) {
-		Internal.Callbacks.invoke(LevelRendererInternal.RenderSky.Callbacks.after_2nd_popPose);
 	}
 
 	@Inject(method = "renderSky", at = @At(value = "INVOKE", target = TargetDescriptors.LVertexBuffer.unbind, ordinal = 0, shift = Shift.AFTER), cancellable = true)

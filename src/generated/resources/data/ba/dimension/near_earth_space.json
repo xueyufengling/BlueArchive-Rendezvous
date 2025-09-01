@@ -1,0 +1,11 @@
+{
+  "type": "ba:near_earth_space",
+  "generator": {
+    "type": "minecraft:noise",
+    "biome_source": {
+      "type": "minecraft:fixed",
+      "biome": "minecraft:the_void"
+    },
+    "settings": "ba:near_earth_space"
+  }
+}

@@ -42,6 +42,15 @@ public class LevelRendering {
 
 	@SuppressWarnings("unused")
 	@ModInit(exec_stage = ModInit.Stage.CLIENT_CONNECT)
+	private static void initBgs() {
+		ExecuteIn.Client(() -> {
+			RenderableObject universe = RenderableObjects.sphere(16, 20, 20, Texture.of("ba:textures/sky/universe/milky_way.png"), true);
+			SceneGraphNode skySphere = Sky.render("universe", universe);
+		});
+	}
+
+	@SuppressWarnings("unused")
+	// @ModInit(exec_stage = ModInit.Stage.CLIENT_CONNECT)
 	private static void initHalos() {
 		ExecuteIn.Client(() -> {
 			colour_invasion_sky_shader = HSLPostprocessShader.fixed(0, 0.2f, -0.15f);

@@ -153,25 +153,19 @@ public class LevelRendererInternal {
 		}
 
 		public static class Callbacks {
-			public static ArrayList<Callback> after_2nd_popPose = new ArrayList<>();
-
-			public static void addAfter2nd_popPose(Callback func) {
-				after_2nd_popPose.add(func);
-			}
-
 			public static ArrayList<Callback> after_skyBuffer_draw = new ArrayList<>();
 
 			/**
 			 * 装了Iris后整个renderSky函数将由光影着色器渲染，而现有的光影几乎都会丢弃OpenGL管线传入的颜色而使用其内部硬编码颜色计算，在此阶段内的渲染将可能失效。
 			 */
 			public static void addAfter_skyBuffer_draw(Callback func) {
-				after_2nd_popPose.add(func);
+				after_skyBuffer_draw.add(func);
 			}
 
 			public static ArrayList<Callback> after_darkBuffer_draw = new ArrayList<>();
 
 			public static void addAfter_darkBuffer_draw(Callback func) {
-				after_2nd_popPose.add(func);
+				after_darkBuffer_draw.add(func);
 			}
 		}
 	}

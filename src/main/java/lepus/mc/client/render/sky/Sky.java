@@ -3,17 +3,18 @@ package lepus.mc.client.render.sky;
 import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import lepus.graphics.shader.ScreenShader;
 import lepus.mc.client.render.RenderableObject;
 import lepus.mc.client.render.SceneGraphNode;
 import lepus.mc.client.render.VertexBufferManipulator;
 import lepus.mc.client.render.sky.NearEarthObject.Pos;
-import lepus.mc.ext.client.render.iris.IrisPostprocess;
 import lepus.mc.mixins.internal.LevelRendererInternal;
 import lepus.mc.resources.ResourceLocations;
 import lyra.object.ObjectManipulator;
 import net.minecraft.client.Camera;
+import net.minecraft.client.DeltaTracker;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
@@ -100,8 +101,8 @@ public class Sky {
 	public static final SceneGraphNode CELESTIAL_BODYS = SceneGraphNode.createSceneGraph();
 
 	static {
-		LevelRendererInternal.RenderSky.Callbacks.addAfter2nd_popPose(
-				(LevelRenderer this_, Matrix4f frustumMatrix, Matrix4f projectionMatrix, float partialTick, Camera camera, boolean isFoggy, Runnable skyFogSetup, CallbackInfo ci) -> {
+		LevelRendererInternal.RenderLevel.Callbacks.addAfter_popPush_sky(
+				(LevelRenderer this_, DeltaTracker deltaTracker, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f frustumMatrix, Matrix4f projectionMatrix, CallbackInfo ci) -> {
 					CELESTIAL_BODYS.render(frustumMatrix, projectionMatrix);
 				});
 	}
@@ -109,6 +110,7 @@ public class Sky {
 	/**
 	 * 在天空中渲染物体
 	 * 
+	 * @param path
 	 * @param obj
 	 */
 	public static SceneGraphNode render(String path, RenderableObject obj) {

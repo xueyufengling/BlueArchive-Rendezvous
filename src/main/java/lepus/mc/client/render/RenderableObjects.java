@@ -1,5 +1,6 @@
 package lepus.mc.client.render;
 
+import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
@@ -214,5 +215,72 @@ public class RenderableObjects {
 
 	public static RenderableObject gradualColorDroplet(float radius, float tailLength, int division, ColorRGBA headColor, ColorRGBA tailColor) {
 		return gradualColorDroplet(radius, tailLength, division, division, headColor, tailColor);
+	}
+
+	/**
+	 * 带贴图的球体
+	 * 
+	 * @param radius
+	 * @param latitudeBandsDivision
+	 * @param longitudeBandsDivision
+	 * @param invertNormal           是否反转正方向，默认球体外表面为正方向。此值关系到不可见面的剔除
+	 * @return
+	 */
+	public static RenderableObject sphere(float radius, int latitudeBandsDivision, int longitudeBandsDivision, Texture texture, boolean invertNormal) {
+		float latitudeDivisionAngle = (float) (Math.PI / latitudeBandsDivision);
+		float longitudeDivisionAngle = (float) (Math.PI / longitudeBandsDivision * 2);
+		float uDivision = (texture.u2() - texture.u1()) / longitudeBandsDivision;
+		float vDivision = (texture.v2() - texture.v1()) / latitudeBandsDivision;
+		Vector3f[][] sphereVertices = new Vector3f[latitudeBandsDivision + 1][longitudeBandsDivision + 1];// 纬度-经度索引
+		Vector2f[][] uv = new Vector2f[latitudeBandsDivision + 1][longitudeBandsDivision + 1];
+		for (int la = 0; la <= latitudeBandsDivision; ++la) {
+			float latitude = latitudeDivisionAngle * la;// 从北天极向赤道计算角度，只算半球，角度0-180
+			float y = radius * (float) Math.cos(latitude);
+			float sliceRadius = radius * (float) Math.sin(latitude);// 截面半径
+			for (int lo = 0; lo <= longitudeBandsDivision; ++lo) {
+				float longitude = longitudeDivisionAngle * lo;// 经度，0-360
+				float x = sliceRadius * (float) Math.cos(longitude);
+				float z = sliceRadius * (float) Math.sin(longitude);
+				sphereVertices[la][lo] = new Vector3f(x, y, z);
+				uv[la][lo] = new Vector2f(texture.u1() + uDivision * lo, texture.v1() + 1.0f - vDivision * la);
+			}
+		}
+		RenderableObject sphere = new RenderableObject(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_TEX, texture.location()).loadBuffer();
+		for (int la = 0; la < latitudeBandsDivision; ++la) {
+			for (int lo = 0; lo < longitudeBandsDivision; ++lo) {
+				// 左上角，当前点
+				Vector3f leftUp = sphereVertices[la][lo];
+				Vector2f leftUpUV = uv[la][lo];
+				// 左下角，当前点正下方
+				Vector3f leftDown = sphereVertices[la + 1][lo];
+				Vector2f leftDownUV = uv[la + 1][lo];
+				// 右上角，当前点的正右方
+				Vector3f rightUp = sphereVertices[la][lo + 1];
+				Vector2f rightUpUV = uv[la][lo + 1];
+				// 右下角，当前点的正右下方
+				Vector3f rightDown = sphereVertices[la + 1][lo + 1];
+				Vector2f rightDownUV = uv[la + 1][lo + 1];
+				if (invertNormal) {
+					sphere.addVertex(leftUp.x, leftUp.y, leftUp.z, leftUpUV.x, leftUpUV.y);
+					sphere.addVertex(leftDown.x, leftDown.y, leftDown.z, leftDownUV.x, leftDownUV.y);
+					sphere.addVertex(rightUp.x, rightUp.y, rightUp.z, rightUpUV.x, rightUpUV.y);
+					sphere.addVertex(rightUp.x, rightUp.y, rightUp.z, rightUpUV.x, rightUpUV.y);
+					sphere.addVertex(leftDown.x, leftDown.y, leftDown.z, leftDownUV.x, leftDownUV.y);
+					sphere.addVertex(rightDown.x, rightDown.y, rightDown.z, rightDownUV.x, rightDownUV.y);
+				} else {
+					sphere.addVertex(leftUp.x, leftUp.y, leftUp.z, leftUpUV.x, leftUpUV.y);
+					sphere.addVertex(rightUp.x, rightUp.y, rightUp.z, rightUpUV.x, rightUpUV.y);
+					sphere.addVertex(leftDown.x, leftDown.y, leftDown.z, leftDownUV.x, leftDownUV.y);
+					sphere.addVertex(leftDown.x, leftDown.y, leftDown.z, leftDownUV.x, leftDownUV.y);
+					sphere.addVertex(rightUp.x, rightUp.y, rightUp.z, rightUpUV.x, rightUpUV.y);
+					sphere.addVertex(rightDown.x, rightDown.y, rightDown.z, rightDownUV.x, rightDownUV.y);
+				}
+			}
+		}
+		return sphere.flushBuffer();
+	}
+
+	public static RenderableObject sphere(float radius, int latitudeBandsDivision, int longitudeBandsDivision, Texture texture) {
+		return sphere(radius, latitudeBandsDivision, longitudeBandsDivision, texture, false);
 	}
 }

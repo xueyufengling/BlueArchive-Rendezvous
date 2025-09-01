@@ -137,6 +137,13 @@ public class RenderableObject implements Renderable {
 			obj.vertices.drawWithShader(frustumMatrix, projectionMatrix, GameRenderer.getPositionColorShader());
 			VertexBuffer.unbind();
 		};
+
+		public static RenderFunc POSITION_TEX = (RenderableObject obj, Matrix4f frustumMatrix, Matrix4f projectionMatrix) -> {
+			obj.vertices.bind();
+			RenderSystem.setShaderTexture(0, obj.texture);// 绑定ColorMap
+			obj.vertices.drawWithShader(frustumMatrix, projectionMatrix, GameRenderer.getPositionTexShader());
+			VertexBuffer.unbind();
+		};
 	}
 
 	private RenderFunc render_func;
@@ -153,6 +160,8 @@ public class RenderableObject implements Renderable {
 			this.render_func = RenderFunc.POSITION_TEX_COLOR;
 		else if (vertex_attributes == DefaultVertexFormat.POSITION_COLOR)
 			this.render_func = RenderFunc.POSITION_COLOR;
+		else if (vertex_attributes == DefaultVertexFormat.POSITION_TEX)
+			this.render_func = RenderFunc.POSITION_TEX;
 		else
 			throw new UnsupportedOperationException("Vertex attribute " + vertex_attributes + " is not supported.");
 		return this;
