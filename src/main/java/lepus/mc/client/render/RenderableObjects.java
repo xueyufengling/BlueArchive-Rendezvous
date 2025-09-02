@@ -27,10 +27,10 @@ public class RenderableObjects {
 	 * @param a
 	 * @return
 	 */
-	public static RenderableObject quad(Texture texture, float scale, float z, float r, float g, float b, float a) {
+	public static VanillaRenderable quad(Texture texture, float scale, float z, float r, float g, float b, float a) {
 		float width = texture.width() * scale;
 		float height = texture.height() * scale;
-		RenderableObject obj = new RenderableObject(texture.location()).loadBuffer();
+		VanillaRenderable obj = new VanillaRenderable(texture.location()).loadBuffer();
 		obj.addVertex(-width / 2, -height / 2, z, texture.u1(), texture.v1(), r, g, b, a);
 		obj.addVertex(-width / 2, height / 2, z, texture.u1(), texture.v2(), r, g, b, a);
 		obj.addVertex(width / 2, -height / 2, z, texture.u2(), texture.v1(), r, g, b, a);
@@ -38,15 +38,15 @@ public class RenderableObjects {
 		return obj.flushBuffer();
 	}
 
-	public static RenderableObject quad(Texture texture, float scale, float z, float a) {
+	public static VanillaRenderable quad(Texture texture, float scale, float z, float a) {
 		return quad(texture, scale, z, 1.0f, 1.0f, 1.0f, a);
 	}
 
-	public static RenderableObject quad(Texture texture, float z, float a) {
+	public static VanillaRenderable quad(Texture texture, float z, float a) {
 		return quad(texture, 1, z, a);
 	}
 
-	public static RenderableObject quad(Texture texture, float z) {
+	public static VanillaRenderable quad(Texture texture, float z) {
 		return quad(texture, z, 1.0f);
 	}
 
@@ -56,9 +56,9 @@ public class RenderableObjects {
 	 * @param y
 	 * @return
 	 */
-	public static RenderableObject sky(float y, float radius, float r, float g, float b, float a) {
+	public static VanillaRenderable sky(float y, float radius, float r, float g, float b, float a) {
 		float x_signed_r = Math.signum(y) * radius;
-		RenderableObject skyVertices = new RenderableObject(VertexFormat.Mode.TRIANGLE_FAN, DefaultVertexFormat.POSITION_COLOR).loadBuffer();
+		VanillaRenderable skyVertices = new VanillaRenderable(VertexFormat.Mode.TRIANGLE_FAN, DefaultVertexFormat.POSITION_COLOR).loadBuffer();
 		skyVertices.addVertex(0, y, 0, r, g, b, a);// 天顶
 		for (int i = -180; i <= 180; i += 45) {
 			skyVertices.addVertex(x_signed_r * Mth.cos(i * (float) (Math.PI / 180.0)), y, radius * Mth.sin(i * (float) (Math.PI / 180.0)), r, g, b, a);
@@ -73,7 +73,7 @@ public class RenderableObjects {
 	 * @param radius
 	 * @return
 	 */
-	public static RenderableObject sky(float y, float radius) {
+	public static VanillaRenderable sky(float y, float radius) {
 		return sky(y, radius, 1, 1, 1, 1);
 	}
 
@@ -86,7 +86,7 @@ public class RenderableObjects {
 	 * @param a
 	 * @return
 	 */
-	public static RenderableObject skyAboveHorizonVanilla(float r, float g, float b, float a) {
+	public static VanillaRenderable skyAboveHorizonVanilla(float r, float g, float b, float a) {
 		return sky(16, 512, r, g, b, a);
 	}
 
@@ -100,11 +100,11 @@ public class RenderableObjects {
 	 * @param a
 	 * @return
 	 */
-	public static RenderableObject scaledSkyAboveHorizonVanilla(float scale, float r, float g, float b, float a) {
+	public static VanillaRenderable scaledSkyAboveHorizonVanilla(float scale, float r, float g, float b, float a) {
 		return sky(16 * scale, 512, r, g, b, a);
 	}
 
-	public static RenderableObject scaledSkyAboveHorizonVanilla(float scale) {
+	public static VanillaRenderable scaledSkyAboveHorizonVanilla(float scale) {
 		return scaledSkyAboveHorizonVanilla(scale, 1, 1, 1, 1);
 	}
 
@@ -117,7 +117,7 @@ public class RenderableObjects {
 	 * @param a
 	 * @return
 	 */
-	public static RenderableObject skyBelowHorizonVanilla(float r, float g, float b, float a) {
+	public static VanillaRenderable skyBelowHorizonVanilla(float r, float g, float b, float a) {
 		return sky(-16, 512, r, g, b, a);
 	}
 
@@ -131,11 +131,11 @@ public class RenderableObjects {
 	 * @param a
 	 * @return
 	 */
-	public static RenderableObject scaledSkyBelowHorizonVanilla(float scale, float r, float g, float b, float a) {
+	public static VanillaRenderable scaledSkyBelowHorizonVanilla(float scale, float r, float g, float b, float a) {
 		return sky(-16 * scale, 512, r, g, b, a);
 	}
 
-	public static RenderableObject scaledSkyBelowHorizonVanilla(float scale) {
+	public static VanillaRenderable scaledSkyBelowHorizonVanilla(float scale) {
 		return scaledSkyAboveHorizonVanilla(scale, 1, 1, 1, 1);
 	}
 
@@ -153,7 +153,7 @@ public class RenderableObjects {
 	 * @param tailColor              水滴尾部顶点颜色
 	 * @return
 	 */
-	public static RenderableObject gradualColorDroplet(float radius, float tailLength, int latitudeBandsDivision, int longitudeBandsDivision, ColorRGBA headColor, ColorRGBA junctionColor, ColorRGBA tailColor) {
+	public static VanillaRenderable gradualColorDroplet(float radius, float tailLength, int latitudeBandsDivision, int longitudeBandsDivision, ColorRGBA headColor, ColorRGBA junctionColor, ColorRGBA tailColor) {
 		float latitudeDivisionAngle = (float) (Math.PI / latitudeBandsDivision / 2);
 		float longitudeDivisionAngle = (float) (Math.PI / longitudeBandsDivision * 2);
 		Vector3f[][] sphereVertices = new Vector3f[latitudeBandsDivision + 1][longitudeBandsDivision + 1];// 纬度-经度索引
@@ -170,7 +170,7 @@ public class RenderableObjects {
 				colors[la][lo] = headColor.interplote(1 - y / radius, junctionColor);
 			}
 		}
-		RenderableObject droplet = new RenderableObject(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_COLOR).loadBuffer();
+		VanillaRenderable droplet = new VanillaRenderable(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_COLOR).loadBuffer();
 		// 由于mc渲染系统的BufferBuilder构造的物体顶点EBO是完全没有体现出EBO意义的纯摆设且不支持自己写入索引，迫于与原版渲染系统保持兼容只能传入重复顶点
 		for (int la = 0; la < latitudeBandsDivision; ++la) {
 			for (int lo = 0; lo < longitudeBandsDivision; ++lo) {
@@ -209,11 +209,11 @@ public class RenderableObjects {
 		return droplet.flushBuffer();
 	}
 
-	public static RenderableObject gradualColorDroplet(float radius, float tailLength, int latitudeBandsDivision, int longitudeBandsDivision, ColorRGBA headColor, ColorRGBA tailColor) {
+	public static VanillaRenderable gradualColorDroplet(float radius, float tailLength, int latitudeBandsDivision, int longitudeBandsDivision, ColorRGBA headColor, ColorRGBA tailColor) {
 		return gradualColorDroplet(radius, tailLength, latitudeBandsDivision, longitudeBandsDivision, headColor, headColor, tailColor);
 	}
 
-	public static RenderableObject gradualColorDroplet(float radius, float tailLength, int division, ColorRGBA headColor, ColorRGBA tailColor) {
+	public static VanillaRenderable gradualColorDroplet(float radius, float tailLength, int division, ColorRGBA headColor, ColorRGBA tailColor) {
 		return gradualColorDroplet(radius, tailLength, division, division, headColor, tailColor);
 	}
 
@@ -226,7 +226,7 @@ public class RenderableObjects {
 	 * @param invertNormal           是否反转正方向，默认球体外表面为正方向。此值关系到不可见面的剔除
 	 * @return
 	 */
-	public static RenderableObject sphere(float radius, int latitudeBandsDivision, int longitudeBandsDivision, Texture texture, boolean invertNormal) {
+	public static VanillaRenderable sphere(float radius, int latitudeBandsDivision, int longitudeBandsDivision, Texture texture, boolean invertNormal) {
 		float latitudeDivisionAngle = (float) (Math.PI / latitudeBandsDivision);
 		float longitudeDivisionAngle = (float) (Math.PI / longitudeBandsDivision * 2);
 		float uDivision = (texture.u2() - texture.u1()) / longitudeBandsDivision;
@@ -245,7 +245,7 @@ public class RenderableObjects {
 				uv[la][lo] = new Vector2f(texture.u1() + uDivision * lo, texture.v1() + 1.0f - vDivision * la);
 			}
 		}
-		RenderableObject sphere = new RenderableObject(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_TEX, texture.location()).loadBuffer();
+		VanillaRenderable sphere = new VanillaRenderable(VertexFormat.Mode.TRIANGLES, DefaultVertexFormat.POSITION_TEX, texture.location()).loadBuffer();
 		for (int la = 0; la < latitudeBandsDivision; ++la) {
 			for (int lo = 0; lo < longitudeBandsDivision; ++lo) {
 				// 左上角，当前点
@@ -280,7 +280,7 @@ public class RenderableObjects {
 		return sphere.flushBuffer();
 	}
 
-	public static RenderableObject sphere(float radius, int latitudeBandsDivision, int longitudeBandsDivision, Texture texture) {
+	public static VanillaRenderable sphere(float radius, int latitudeBandsDivision, int longitudeBandsDivision, Texture texture) {
 		return sphere(radius, latitudeBandsDivision, longitudeBandsDivision, texture, false);
 	}
 }

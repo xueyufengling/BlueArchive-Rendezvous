@@ -2,7 +2,7 @@ package lepus.graphics;
 
 import java.util.HashMap;
 
-import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengl.GL33;
 
 import lepus.graphics.shader.ScreenShader;
 
@@ -20,11 +20,11 @@ public class InterceptCopyFramebuffer extends InterceptFramebuffer {
 	protected void postcapture(int target_framebuffer, int target_color_attachment, int width, int height) {
 		int prev_read = Framebuffer.currentBindReadFramebuffer();
 		int prev_write = Framebuffer.currentBindWriteFramebuffer();
-		GL30.glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, target_framebuffer);
-		GL30.glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, super.framebuffer);
-		GL30.glBlitFramebuffer(0, 0, super.width(), super.height(), 0, 0, super.width(), super.height(), GL30.GL_COLOR_BUFFER_BIT | GL30.GL_DEPTH_BUFFER_BIT | GL30.GL_STENCIL_BUFFER_BIT, GL30.GL_NEAREST);
-		GL30.glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, prev_read);
-		GL30.glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, prev_write);
+		GL33.glBindFramebuffer(GL33.GL_READ_FRAMEBUFFER, target_framebuffer);
+		GL33.glBindFramebuffer(GL33.GL_DRAW_FRAMEBUFFER, super.framebuffer);
+		GL33.glBlitFramebuffer(0, 0, super.width(), super.height(), 0, 0, super.width(), super.height(), GL33.GL_COLOR_BUFFER_BIT | GL33.GL_DEPTH_BUFFER_BIT | GL33.GL_STENCIL_BUFFER_BIT, GL33.GL_NEAREST);
+		GL33.glBindFramebuffer(GL33.GL_READ_FRAMEBUFFER, prev_read);
+		GL33.glBindFramebuffer(GL33.GL_READ_FRAMEBUFFER, prev_write);
 	}
 
 	private static final HashMap<String, InterceptCopyFramebuffer> interceptFramebuffers = new HashMap<>();

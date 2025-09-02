@@ -1,6 +1,6 @@
 package lepus.graphics;
 
-import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengl.GL33;
 
 import lepus.graphics.shader.ScreenShader;
 
@@ -35,11 +35,11 @@ public class FramebufferRenderer {
 		this.source_framebuffer_color_attachment = -1;
 		if (source_framebuffer > 0) {// 仅当source_framebuffer为有效帧缓冲时才获取颜色
 			this.source_framebuffer_color_attachment = Framebuffer.currentBindColorAttachment(source_framebuffer);
-			GL30.glBindTexture(GL30.GL_TEXTURE_2D, source_framebuffer_color_attachment);
-			GL30.glTexParameteri(GL30.GL_TEXTURE_2D, GL30.GL_TEXTURE_MAX_LEVEL, 0);// 设置无Mipmap
-			GL30.glTexParameteri(GL30.GL_TEXTURE_2D, GL30.GL_TEXTURE_MIN_LOD, 0);
-			GL30.glTexParameteri(GL30.GL_TEXTURE_2D, GL30.GL_TEXTURE_MAX_LOD, 0);
-			GL30.glBindTexture(GL30.GL_TEXTURE_2D, 0);
+			GL33.glBindTexture(GL33.GL_TEXTURE_2D, source_framebuffer_color_attachment);
+			GL33.glTexParameteri(GL33.GL_TEXTURE_2D, GL33.GL_TEXTURE_MAX_LEVEL, 0);// 设置无Mipmap
+			GL33.glTexParameteri(GL33.GL_TEXTURE_2D, GL33.GL_TEXTURE_MIN_LOD, 0);
+			GL33.glTexParameteri(GL33.GL_TEXTURE_2D, GL33.GL_TEXTURE_MAX_LOD, 0);
+			GL33.glBindTexture(GL33.GL_TEXTURE_2D, 0);
 		}
 	}
 
@@ -100,17 +100,17 @@ public class FramebufferRenderer {
 	 */
 	public final void render(boolean blend) {
 		int prev_framebuffer = Framebuffer.currentBindFramebuffer();
-		GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, target_framebuffer);
-		GL30.glDisable(GL30.GL_DEPTH_TEST);
+		GL33.glBindFramebuffer(GL33.GL_FRAMEBUFFER, target_framebuffer);
+		GL33.glDisable(GL33.GL_DEPTH_TEST);
 		if (blend) {
-			GL30.glDisable(GL30.GL_BLEND);// 关闭混合，缓冲区结果只有渲染的QUAD
+			GL33.glDisable(GL33.GL_BLEND);// 关闭混合，缓冲区结果只有渲染的QUAD
 			framebuffer_process_shader.renderScreen(source_framebuffer_color_attachment);
-			GL30.glEnable(GL30.GL_BLEND);
+			GL33.glEnable(GL33.GL_BLEND);
 		} else {
-			GL30.glEnable(GL30.GL_BLEND);
+			GL33.glEnable(GL33.GL_BLEND);
 			framebuffer_process_shader.renderScreen(source_framebuffer_color_attachment);
 		}
-		GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, prev_framebuffer);
+		GL33.glBindFramebuffer(GL33.GL_FRAMEBUFFER, prev_framebuffer);
 	}
 
 	public final void render() {

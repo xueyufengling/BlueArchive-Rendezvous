@@ -1,6 +1,6 @@
 package lepus.graphics;
 
-import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengl.GL33;
 
 import lepus.graphics.shader.ScreenShader;
 
@@ -56,7 +56,7 @@ public abstract class InterceptFramebuffer extends Framebuffer {
 	 * 拷贝当前上下文帧缓冲的内容并拦截渲染到当前上下文帧缓冲的操作并渲染到本帧缓冲中
 	 */
 	public final void intercept() {
-		GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, super.framebuffer);
+		GL33.glBindFramebuffer(GL33.GL_FRAMEBUFFER, super.framebuffer);
 	}
 
 	/**
@@ -68,7 +68,7 @@ public abstract class InterceptFramebuffer extends Framebuffer {
 	public final void writeback(ScreenShader blitShader, boolean blend) {
 		framebuffer_render.setShader(blitShader);
 		framebuffer_render.render(blend);
-		GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, framebuffer_render.target_framebuffer);// 将渲染目标帧缓冲交还
+		GL33.glBindFramebuffer(GL33.GL_FRAMEBUFFER, framebuffer_render.target_framebuffer);// 将渲染目标帧缓冲交还
 	}
 
 	public final void writeback(boolean blend) {

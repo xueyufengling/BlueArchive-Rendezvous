@@ -2,7 +2,7 @@ package lepus.graphics;
 
 import java.nio.ByteBuffer;
 
-import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengl.GL33;
 
 import net.minecraft.client.Minecraft;
 
@@ -88,7 +88,7 @@ public class Framebuffer {
 	 * 矫正视口使得渲染画面包含整个帧缓冲
 	 */
 	public void correctViewport() {
-		GL30.glViewport(0, 0, width, height);
+		GL33.glViewport(0, 0, width, height);
 	}
 
 	/**
@@ -101,31 +101,31 @@ public class Framebuffer {
 	 */
 	public static int[] allocateFramebuffer(int width, int height, boolean hasDepthStencil) {
 		int[] names = new int[hasDepthStencil ? 3 : 2];
-		int framebuffer = GL30.glGenFramebuffers();
+		int framebuffer = GL33.glGenFramebuffers();
 		names[0] = framebuffer;
-		GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, framebuffer);
-		int color_attachment = GL30.glGenTextures();
+		GL33.glBindFramebuffer(GL33.GL_FRAMEBUFFER, framebuffer);
+		int color_attachment = GL33.glGenTextures();
 		names[1] = color_attachment;
-		GL30.glBindTexture(GL30.GL_TEXTURE_2D, color_attachment);
-		GL30.glTexParameteri(GL30.GL_TEXTURE_2D, GL30.GL_TEXTURE_MAX_LEVEL, 0);// 设置无Mipmap
-		GL30.glTexParameteri(GL30.GL_TEXTURE_2D, GL30.GL_TEXTURE_MIN_LOD, 0);
-		GL30.glTexParameteri(GL30.GL_TEXTURE_2D, GL30.GL_TEXTURE_MAX_LOD, 0);
-		GL30.glTexParameteri(GL30.GL_TEXTURE_2D, GL30.GL_TEXTURE_MIN_FILTER, GL30.GL_LINEAR);
-		GL30.glTexParameteri(GL30.GL_TEXTURE_2D, GL30.GL_TEXTURE_MAG_FILTER, GL30.GL_LINEAR);
-		GL30.glTexImage2D(GL30.GL_TEXTURE_2D, 0, GL30.GL_RGBA8, width, height, 0, GL30.GL_RGBA, GL30.GL_UNSIGNED_BYTE, (ByteBuffer) null);
-		GL30.glFramebufferTexture2D(GL30.GL_FRAMEBUFFER, GL30.GL_COLOR_ATTACHMENT0, GL30.GL_TEXTURE_2D, color_attachment, 0);// 绑定颜色附件
-		GL30.glBindTexture(GL30.GL_TEXTURE_2D, 0);
+		GL33.glBindTexture(GL33.GL_TEXTURE_2D, color_attachment);
+		GL33.glTexParameteri(GL33.GL_TEXTURE_2D, GL33.GL_TEXTURE_MAX_LEVEL, 0);// 设置无Mipmap
+		GL33.glTexParameteri(GL33.GL_TEXTURE_2D, GL33.GL_TEXTURE_MIN_LOD, 0);
+		GL33.glTexParameteri(GL33.GL_TEXTURE_2D, GL33.GL_TEXTURE_MAX_LOD, 0);
+		GL33.glTexParameteri(GL33.GL_TEXTURE_2D, GL33.GL_TEXTURE_MIN_FILTER, GL33.GL_LINEAR);
+		GL33.glTexParameteri(GL33.GL_TEXTURE_2D, GL33.GL_TEXTURE_MAG_FILTER, GL33.GL_LINEAR);
+		GL33.glTexImage2D(GL33.GL_TEXTURE_2D, 0, GL33.GL_RGBA8, width, height, 0, GL33.GL_RGBA, GL33.GL_UNSIGNED_BYTE, (ByteBuffer) null);
+		GL33.glFramebufferTexture2D(GL33.GL_FRAMEBUFFER, GL33.GL_COLOR_ATTACHMENT0, GL33.GL_TEXTURE_2D, color_attachment, 0);// 绑定颜色附件
+		GL33.glBindTexture(GL33.GL_TEXTURE_2D, 0);
 		int ds_attachment = -1;
 		if (hasDepthStencil) {
-			ds_attachment = GL30.glGenRenderbuffers();
+			ds_attachment = GL33.glGenRenderbuffers();
 			names[2] = ds_attachment;
-			GL30.glBindRenderbuffer(GL30.GL_RENDERBUFFER, ds_attachment);
-			GL30.glRenderbufferStorage(GL30.GL_RENDERBUFFER, GL30.GL_DEPTH24_STENCIL8, width, height);
-			GL30.glFramebufferRenderbuffer(GL30.GL_FRAMEBUFFER, GL30.GL_DEPTH_STENCIL_ATTACHMENT, GL30.GL_RENDERBUFFER, ds_attachment);// 绑定深度模板附件
-			GL30.glBindRenderbuffer(GL30.GL_RENDERBUFFER, 0);
+			GL33.glBindRenderbuffer(GL33.GL_RENDERBUFFER, ds_attachment);
+			GL33.glRenderbufferStorage(GL33.GL_RENDERBUFFER, GL33.GL_DEPTH24_STENCIL8, width, height);
+			GL33.glFramebufferRenderbuffer(GL33.GL_FRAMEBUFFER, GL33.GL_DEPTH_STENCIL_ATTACHMENT, GL33.GL_RENDERBUFFER, ds_attachment);// 绑定深度模板附件
+			GL33.glBindRenderbuffer(GL33.GL_RENDERBUFFER, 0);
 		}
-		boolean complete = GL30.glCheckFramebufferStatus(GL30.GL_FRAMEBUFFER) == GL30.GL_FRAMEBUFFER_COMPLETE;
-		GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, 0);
+		boolean complete = GL33.glCheckFramebufferStatus(GL33.GL_FRAMEBUFFER) == GL33.GL_FRAMEBUFFER_COMPLETE;
+		GL33.glBindFramebuffer(GL33.GL_FRAMEBUFFER, 0);
 		if (complete)
 			return names;
 		else {
@@ -136,11 +136,11 @@ public class Framebuffer {
 
 	public static void freeFramebuffer(int framebuffer, int color_attachment, int ds_attachment) {
 		if (framebuffer > 0)
-			GL30.glDeleteTextures(color_attachment);
+			GL33.glDeleteTextures(color_attachment);
 		if (ds_attachment > 0)
-			GL30.glDeleteRenderbuffers(ds_attachment);
+			GL33.glDeleteRenderbuffers(ds_attachment);
 		if (framebuffer > 0)
-			GL30.glDeleteFramebuffers(framebuffer);
+			GL33.glDeleteFramebuffers(framebuffer);
 	}
 
 	private static int mainFramebuffer = -1;
@@ -157,15 +157,15 @@ public class Framebuffer {
 	 * @return
 	 */
 	public static int currentBindFramebuffer() {
-		return GL30.glGetInteger(GL30.GL_FRAMEBUFFER_BINDING);
+		return GL33.glGetInteger(GL33.GL_FRAMEBUFFER_BINDING);
 	}
 
 	public static int currentBindReadFramebuffer() {
-		return GL30.glGetInteger(GL30.GL_READ_FRAMEBUFFER_BINDING);
+		return GL33.glGetInteger(GL33.GL_READ_FRAMEBUFFER_BINDING);
 	}
 
 	public static int currentBindWriteFramebuffer() {
-		return GL30.glGetInteger(GL30.GL_DRAW_FRAMEBUFFER_BINDING);
+		return GL33.glGetInteger(GL33.GL_DRAW_FRAMEBUFFER_BINDING);
 	}
 
 	/**
@@ -177,9 +177,9 @@ public class Framebuffer {
 	 */
 	public static int currentBindColorAttachment(int framebuffer, int color_attachment_idx) {
 		int prev_framebuffer = currentBindFramebuffer();
-		GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, framebuffer);
-		int tex = GL30.glGetFramebufferAttachmentParameteri(GL30.GL_FRAMEBUFFER, GL30.GL_COLOR_ATTACHMENT0 + color_attachment_idx, GL30.GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME);// 获取帧缓冲绑定的颜色附件
-		GL30.glBindFramebuffer(GL30.GL_FRAMEBUFFER, prev_framebuffer);
+		GL33.glBindFramebuffer(GL33.GL_FRAMEBUFFER, framebuffer);
+		int tex = GL33.glGetFramebufferAttachmentParameteri(GL33.GL_FRAMEBUFFER, GL33.GL_COLOR_ATTACHMENT0 + color_attachment_idx, GL33.GL_FRAMEBUFFER_ATTACHMENT_OBJECT_NAME);// 获取帧缓冲绑定的颜色附件
+		GL33.glBindFramebuffer(GL33.GL_FRAMEBUFFER, prev_framebuffer);
 		return tex;
 	}
 
@@ -197,7 +197,7 @@ public class Framebuffer {
 
 	public static float[] currentClearColor() {
 		float[] color = new float[4];
-		GL30.glGetFloatv(GL30.GL_COLOR_CLEAR_VALUE, color);
+		GL33.glGetFloatv(GL33.GL_COLOR_CLEAR_VALUE, color);
 		return color;
 	}
 }

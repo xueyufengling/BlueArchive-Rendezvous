@@ -1,6 +1,7 @@
 package lepus.graphics.shader;
 
-import org.lwjgl.opengl.GL30;
+import org.joml.Matrix4f;
+import org.lwjgl.opengl.GL33;
 
 import lepus.mc.core.Core;
 
@@ -18,45 +19,51 @@ public class Shader {
 
 	public void beginUse() {
 		prev_program = currentProgram();
-		GL30.glUseProgram(program_id);
+		GL33.glUseProgram(program_id);
 	}
 
 	public void endUse() {
-		GL30.glUseProgram(prev_program);
+		GL33.glUseProgram(prev_program);
 	}
 
 	public void use() {
-		GL30.glUseProgram(program_id);
+		GL33.glUseProgram(program_id);
 	}
 
 	public int uniformLocation(String name) {
-		return GL30.glGetUniformLocation(program_id, name);
+		return GL33.glGetUniformLocation(program_id, name);
 	}
 
 	public void setUniform(int loc, int value) {
 		this.beginUse();
-		GL30.glUniform1i(loc, value);
+		GL33.glUniform1i(loc, value);
 		this.endUse();
 	}
 
 	public void setUniform(int loc, float value) {
 		this.beginUse();
-		GL30.glUniform1f(loc, value);
+		GL33.glUniform1f(loc, value);
 		this.endUse();
 	}
 
 	public void setUniform(String name, int value) {
 		this.beginUse();
-		GL30.glUniform1i(GL30.glGetUniformLocation(program_id, name), value);
+		GL33.glUniform1i(GL33.glGetUniformLocation(program_id, name), value);
+		this.endUse();
+	}
+
+	public void setUniform(String name, boolean transpose, Matrix4f value) {
+		this.beginUse();
+		GL33.glUniformMatrix4fv(GL33.glGetUniformLocation(program_id, name), transpose, value.get(new float[9]));
 		this.endUse();
 	}
 
 	public static int uniformLocation(int program_id, String name) {
-		return GL30.glGetUniformLocation(program_id, name);
+		return GL33.glGetUniformLocation(program_id, name);
 	}
 
 	public void invalidate() {
-		GL30.glDeleteProgram(program_id);
+		GL33.glDeleteProgram(program_id);
 		program_id = 0;
 	}
 
@@ -69,20 +76,20 @@ public class Shader {
 	 * @return 链接失败返回0
 	 */
 	public static int link(int vertex_shader, int fragment_shader, boolean delShaderIfSuccess) {
-		int shader_program = GL30.glCreateProgram();
-		GL30.glAttachShader(shader_program, vertex_shader);
-		GL30.glAttachShader(shader_program, fragment_shader);
-		GL30.glLinkProgram(shader_program);
-		int success = GL30.glGetProgrami(shader_program, GL30.GL_LINK_STATUS);
+		int shader_program = GL33.glCreateProgram();
+		GL33.glAttachShader(shader_program, vertex_shader);
+		GL33.glAttachShader(shader_program, fragment_shader);
+		GL33.glLinkProgram(shader_program);
+		int success = GL33.glGetProgrami(shader_program, GL33.GL_LINK_STATUS);
 		if (success != 0) {// 链接成功则删除着色器
 			if (delShaderIfSuccess) {
-				GL30.glDeleteShader(vertex_shader);
-				GL30.glDeleteShader(fragment_shader);
+				GL33.glDeleteShader(vertex_shader);
+				GL33.glDeleteShader(fragment_shader);
 			}
 			return shader_program;
 		} else {// 链接失败
-			Core.logError("Link shader program error:\n" + GL30.glGetProgramInfoLog(shader_program));
-			GL30.glDeleteProgram(shader_program);
+			Core.logError("Link shader program error:\n" + GL33.glGetProgramInfoLog(shader_program));
+			GL33.glDeleteProgram(shader_program);
 			return 0;
 		}
 	}
@@ -99,25 +106,25 @@ public class Shader {
 	 * @return 编译失败返回0
 	 */
 	public static int compile(String source, int shaderType) {
-		int vertex_shader = GL30.glCreateShader(shaderType);
-		GL30.glShaderSource(vertex_shader, source);
-		GL30.glCompileShader(vertex_shader);
-		int success = GL30.glGetShaderi(vertex_shader, GL30.GL_COMPILE_STATUS);
+		int vertex_shader = GL33.glCreateShader(shaderType);
+		GL33.glShaderSource(vertex_shader, source);
+		GL33.glCompileShader(vertex_shader);
+		int success = GL33.glGetShaderi(vertex_shader, GL33.GL_COMPILE_STATUS);
 		if (success != 0) {// 编译成功
 			return vertex_shader;
 		} else {// 编译失败
-			Core.logError("Compile shader error:\n" + GL30.glGetShaderInfoLog(vertex_shader));
-			GL30.glDeleteShader(vertex_shader);
+			Core.logError("Compile shader error:\n" + GL33.glGetShaderInfoLog(vertex_shader));
+			GL33.glDeleteShader(vertex_shader);
 			return 0;
 		}
 	}
 
 	public static int compileVertexShader(String source) {
-		return compile(source, GL30.GL_VERTEX_SHADER);
+		return compile(source, GL33.GL_VERTEX_SHADER);
 	}
 
 	public static int compileFragmentShader(String source) {
-		return compile(source, GL30.GL_FRAGMENT_SHADER);
+		return compile(source, GL33.GL_FRAGMENT_SHADER);
 	}
 
 	/**
@@ -126,7 +133,7 @@ public class Shader {
 	 * @return
 	 */
 	public static int currentProgram() {
-		return GL30.glGetInteger(GL30.GL_CURRENT_PROGRAM);
+		return GL33.glGetInteger(GL33.GL_CURRENT_PROGRAM);
 	}
 
 	public static final String pt_pass_vertex_shader = "#version 330 core\n" +

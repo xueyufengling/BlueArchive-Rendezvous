@@ -2,7 +2,7 @@ package lepus.graphics;
 
 import java.util.HashMap;
 
-import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengl.GL33;
 
 import lepus.graphics.shader.ScreenShader;
 
@@ -20,9 +20,9 @@ public class InterceptOperationFramebuffer extends InterceptFramebuffer {
 	 */
 	protected void postcapture(int target_framebuffer, int target_color_attachment, int width, int height) {
 		float[] prev_clear_color = Framebuffer.currentClearColor();
-		GL30.glClearColor(0, 0, 0, 0);// 全透明黑色背景
-		GL30.glClear(GL30.GL_COLOR_BUFFER_BIT | GL30.GL_DEPTH_BUFFER_BIT | GL30.GL_STENCIL_BUFFER_BIT);
-		GL30.glClearColor(prev_clear_color[0], prev_clear_color[1], prev_clear_color[2], prev_clear_color[3]);
+		GL33.glClearColor(0, 0, 0, 0);// 全透明黑色背景
+		GL33.glClear(GL33.GL_COLOR_BUFFER_BIT | GL33.GL_DEPTH_BUFFER_BIT | GL33.GL_STENCIL_BUFFER_BIT);
+		GL33.glClearColor(prev_clear_color[0], prev_clear_color[1], prev_clear_color[2], prev_clear_color[3]);
 	}
 
 	private static final HashMap<String, InterceptOperationFramebuffer> interceptFramebuffers = new HashMap<>();

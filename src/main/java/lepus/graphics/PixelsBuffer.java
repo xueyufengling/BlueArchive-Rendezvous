@@ -2,7 +2,7 @@ package lepus.graphics;
 
 import java.nio.ByteBuffer;
 
-import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengl.GL33;
 
 /**
  * 帧缓冲的RGBA8颜色附件，PBO，用于读取<br>
@@ -57,21 +57,21 @@ public class PixelsBuffer {
 		this.framebuffer = framebuffer;
 		int colorTex = framebuffer.color_attachment;
 		this.associated_texture = colorTex;
-		GL30.glBindTexture(GL30.GL_TEXTURE_2D, colorTex);
-		this.pixel_format = GL30.glGetTexLevelParameteri(GL30.GL_TEXTURE_2D, 0, GL30.GL_TEXTURE_INTERNAL_FORMAT);// 获取纹理数据格式
-		this.pixel_data_type = GL30.GL_UNSIGNED_BYTE;// 实际上此值与pixel_format相关，但是太多了懒得写，原版均为GL_UNSIGNED_BYTE
+		GL33.glBindTexture(GL33.GL_TEXTURE_2D, colorTex);
+		this.pixel_format = GL33.glGetTexLevelParameteri(GL33.GL_TEXTURE_2D, 0, GL33.GL_TEXTURE_INTERNAL_FORMAT);// 获取纹理数据格式
+		this.pixel_data_type = GL33.GL_UNSIGNED_BYTE;// 实际上此值与pixel_format相关，但是太多了懒得写，原版均为GL_UNSIGNED_BYTE
 		this.resize(framebuffer.width(), framebuffer.height());
 	}
 
 	private void resize(int width, int height) {
-		GL30.glDeleteBuffers(read_buffers);// 先删除之前的缓冲区
+		GL33.glDeleteBuffers(read_buffers);// 先删除之前的缓冲区
 		for (int idx = 0; idx < 2; ++idx) {
-			int buffer = GL30.glGenBuffers();
-			GL30.glBindBuffer(GL30.GL_PIXEL_PACK_BUFFER, buffer);// 从纹理中读取像素
-			GL30.glBufferData(GL30.GL_PIXEL_PACK_BUFFER, width * height * RGBA8_PIXEL_SIZE, GL30.GL_STREAM_READ);
+			int buffer = GL33.glGenBuffers();
+			GL33.glBindBuffer(GL33.GL_PIXEL_PACK_BUFFER, buffer);// 从纹理中读取像素
+			GL33.glBufferData(GL33.GL_PIXEL_PACK_BUFFER, width * height * RGBA8_PIXEL_SIZE, GL33.GL_STREAM_READ);
 			this.read_buffers[idx] = buffer;
 		}
-		GL30.glBindBuffer(GL30.GL_PIXEL_PACK_BUFFER, 0);
+		GL33.glBindBuffer(GL33.GL_PIXEL_PACK_BUFFER, 0);
 		this.recorded_width = width;
 		this.recorded_height = height;
 	}
@@ -99,19 +99,19 @@ public class PixelsBuffer {
 		if (width != this.recorded_width || height != this.recorded_height)
 			this.resize(width, height);// 检测到窗口尺寸变化，则重新分配PBO
 		int next_idx = (current_buffer_idx + 1) % 2;
-		GL30.glBindBuffer(GL30.GL_PIXEL_PACK_BUFFER, read_buffers[next_idx]);// 下一个缓存先读取
-		GL30.glReadPixels(0, 0, width, height, pixel_format, pixel_data_type, 0);// 读取帧缓冲颜色到PBO
+		GL33.glBindBuffer(GL33.GL_PIXEL_PACK_BUFFER, read_buffers[next_idx]);// 下一个缓存先读取
+		GL33.glReadPixels(0, 0, width, height, pixel_format, pixel_data_type, 0);// 读取帧缓冲颜色到PBO
 		op_buffer = read_buffers[current_buffer_idx];
-		GL30.glBindBuffer(GL30.GL_PIXEL_PACK_BUFFER, op_buffer);
-		ByteBuffer pixels = GL30.glMapBuffer(GL30.GL_PIXEL_PACK_BUFFER, GL30.GL_READ_WRITE);
+		GL33.glBindBuffer(GL33.GL_PIXEL_PACK_BUFFER, op_buffer);
+		ByteBuffer pixels = GL33.glMapBuffer(GL33.GL_PIXEL_PACK_BUFFER, GL33.GL_READ_WRITE);
 		this.pixels = pixels;
 		current_buffer_idx = next_idx;
 		return pixels != null;
 	}
 
 	public void unmap() {
-		GL30.glUnmapBuffer(GL30.GL_PIXEL_PACK_BUFFER);
-		GL30.glBindBuffer(GL30.GL_PIXEL_PACK_BUFFER, 0);// 解绑PBO
+		GL33.glUnmapBuffer(GL33.GL_PIXEL_PACK_BUFFER);
+		GL33.glBindBuffer(GL33.GL_PIXEL_PACK_BUFFER, 0);// 解绑PBO
 	}
 
 	/**
@@ -120,9 +120,9 @@ public class PixelsBuffer {
 	 * @param texture
 	 */
 	public void write(int texture) {
-		GL30.glBindTexture(GL30.GL_TEXTURE_2D, texture);
-		GL30.glBindBuffer(GL30.GL_PIXEL_UNPACK_BUFFER, op_buffer);
-		GL30.glTexSubImage2D(GL30.GL_TEXTURE_2D, 0, 0, 0, framebuffer.width(), framebuffer.height(), pixel_format, pixel_data_type, 0);// 从op_buffer拷贝数据
+		GL33.glBindTexture(GL33.GL_TEXTURE_2D, texture);
+		GL33.glBindBuffer(GL33.GL_PIXEL_UNPACK_BUFFER, op_buffer);
+		GL33.glTexSubImage2D(GL33.GL_TEXTURE_2D, 0, 0, 0, framebuffer.width(), framebuffer.height(), pixel_format, pixel_data_type, 0);// 从op_buffer拷贝数据
 	}
 
 	/**

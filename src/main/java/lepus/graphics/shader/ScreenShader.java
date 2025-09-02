@@ -1,6 +1,6 @@
 package lepus.graphics.shader;
 
-import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengl.GL33;
 
 /**
  * 顶点着色器固定为NDC坐标系传递顶点着色器
@@ -31,28 +31,28 @@ public class ScreenShader extends Shader {
 
 	private static void init() {
 		if (!inited_screen) {
-			GL30.glDeleteVertexArrays(screen_quad_vao);
-			screen_quad_vao = GL30.glGenVertexArrays();
-			GL30.glDeleteBuffers(screen_quad_vbo);
-			screen_quad_vbo = GL30.glGenBuffers();
-			GL30.glBindVertexArray(screen_quad_vao);// 绑定VAO
-			GL30.glBindBuffer(GL30.GL_ARRAY_BUFFER, screen_quad_vbo);// 为VAO绑定VBO
+			GL33.glDeleteVertexArrays(screen_quad_vao);
+			screen_quad_vao = GL33.glGenVertexArrays();
+			GL33.glDeleteBuffers(screen_quad_vbo);
+			screen_quad_vbo = GL33.glGenBuffers();
+			GL33.glBindVertexArray(screen_quad_vao);// 绑定VAO
+			GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, screen_quad_vbo);// 为VAO绑定VBO
 			/**
 			 * 顶点顺序需要保证三角形顶点逆时针排列，避免反面向前被Backface-cull剔除
 			 * TRIANGLE_STRP的正面为第一个三角形的正面
 			 */
-			GL30.glBufferData(GL30.GL_ARRAY_BUFFER, new float[] {
+			GL33.glBufferData(GL33.GL_ARRAY_BUFFER, new float[] {
 					-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
 					1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
 					-1.0f, 1.0f, 0.0f, 0.0f, 1.0f,
 					1.0f, 1.0f, 0.0f, 1.0f, 1.0f
-			}, GL30.GL_STATIC_DRAW);
-			GL30.glVertexAttribPointer(0, 3, GL30.GL_FLOAT, false, 5 * GL_FLOAT_SIZE, 0);
-			GL30.glEnableVertexAttribArray(0);
-			GL30.glVertexAttribPointer(1, 2, GL30.GL_FLOAT, false, 5 * GL_FLOAT_SIZE, 3 * GL_FLOAT_SIZE);
-			GL30.glEnableVertexAttribArray(1);
-			GL30.glBindBuffer(GL30.GL_ARRAY_BUFFER, 0);
-			GL30.glBindVertexArray(0);
+			}, GL33.GL_STATIC_DRAW);
+			GL33.glVertexAttribPointer(0, 3, GL33.GL_FLOAT, false, 5 * GL_FLOAT_SIZE, 0);
+			GL33.glEnableVertexAttribArray(0);
+			GL33.glVertexAttribPointer(1, 2, GL33.GL_FLOAT, false, 5 * GL_FLOAT_SIZE, 3 * GL_FLOAT_SIZE);
+			GL33.glEnableVertexAttribArray(1);
+			GL33.glBindBuffer(GL33.GL_ARRAY_BUFFER, 0);
+			GL33.glBindVertexArray(0);
 			inited_screen = true;
 		}
 	}
@@ -63,14 +63,14 @@ public class ScreenShader extends Shader {
 	@Override
 	public void beginUse() {
 		init();
-		GL30.glBindVertexArray(screen_quad_vao);
+		GL33.glBindVertexArray(screen_quad_vao);
 		super.beginUse();
 	}
 
 	@Override
 	public void endUse() {
 		super.endUse();
-		GL30.glBindVertexArray(0);
+		GL33.glBindVertexArray(0);
 	}
 
 	/**
@@ -81,18 +81,18 @@ public class ScreenShader extends Shader {
 	 */
 	public void renderScreen(int texture) {
 		beginUse();
-		GL30.glDisable(GL30.GL_CULL_FACE);// 渲染到屏幕时关闭面剔除
-		GL30.glActiveTexture(GL30.GL_TEXTURE0);
-		GL30.glBindTexture(GL30.GL_TEXTURE_2D, texture);
-		GL30.glDrawArrays(GL30.GL_TRIANGLE_STRIP, 0, 4);
-		GL30.glEnable(GL30.GL_CULL_FACE);
+		GL33.glDisable(GL33.GL_CULL_FACE);// 渲染到屏幕时关闭面剔除
+		GL33.glActiveTexture(GL33.GL_TEXTURE0);
+		GL33.glBindTexture(GL33.GL_TEXTURE_2D, texture);
+		GL33.glDrawArrays(GL33.GL_TRIANGLE_STRIP, 0, 4);
+		GL33.glEnable(GL33.GL_CULL_FACE);
 		endUse();
 	}
 
 	@Override
 	public void use() {
 		init();
-		GL30.glBindVertexArray(screen_quad_vao);
+		GL33.glBindVertexArray(screen_quad_vao);
 		super.use();
 	}
 }

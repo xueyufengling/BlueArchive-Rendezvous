@@ -17,7 +17,7 @@ import net.neoforged.api.distmarker.OnlyIn;
  * 场景图节点，树结构组织RenderableRenderableObject.Instance
  */
 @OnlyIn(Dist.CLIENT)
-public class SceneGraphNode extends Node<String, RenderableObject.Instance> implements Renderable {
+public class SceneGraphNode extends Node<String, VanillaRenderable.Instance> implements Renderable {
 
 	private UpdateOperation preRenderOperation;
 
@@ -30,11 +30,11 @@ public class SceneGraphNode extends Node<String, RenderableObject.Instance> impl
 		super(name);
 	}
 
-	private SceneGraphNode(String name, RenderableObject.Instance renderable) {
+	private SceneGraphNode(String name, VanillaRenderable.Instance renderable) {
 		super(name, renderable);
 	}
 
-	private SceneGraphNode(String name, Node<String, RenderableObject.Instance> parent) {
+	private SceneGraphNode(String name, Node<String, VanillaRenderable.Instance> parent) {
 		super(name, parent);
 	}
 
@@ -43,12 +43,12 @@ public class SceneGraphNode extends Node<String, RenderableObject.Instance> impl
 	 */
 	private SceneGraphNode() {
 		this("root");
-		this.setValue(RenderableObject.Instance.empty(true));
+		this.setValue(VanillaRenderable.Instance.empty(true));
 	}
 
 	@Override
-	protected Node<String, RenderableObject.Instance> newNode(String name, Node<String, RenderableObject.Instance> parent) {
-		return new SceneGraphNode(name, parent).setValue(RenderableObject.Instance.empty(true));// 默认节点可渲染对象为null
+	protected Node<String, VanillaRenderable.Instance> newNode(String name, Node<String, VanillaRenderable.Instance> parent) {
+		return new SceneGraphNode(name, parent).setValue(VanillaRenderable.Instance.empty(true));// 默认节点可渲染对象为null
 	}
 
 	private static String[] parsePath(String path) {
@@ -80,13 +80,13 @@ public class SceneGraphNode extends Node<String, RenderableObject.Instance> impl
 		return group;
 	}
 
-	public final SceneGraphNode createRenderableNode(String path, RenderableObject.Instance renderable) {
+	public final SceneGraphNode createRenderableNode(String path, VanillaRenderable.Instance renderable) {
 		SceneGraphNode node = createNode(path);
 		node.value = renderable;
 		return node;
 	}
 
-	public final SceneGraphNode createRenderableNode(String path, RenderableObject renderable) {
+	public final SceneGraphNode createRenderableNode(String path, VanillaRenderable renderable) {
 		return createRenderableNode(path, renderable.newInstance());
 	}
 

@@ -3,7 +3,9 @@ package lepus.mc.client.render.sky;
 import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import lepus.mc.client.render.RenderableObject;
+import com.mojang.blaze3d.systems.RenderSystem;
+
+import lepus.mc.client.render.VanillaRenderable;
 import lepus.mc.client.render.SceneGraphNode;
 import lepus.mc.client.render.VertexBufferManipulator;
 import lepus.mc.client.render.sky.NearEarthObject.Pos;
@@ -100,11 +102,22 @@ public class Sky {
 	 */
 	public static final SceneGraphNode CELESTIAL_BODYS = SceneGraphNode.createSceneGraph();
 
+	private static final SceneGraphNode SKY_BG = SceneGraphNode.createSceneGraph();
+
 	static {
 		LevelRendererInternal.RenderLevel.Callbacks.addAfter_popPush_sky(
 				(LevelRenderer this_, DeltaTracker deltaTracker, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f frustumMatrix, Matrix4f projectionMatrix, CallbackInfo ci) -> {
+					RenderSystem.disableBlend();
+					RenderSystem.depthMask(false);
+					SKY_BG.render(frustumMatrix, projectionMatrix);
+					RenderSystem.depthMask(true);
+					RenderSystem.enableBlend();
 					CELESTIAL_BODYS.render(frustumMatrix, projectionMatrix);
 				});
+	}
+
+	public static SceneGraphNode renderSkyBackground(String path, VanillaRenderable sky) {
+		return SKY_BG.createRenderableNode(path, sky);
 	}
 
 	/**
@@ -113,23 +126,23 @@ public class Sky {
 	 * @param path
 	 * @param obj
 	 */
-	public static SceneGraphNode render(String path, RenderableObject obj) {
+	public static SceneGraphNode render(String path, VanillaRenderable obj) {
 		return CELESTIAL_BODYS.createRenderableNode(path, obj);
 	}
 
-	public static SceneGraphNode renderNearEarthObject(String path, RenderableObject obj, NearEarthObject.Orbit orbit) {
+	public static SceneGraphNode renderNearEarthObject(String path, VanillaRenderable obj, NearEarthObject.Orbit orbit) {
 		SceneGraphNode node = render(path, obj);
 		NearEarthObject.bind(node, orbit);
 		return node;
 	}
 
-	public static SceneGraphNode renderFixedNearEarthObject(String path, RenderableObject obj, float object_x, float object_y, float object_z) {
+	public static SceneGraphNode renderFixedNearEarthObject(String path, VanillaRenderable obj, float object_x, float object_y, float object_z) {
 		SceneGraphNode node = render(path, obj);
 		NearEarthObject.bind(node, object_x, object_y, object_z);
 		return node;
 	}
 
-	public static SceneGraphNode renderFixedNearEarthObject(String path, RenderableObject obj, float object_x, float object_y, float object_z, Pos.ViewHeight final_view_height) {
+	public static SceneGraphNode renderFixedNearEarthObject(String path, VanillaRenderable obj, float object_x, float object_y, float object_z, Pos.ViewHeight final_view_height) {
 		SceneGraphNode node = render(path, obj);
 		NearEarthObject.bind(node, object_x, object_y, object_z, final_view_height);
 		return node;
@@ -148,13 +161,13 @@ public class Sky {
 	 * @param initial_phase
 	 * @return
 	 */
-	public static SceneGraphNode renderCircleOrbitNearEarthObject(String path, RenderableObject obj, float center_x, float center_z, float radius, float view_height, float angular_speed, float initial_phase) {
+	public static SceneGraphNode renderCircleOrbitNearEarthObject(String path, VanillaRenderable obj, float center_x, float center_z, float radius, float view_height, float angular_speed, float initial_phase) {
 		SceneGraphNode node = render(path, obj);
 		NearEarthObject.bind(node, NearEarthObject.Orbit.circle(center_x, center_z, radius, view_height, angular_speed, initial_phase));
 		return node;
 	}
 
-	public static SceneGraphNode renderCircleOrbitNearEarthObject(String path, RenderableObject obj, float center_x, float center_z, float radius, float view_height, float angular_speed) {
+	public static SceneGraphNode renderCircleOrbitNearEarthObject(String path, VanillaRenderable obj, float center_x, float center_z, float radius, float view_height, float angular_speed) {
 		SceneGraphNode node = render(path, obj);
 		NearEarthObject.bind(node, NearEarthObject.Orbit.circle(center_x, center_z, radius, view_height, angular_speed));
 		return node;

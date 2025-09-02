@@ -1,12 +1,13 @@
 package ba.client.render.level;
 
 import org.joml.Matrix4f;
+import org.joml.Vector3f;
 
 import com.mojang.math.Axis;
 
 import lepus.graphics.ColorRGBA;
 import lepus.graphics.shader.HSLPostprocessShader;
-import lepus.mc.client.render.RenderableObject;
+import lepus.mc.client.render.VanillaRenderable;
 import lepus.mc.client.render.RenderableObjects;
 import lepus.mc.client.render.SceneGraphNode;
 import lepus.mc.client.render.level.BiomeColor;
@@ -44,8 +45,17 @@ public class LevelRendering {
 	@ModInit(exec_stage = ModInit.Stage.CLIENT_CONNECT)
 	private static void initBgs() {
 		ExecuteIn.Client(() -> {
-			RenderableObject universe = RenderableObjects.sphere(16, 20, 20, Texture.of("ba:textures/sky/universe/milky_way.png"), true);
-			SceneGraphNode skySphere = Sky.render("universe", universe);
+			VanillaRenderable universe = RenderableObjects.sphere(16, 20, 20, Texture.of("ba:textures/sky/universe/milky_way.png"), true);
+			Sky.renderSkyBackground("universe", universe);
+
+			float earth_radius = 128;
+			VanillaRenderable earth = RenderableObjects.sphere(earth_radius, 200, 200, Texture.of("ba:textures/sky/universe/earth.png"), true);
+			SceneGraphNode earth_node = Sky.renderSkyBackground("earth", earth);
+			earth_node.setTransform(new Matrix4f().translate(0, -earth_radius - 1, 0).rotate((float) Math.PI / 2, new Vector3f(1, 0, 0)));
+
+			VanillaRenderable sun = RenderableObjects.sphere(1f, 30, 30, Texture.of("ba:textures/sky/universe/sun.png"), true);
+			SceneGraphNode sun_node = Sky.renderSkyBackground("sun", sun);
+			sun_node.setTransform(new Matrix4f().translate(20, 10, 20));
 		});
 	}
 
@@ -58,14 +68,14 @@ public class LevelRendering {
 			float halo_z = 0.4f;
 			float scale = 10;
 			Pos.ViewHeight final_view_height = Pos.ViewHeight.lerpDecayTo(500, 15, 50, 8);
-			RenderableObject halo5 = RenderableObjects.quad(Texture.of("ba:textures/sky/halo/halo5.png"), 4.5f * scale, halo_z, 0.8f);
-			RenderableObject halo10 = RenderableObjects.quad(Texture.of("ba:textures/sky/halo/halo10.png"), 4.0f * scale, halo_z, 0.8f);
-			RenderableObject halo15 = RenderableObjects.quad(Texture.of("ba:textures/sky/halo/halo15.png"), 3.5f * scale, halo_z, 0.8f);
-			RenderableObject halo20 = RenderableObjects.quad(Texture.of("ba:textures/sky/halo/halo20.png"), 3.0f * scale, halo_z, 0.8f);
-			RenderableObject halo25 = RenderableObjects.quad(Texture.of("ba:textures/sky/halo/halo25.png"), 2.5f * scale, halo_z, 0.8f);
-			RenderableObject halo30 = RenderableObjects.quad(Texture.of("ba:textures/sky/halo/halo30.png"), 2.0f * scale, halo_z, 0.8f);
-			RenderableObject halo35 = RenderableObjects.quad(Texture.of("ba:textures/sky/halo/halo35.png"), 1.5f * scale, halo_z, 0.8f);
-			RenderableObject halo40 = RenderableObjects.quad(Texture.of("ba:textures/sky/halo/halo40.png"), 1.0f * scale, halo_z, 0.8f);
+			VanillaRenderable halo5 = RenderableObjects.quad(Texture.of("ba:textures/sky/halo/halo5.png"), 4.5f * scale, halo_z, 0.8f);
+			VanillaRenderable halo10 = RenderableObjects.quad(Texture.of("ba:textures/sky/halo/halo10.png"), 4.0f * scale, halo_z, 0.8f);
+			VanillaRenderable halo15 = RenderableObjects.quad(Texture.of("ba:textures/sky/halo/halo15.png"), 3.5f * scale, halo_z, 0.8f);
+			VanillaRenderable halo20 = RenderableObjects.quad(Texture.of("ba:textures/sky/halo/halo20.png"), 3.0f * scale, halo_z, 0.8f);
+			VanillaRenderable halo25 = RenderableObjects.quad(Texture.of("ba:textures/sky/halo/halo25.png"), 2.5f * scale, halo_z, 0.8f);
+			VanillaRenderable halo30 = RenderableObjects.quad(Texture.of("ba:textures/sky/halo/halo30.png"), 2.0f * scale, halo_z, 0.8f);
+			VanillaRenderable halo35 = RenderableObjects.quad(Texture.of("ba:textures/sky/halo/halo35.png"), 1.5f * scale, halo_z, 0.8f);
+			VanillaRenderable halo40 = RenderableObjects.quad(Texture.of("ba:textures/sky/halo/halo40.png"), 1.0f * scale, halo_z, 0.8f);
 			SceneGraphNode central_halo0 = Sky.renderFixedNearEarthObject("kivotos/halo/central_0", halo40, 0, 300, 0, final_view_height);
 			SceneGraphNode central_halo1 = Sky.renderFixedNearEarthObject("kivotos/halo/central_1", halo20, 0, 300, 0, final_view_height);
 			SceneGraphNode central_halo2 = Sky.renderFixedNearEarthObject("kivotos/halo/central_2", halo10, 0, 300, 0, final_view_height);

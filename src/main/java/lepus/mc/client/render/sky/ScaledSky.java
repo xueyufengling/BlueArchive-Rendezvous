@@ -9,7 +9,7 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import lepus.graphics.ColorRGBA;
-import lepus.mc.client.render.RenderableObject;
+import lepus.mc.client.render.VanillaRenderable;
 import lepus.mc.client.render.RenderableObjects;
 import lepus.mc.client.render.renderable.Renderable;
 import lepus.mc.mixins.internal.LevelRendererInternal;
@@ -24,8 +24,8 @@ import net.minecraft.client.renderer.LightTexture;
  * 一片天套一片天
  */
 public class ScaledSky implements Renderable {
-	private RenderableObject.Instance skyAboveHorizon;
-	private RenderableObject.Instance skyBelowHorizon;
+	private VanillaRenderable.Instance skyAboveHorizon;
+	private VanillaRenderable.Instance skyBelowHorizon;
 
 	private boolean visiable = true;
 
